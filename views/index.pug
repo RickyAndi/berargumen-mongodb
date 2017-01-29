@@ -1,0 +1,510 @@
+extends layouts/main.pug
+
+block stylehead
+	link(rel='stylesheet' href='/bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.css')
+	style().
+		div.bootstrap-tagsinput {
+			float:right; 
+			width: 100%;
+		}
+
+		.pagination > li > a:hover {
+			cursor: pointer; 
+			cursor: hand;
+		}
+
+		.not-displayed {
+			display : none;
+		}
+
+		.btn-in-table {
+			margin-right: 1px;
+			margin-left: 1px;
+		}
+
+block content
+	div(class='jumbotron')
+		div(class='container' style='padding-top:50px;')
+			h1() Berargumen
+			p() &nbsp;Visualisasi argumen anda dengan diagram argumen
+	
+	
+
+	
+
+	div(class='container' style='min-height: 5000px;')
+		div(class='row')
+			div(class='col-md-12')
+				div(class='panel panel-default')
+					div(class='panel-heading')
+						p() Board
+					div(class='panel-body')
+						div(id="exTab2")
+							ul(class="nav nav-tabs")
+								li(class="active")
+									a(href="#1" data-toggle="tab") Semua
+								
+								li()
+									a(href="#2" data-toggle="tab") Board Saya
+								
+								li()
+									a(href="#3" data-toggle="tab") Ditandai
+
+								li()
+									a(href="#4" data-toggle="tab") Board Kolaborasi
+							
+							div(class="tab-content")
+								div(class="tab-pane active" id="1")
+									div(class='row')
+										div(class='col-md-12')
+											div(class='row')
+												div(class='col-md-6')
+												div(class='col-md-6')
+													br()
+													input(class='form-control input-sm' placeholder='Cari berdasar judul, deskripsi, tag')
+
+										div(class='col-md-12')
+											br()
+											table(class='table table-default table-striped table-bordered')
+												thead()
+													tr()
+														th(class='text-center') Judul
+														th(class='text-center') Deskripsi
+														th(class='text-center') Pemilik
+														th(class='text-center') Tags
+														th(class='text-center') Diperbaharui
+														th(class='text-center') 
+												tbody()
+													tr(v-for="board in boards.all")
+														td() {{ board.getTitle() }}
+														td() {{ board.getDescription() }}
+														td()
+															a() {{ board.getUser().getName() }}
+														td()
+															button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()") {{ tag }}
+														td() {{ board.getUpdatedDate() }}
+														td(class='text-center')
+															button(class='btn btn-info btn-xs btn-in-table') Lihat
+															button(class='btn btn-success btn-xs') Deskripsi
+
+											div(class='row')
+												div(class='col-md-6')
+													ul(class='pagination')
+														li(v-for='page in numberOfPages.allBoards' v-if="!displayPaginationButton(currentPage.allBoards, page)" v-bind:class="{ 'active' : currentPage.currentUserBoards == page }")
+															a(@click="currentUserBoardsGoToPage(page)") {{ page }}
+
+								div(class="tab-pane" id="2")
+									div(class='row')
+										div(class='col-md-12')
+											div(class='row')
+												div(class='col-md-6')
+													br()
+													button(@click="openCreateBoardModal()" class='btn btn-primary btn-sm' v-bind:disabled="currentUser == null") Buat Board
+												div(class='col-md-6')
+													br()
+													input(class='form-control input-sm' v-bind:disabled="currentUser == null" placeholder='Cari berdasar judul, deskripsi, tag')
+
+										div(class='col-md-12' v-if="currentUser != null")
+											br()
+											table(class='table table-default table-striped table-bordered')
+												thead()
+													tr()
+														th(class='text-center') Judul
+														th(class='text-center') Tags
+														th(class='text-center') Diperbaharui
+														th(class='text-center') 
+												tbody()
+													tr(v-for="board in boards.currentUser")
+														td() {{ board.getTitle() }}
+														td()
+															button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()") {{ tag }}
+														td() {{ board.getUpdatedDate() }}
+														td(class='text-center')
+															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs btn-in-table') Lihat
+															button(@click="viewBoard(board.getId())" class='btn btn-success btn-xs btn-in-table') Deskripsi
+											div(class='row')
+												div(class='col-md-6')
+													ul(class='pagination')
+														li(v-for='page in numberOfPages.currentUserBoards' v-if="!displayPaginationButton(currentPage.currentUserBoards, page)" v-bind:class="{ 'active' : currentPage.currentUserBoards == page }")
+															a(@click="currentUserBoardsGoToPage(page)") {{ page }}
+
+
+										div(class='col-md-12 text-center' v-if="currentUser == null")
+											br()
+											h5() Anda harus login untuk melihat board anda
+								
+								div(class="tab-pane" id="3")
+									div(class='row')
+										div(class='col-md-12')
+											div(class='row')
+												div(class='col-md-6')
+												div(class='col-md-6')
+													br()
+													input(class='form-control input-sm' v-bind:disabled="currentUser == null" placeholder='Cari berdasar judul, deskripsi, tag')
+
+										div(class='col-md-12' v-if="currentUser != null")
+											br()
+											table(class='table table-default table-striped table-bordered')
+												thead()
+													tr()
+														th(class='text-center') Judul
+														th(class='text-center') Pemilik
+														th(class='text-center') Tags
+														th(class='text-center') Diperbaharui
+														th(class='text-center') 
+												tbody()
+													tr(v-for="board in boards.bookmarked")
+														td() {{ board.getTitle() }}
+														td() {{ board.getUser().getName() }}
+														td() 
+															button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()") {{ tag }}
+														td() {{ board.getUpdatedDate() }}
+														td(class='text-center')
+															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs') Lihat
+															button(@click="viewBoard(board.getId())" class='btn btn-success btn-xs') Deskripsi
+											div(class='row')
+												div(class='col-md-6')
+													ul(class='pagination')
+														li(v-for='page in numberOfPages.bookmarkedBoards' v-if="!displayPaginationButton(currentPage.bookmarkedBoards, page)" v-bind:class="{ 'active' : currentPage.bookmarkedBoards == page }")
+															a(@click="currentUserBoardsGoToPage(page)") {{ page }}
+
+
+										div(class='col-md-12 text-center' v-if="currentUser == null")
+											br()
+											h5() Anda harus login untuk melihat board anda
+
+								div(class="tab-pane" id="4")
+									div(class='row')
+										div(class='col-md-12')
+											div(class='row')
+												div(class='col-md-6')
+												div(class='col-md-6')
+													br()
+													input(class='form-control input-sm' v-bind:disabled="currentUser == null" placeholder='Cari berdasar judul, deskripsi, tag')
+
+										div(class='col-md-12' v-if="currentUser != null")
+											br()
+											table(class='table table-default table-striped table-bordered')
+												thead()
+													tr()
+														th(class='text-center') Judul
+														th(class='text-center') Pemilik
+														th(class='text-center') Tags
+														th(class='text-center') Diperbaharui
+														th()
+												tbody()
+													tr(v-for="board in boards.collaborated")
+														td() {{ board.getTitle() }}
+														td() {{ board.getUser().getName() }}
+														td() 
+															button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()") {{ tag }}
+														td() {{ board.getUpdatedDate() }}
+														td(class='text-center')
+															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs') Lihat
+															button(@click="viewBoard(board.getId())" class='btn btn-success btn-xs') Deskripsi
+											div(class='row')
+												div(class='col-md-6')
+													ul(class='pagination')
+														li(v-for='page in numberOfPages.collaboratedBoards' v-if="!displayPaginationButton(currentPage.collaboratedBoards, page)" v-bind:class="{ 'active' : currentPage.collaboratedBoards == page }")
+															a(@click="currentUserBoardsGoToPage(page)") {{ page }}
+
+
+										div(class='col-md-12 text-center' v-if="currentUser == null")
+											br()
+											h5() Anda harus login untuk melihat board yang anda berkolaborasi
+								
+						
+
+			div(class='col-md-12')
+				div(class='row')
+					div(class='col-md-12')
+						div(class='panel panel-default')
+							div(class='panel-heading')
+								p() User
+							div(class='panel-body')
+					div(class='col-md-12')
+						div(class='panel panel-default')
+							div(class='panel-heading')
+								p() Tag Populer
+							div(class='panel-body')
+
+			div(class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="create-board-modal")
+				div(class="modal-dialog modal-lg" role="document")
+					div(class="modal-content")
+						div(class="modal-header")
+							div(class='row')
+								div(class='col-md-12')
+									h4() Buat Board
+						div(class="modal-body")
+							div(class="row")
+								div(class="col-md-12")
+									div(class="form-group")
+										label() Judul
+										input(v-model="forms.createBoard.title" class="form-control")
+									div(class="form-group")
+										label() Deskripsi
+										textarea(v-model="forms.createBoard.description" class="form-control")
+									div(class="form-group")
+										label() Tags
+										input(type="text" id="tagsinput")
+										br()
+										p(style="font-size:13px;") Untuk menambah tags, isikan kata lalu tekan 
+											strong() Enter
+									div(class="form-group" style="padding-top:5%;")
+										button(class='btn btn-primary btn-sm' @click='createBoard()') Buat
+										button(class='btn btn-warning btn-sm' @click='hideCreateBoardModal()') Tutup
+
+
+block script
+	script(type='text/javascript' src='/bower_components/jquery/dist/jquery.js')
+	script(type='text/javascript' src='/bower_components/bootstrap/dist/js/bootstrap.js')
+	script(type='text/javascript' src='/bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.js')
+	script(type='text/javascript' src='/bower_components/vue/dist/vue.js')
+	script(type='text/javascript' src='/bower_components/moment/moment.js')
+
+	script(type='text/javascript' src='/models/user.js')
+	script(type='text/javascript' src='/models/board.js')
+	
+	script(type='text/javascript').
+		var app = new Vue({
+			el : '#app',
+			data : {
+				boards : {
+					currentUser : [],
+					all : [],
+					bookmarked : [],
+					collaborated : []
+				},
+				currentUser : null,
+				modals : {
+					createBoardModal : null
+				},
+				forms : {
+					createBoard : {
+						title : null,
+						description : null,
+						tags : null
+					}
+				},
+				inputs : {
+					tags : null
+				},
+				numberOfPages : {
+					allBoards : 0,
+					currentUserBoards : 0,
+					bookmarkedBoards : 0,
+					collaboratedBoards : 0
+				},
+				currentPage : {
+					allBoards : 1,
+					currentUserBoards : 1,
+					bookmarkedBoards : 1,
+					collaboratedBoards : 1
+				}
+			},
+			methods : {
+				getCurrentUser : function() {
+					
+					var vm = this;
+					
+					var request = $.get({
+						url : '/api/me',
+					});
+
+					return request
+						.then(function(user) {
+							vm.currentUser = new User(user._id, user.name, user.profilePicUrl);
+
+							return user;	
+						})
+						.catch(function(error) {
+							console.log(error)
+						})
+				},
+				getCurrentUserBoards : function(page) {
+					var vm = this;
+
+					var request = $.get({
+						url : '/api/my-boards',
+						data: { 
+						   page: page == null ? 1 : page, 
+						},
+					});
+
+					request
+						.then(function(currentUserBoards) {
+							
+							vm.boards.currentUser.splice(0, vm.boards.currentUser.length)
+
+							vm.numberOfPages.currentUserBoards= currentUserBoards.pages;
+
+							currentUserBoards.docs.forEach(function(board) {
+								var user = new User(board.user.id, board.user.name, null);
+								var updatedDate = moment(board.updated).format('D-MM-YYYY');
+								var toBePushedboard  = new Board(board._id, board.title, null, null, updatedDate, board.tags);
+								vm.boards.currentUser.push(toBePushedboard);
+							})
+						})
+						.catch(function(error) {
+							console.log(error)
+						})
+				},
+				getAllBoards : function(page) {
+					var vm = this;
+
+					var request = $.get({
+						url : '/api/boards',
+						data: { 
+						   page: page == null ? 1 : page, 
+						},
+					});
+
+					request
+						.then(function(allBoards) {
+							
+							vm.boards.all.splice(0, vm.boards.all.length)
+
+							vm.numberOfPages.allBoards = allBoards.pages;
+
+							allBoards.docs.forEach(function(board) {
+								var user = new User(board.user.id, board.user.name, null);
+								var updatedDate = moment(board.updated).format('D-MM-YYYY');
+								var toBePushedboard  = new Board(board._id, board.title, null, user, updatedDate, board.tags);
+								vm.boards.all.push(toBePushedboard);
+							})
+						})
+						.catch(function(error) {
+							console.log(error)
+						})
+				},
+				getBookmarkedBoards : function(page) {
+					var vm = this;
+
+					var request = $.get({
+						url : '/api/bookmarked-boards',
+						data: { 
+						   page: page == null ? 1 : page, 
+						},
+					});
+
+					request
+						.then(function(bookmarkedBoards) {
+							
+							vm.boards.bookmarked.splice(0, vm.boards.bookmarked.length)
+
+							vm.numberOfPages.bookmarkedBoards= bookmarkedBoards.pages;
+
+							boards.docs.forEach(function(board) {
+								var user = new User(board.user.id, board.user.name, null);
+								var updatedDate = moment(board.updated).format('D-MM-YYYY');
+								var toBePushedboard  = new Board(board._id, board.title, null, user, updatedDate, board.tags);
+								vm.boards.bookmarked.push(toBePushedboard);
+							})
+						})
+						.catch(function(error) {
+							console.log(error)
+						})
+				},
+				getCollaboratedBoards : function(page) {
+					var vm = this;
+
+					var request = $.get({
+						url : '/api/collaborated-boards',
+						data: { 
+						   page: page == null ? 1 : page, 
+						},
+					});
+
+					request
+						.then(function(collaboratedBoards) {
+							
+							vm.boards.collaborated.splice(0, vm.boards.collaborated.length)
+
+							vm.numberOfPages.collaboratedBoards = collaboratedBoards.pages;
+
+							boards.docs.forEach(function(board) {
+								var user = new User(board.user.id, board.user.name, null);
+								var updatedDate = moment(board.updated).format('D-MM-YYYY');
+								var toBePushedboard  = new Board(board._id, board.title, null, user, updatedDate, board.tags);
+								vm.boards.collaborated.push(toBePushedboard);
+							})
+						})
+						.catch(function(error) {
+							console.log(error)
+						})
+				},
+				openCreateBoardModal : function() {
+					this.modals.createBoardModal.modal({
+						backdrop: 'static',
+						keyboard: false
+					})
+				},
+				hideCreateBoardModal : function() {
+					this.modals.createBoardModal.modal('hide')
+				},
+				createBoard : function() {
+				
+					var vm = this;
+
+					vm.forms.createBoard.tags = vm.inputs.tags.val();
+
+					var request = $.post({
+						url : '/api/board',
+						data : JSON.stringify(vm.forms.createBoard),
+						contentType : 'application/json; charset=UTF-8',
+					});
+
+					request
+						.then(function(newBoard) {
+							vm.getCurrentUserBoards(vm.currentPage.currentUserBoards);
+							vm.hideCreateBoardModal();
+						})
+						.catch(function(error) {
+							console.log(error)
+						})
+				},
+				viewBoard : function(boardId) {
+					var url = '/board/' + boardId;
+					window.open(url);
+				},
+				currentUserBoardsGoToPage : function(page) {
+					this.currentPage.currentUserBoards = page;
+					this.getCurrentUserBoards(page);
+				},
+				allBoardsGoToPage : function(page) {
+					this.currentPage.allBoards = page;
+					this.getCurrentUserBoards(page);
+				},
+				bookmarkedBoardsGoToPage : function(page) {
+					this.currentPage.bookmarkedBoards = page;
+					this.getCurrentUserBoards(page);
+				},
+				collaboratedBoardsGoToPage : function(page) {
+					this.currentPage.collaboratedBoards = page;
+					this.getCurrentUserBoards(page);
+				},
+				displayPaginationButton : function(currentPage, page) {
+					return (currentPage - 2) > page || (currentPage + 2) < page  
+				}
+			},
+			mounted : function() {
+				var vm = this;
+
+				vm.inputs.tags =  $('#tagsinput');
+				vm.inputs.tags.tagsinput();
+					
+				vm.modals.createBoardModal = $('#create-board-modal');
+				vm.modals.createBoardModal.on('hidden.bs.modal', function() {
+					vm.inputs.tags.tagsinput('removeAll');
+				})
+				
+				vm.getCurrentUser()
+					.then(function(data) {
+						vm.getCurrentUserBoards();
+						vm.getCollaboratedBoards();
+						vm.getBookmarkedBoards();
+					})
+
+				vm.getAllBoards();
+			}
+		})

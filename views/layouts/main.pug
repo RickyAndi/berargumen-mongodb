@@ -1,0 +1,28 @@
+doctype html
+html(lang="en")
+	head
+		title= title
+		link(rel='stylesheet' href='/bower_components/bootstrap/dist/css/bootstrap.css')
+		
+		block stylehead
+
+	body
+		
+		nav(class='navbar navbar-inverse navbar-fixed-top')
+			div(class='container')
+				div(class='navbar-header')
+					a(class='navbar-brand' href='/') Berargumen
+				div(class='collapse navbar-collapse' id='navbar')
+					ul(class='nav navbar-nav navbar-right')
+						if user == null
+							li(style='margin-right:1px; margin-left:1px;')
+								button(onclick="window.location.href='/login'" class='btn btn-primary navbar-btn btn-sm') Masuk
+						if user != null
+							li(style='margin-right:1px; margin-left:1px;')
+								button(onclick="window.location.href='/my-boards'" class='btn btn-success navbar-btn btn-sm') Board Saya
+							li(style='margin-right:1px; margin-left:1px;')
+								button(onclick="window.location.href='/logout'" class='btn btn-danger navbar-btn btn-sm') Keluar
+		div(id='app')
+			block content
+
+		block script
