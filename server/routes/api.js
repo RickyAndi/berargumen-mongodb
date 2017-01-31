@@ -5,9 +5,7 @@ var Board = require('../models/board');
 var User = require('../models/user');
 var Card = require('../models/card');
 
-var cardSocket = require('../socket').card;
-
-module.exports = function(app) {
+module.exports = function(app, io) {
 
 	app.get('/api/me', function(req, res) {
 		if(!req.user) {
@@ -94,18 +92,92 @@ module.exports = function(app) {
 				res.status(200).json(newBoard);
 			})
 			.catch(function(error) {
-				console.log(error);
 				res.status(500).json({ 
 					message : 'Error Happen'
 				});
 			})
 	})
 
+	app.post('/api/card/:cardId/delete', authMiddleware, function(req, res) {
+
+		var cardId = req.params.cardId;
+		var userId = req.user._id;
+		var boardId = req.body.boardId;
+
+		Card.findOneAndUpdate({ _id : cardId, 'creator.id' : userId}, {
+			deleted : true
+		}).then(function(card) {
+			if(!card) {
+				res.status(404).json({
+					message : 'Card Not Found'
+				})
+			}
+
+			var cardDeletedEventName = boardId + ':card-deleted';
+			
+			var payload = {
+				cardId : card._id 
+			}
+
+			io.card.emit(cardDeletedEventName, payload);
+			
+			res.status(200).json({
+				message : 'Card Deleted Updated'
+			})
+
+		}).catch(function(error) {
+			res
+				.status(500)
+				.json({
+					message : error.toString()
+				})
+		})
+	})
+
+	app.post('/api/card/:cardId/updatePosition', authMiddleware, function(req, res) {
+		
+		var cardId = req.params.cardId;
+		var userId = req.user._id;
+		var boardId = req.body.boardId;
+
+		Card.findOneAndUpdate({ _id : cardId, 'creator.id' : userId}, {
+			top : req.body.top,
+			left : req.body.left
+		}).then(function(card) {
+			if(!card) {
+				res.status(404).json({
+					message : 'Card Not Found'
+				})
+			}
+
+			var cardCreatedEventName = boardId + ':card-position-changed';
+			
+			var payload = {
+				top : req.body.top,
+				left : req.body.left,
+				cardId : card._id 
+			}
+
+			io.card.emit(cardCreatedEventName, payload);
+			
+			res.status(200).json({
+				message : 'Card Position Updated'
+			})
+
+		}).catch(function(error) {
+			res
+				.status(500)
+				.json({
+					message : error.toString()
+				})
+		})
+	})
+
 	app.post('/api/board/:boardId/card', authMiddleware, function(req, res) {
 		
 		var boardId = req.params.boardId;
 		
-		Board.find(boardId)
+		Board.findById(boardId)
 			.then(function(board) {
 				
 				if(!board) {
@@ -120,12 +192,14 @@ module.exports = function(app) {
 				var cardTitle = req.body.title;
 				var cardContent = req.body.content;
 				var cardType = req.body.type;
-				var cardTop = req.body.top;
-				var cardLeft = req.body.left;
+				var cardTop = '100px';
+				var cardLeft = '100px';
 				var cardId = null;
+				var relationType = null;
 
-				if(req.body.relatedTo) {
-					var cardId = mongoose.Types.ObjectId(req.body.relatedTo);
+				if(req.body.related.to != null) {
+					cardId = mongoose.Types.ObjectId(req.body.related.to);
+					relationType = req.body.related.type; 
 				} 
 
 				var newCard = new Card({
@@ -138,21 +212,42 @@ module.exports = function(app) {
 					type : cardType,
 					top : cardTop,
 					left : cardLeft,
-					relatedTo : cardId
+					related : {
+						to : cardId,
+						type : relationType
+					},
+					boardId : boardId
 				})
 
-				newCard.save().then(function(newCard) {
-					cardSocket.emit('card-created', newCard);
+				newCard.save()
+					.then(function(newCard) {
+					
+						var cardCreatedEventName = boardId + ':card-created';
 
-					res
-						.status(200)
-						.json({
-							message : 'Card Created'
-						})
-				})
+						io.card.emit(cardCreatedEventName, newCard);
+
+						res
+							.status(200)
+							.json({
+								message : 'Card Created'
+							})
+					})
+					.catch(function(error) {
+						console.log(error.toString())
+						res
+							.status(500)
+							.json({
+								message : 'Card Created'
+							})	
+					})
 			})
 			.catch(function(error) {
 
+				res
+					.status(500)
+					.json({
+						message : 'Card Created'
+					})
 			})
 	})
 
@@ -160,7 +255,7 @@ module.exports = function(app) {
 		
 		var boardId = req.params.boardId;
 		
-		Board.find(boardId)
+		Board.findById(boardId)
 			.then(function(board) {
 				
 				if(!board) {
@@ -170,11 +265,14 @@ module.exports = function(app) {
 				}
 
 				Card.find({ 
-					boardId : mongoose.Types.ObjectId(req.params.boardId) 
+					boardId : boardId,
+					deleted : false 
 				}).then(function(cards) {
+					
 					res
 						.status(200)
 						.json(cards)
+
 				}).catch(function(error) {
 					res
 						.status(500)
