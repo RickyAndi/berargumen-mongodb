@@ -1,4 +1,3 @@
-var authMiddleware = require('../middlewares/auth');
 var User = require('../models/user');
 var mongoose = require('mongoose');
 
