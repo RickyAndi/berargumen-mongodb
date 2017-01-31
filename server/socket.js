@@ -1,6 +1,7 @@
-var server = require('./server');
-var io = require('socket.io')(server);
+var socket = require('socket.io');
 
-module.exports = {
-	card : io.of('/card')
+module.exports = function(server) {
+	var io = socket(server);
+
+	return io;
 }
