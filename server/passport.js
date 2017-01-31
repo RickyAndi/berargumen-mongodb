@@ -3,7 +3,7 @@ var facebookStrategy = require( 'passport-facebook' ).Strategy;
 var config = require('./passport-config');
 var User = require('./models/user');
 
-var callback = function(accessToken, refreshToken, profile, cb) {
+var facebookCallback = function(accessToken, refreshToken, profile, cb) {
 	
 	var userData = {
 		facebookId : profile.id,
@@ -34,7 +34,7 @@ var callback = function(accessToken, refreshToken, profile, cb) {
 	})
 }
 
-passport.use(new facebookStrategy(config['facebook'], callback));
+passport.use(new facebookStrategy(config['facebook'], facebookCallback));
 
 passport.serializeUser(function(user, cb) {
 	cb(null, user);
