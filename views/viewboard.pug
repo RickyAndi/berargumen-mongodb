@@ -15,6 +15,10 @@ block stylehead
 			margin-right: 1px;
 		}
 
+		.card-container {
+			position: absolute;
+		}
+
 block content
 	div(class='navbar navbar-fixed-top navbar-default navbar-lower' role='navigation')
 		div(class='container')
@@ -31,7 +35,7 @@ block content
 					div(class='pull-right')
 						div(class='row')
 							div(class='col-md-6')
-								select(class='form-control navbar-btn input-sm')
+								select(@change="scaleChange($event)" class='form-control navbar-btn input-sm')
 									option(value="1") 100%
 									option(value="0.9") 90%
 									option(value="0.8") 80%
@@ -46,24 +50,39 @@ block content
 								button(class='btn btn-primary navbar-btn btn-sm' @click="openCreateBoardToCreateContention()") Buat Kesimpulan
 
 	div(class='container')
-		div(class='row')
+		div(id="argumen-container" style="min-width: 10000px; min-height:5000px;")
+			<draggable-card v-for="(card, index) in cards" v-bind:user="user" v-bind:card="card" v-bind:index="index" v-bind:scale="scale" v-bind:leftsubtraction="leftSubtractValue" v-bind:topsubtraction="topSubtractValue" v-on:drag-stop="saveCardPositionChange" v-on:delete-card="openModalAndSetCardToBeDeleted" v-on:create-related-card="createRelatedCard">
+				
+			</draggable-card>
 			
 
 	div(class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="create-card-modal")
 		div(class="modal-dialog modal-lg" role="document")
 			div(class="modal-content")
 				div(class="modal-header")
-					h4() Buat Kesimpulan
+					h4() {{ createFormTitle }}
 				div(class="modal-body")
 					div(class='form-group')
 						label(class='label-control') Judul 
-						input(class='form-control')
+						input(class='form-control' type='text' v-model="forms.createCard.title")
 					div(class='form-group')
 						label(class='label-control') Isi
-						textarea(class='form-control')
+						div(id="content-editor")
 					div(class='form-group')
-						button(class='btn btn-success btn-sm') Simpan
+						button(class='btn btn-success btn-sm' @click="createCard()") Simpan
 						button(class='btn btn-danger btn-sm' @click="closeCreateCardModal()") Tutup
+
+	div(class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="delete-card-confirmation-modal")
+		div(class="modal-dialog modal-md" role="document")
+			div(class="modal-content")
+				div(class="modal-header")
+					h4() Hapus Card Ini ?
+				div(class="modal-body")
+					div(class='row')
+						div(class='col-md-12')
+							button(class='btn btn-success btn-sm' @click="closeDeleteCardConfirmationModal()") Tidak
+							button(class='btn btn-danger btn-sm' @click="deleteCardByIndex()") Ya
+
 block script
 	script(type='text/javascript' src='/bower_components/jquery/dist/jquery.js')
 	script(type='text/javascript' src='/bower_components/jquery-ui/jquery-ui.js')
@@ -72,10 +91,14 @@ block script
 	script(type='text/javascript' src='/bower_components/summernote/dist/summernote.js')
 	script(type='text/javascript' src='/bower_components/jsplumb/dist/js/jsplumb.js')
 	script(type='text/javascript' src='/bower_components/ramda/dist/ramda.js')
+	script(type='text/javascript' src='/bower_components/socket.io-client/dist/socket.io.js')
 	
 	script(type='text/javascript' src='/models/board.js')
 	script(type='text/javascript' src='/models/card.js')
 	script(type='text/javascript' src='/models/user.js')
+	script(type='text/javascript' src='/models/relation.js')
+
+	script(type='text/javascript' src='/forms/create-card.form.js')
 
 	script(type='text/javascript' src='/vue_components/draggable-card.component.js')
 
@@ -86,19 +109,53 @@ block script
 		var app = new Vue({
 			el: '#app',
 			data : {
+				user : new User(null, null, null),
 				board : initBoard,
+				cards : [],
+				connections : [],
 				formStatus : 'create-contention',
 				modals : {
-					createCardModal : null
+					createCard : null,
+					deleteCardConfirmation : null
 				},
 				forms : {
 					createCard : {
-						title : null,
-						
+						title : null
 					}
-				}
+				},
+				editor : null,
+				tobe : {
+					relatedId : null,
+					deletedCardIndex : 0,
+					sendCardType : 'contention'
+				},
+				sockets : {
+					card : null
+				},
+				scale : 1,
+				leftSubtractValue : 0,
+				topSubtractValue : 0 
+			},
+			components : {
+				'draggable-card' : draggableCardComponent
 			},
 			methods : {
+				getUser : function() {
+					
+					var vm = this;
+
+					var url = '/api/me';
+
+					var request = $.get({
+						url :url
+					})
+
+					return request.then(function(user) {
+						vm.user
+							.setId(user._id)
+							.setName(user.name)
+					});
+				},
 				getBoardData : function() {
 					
 					var vm = this;
@@ -110,7 +167,7 @@ block script
 						url : url
 					})
 
-					request
+					return request
 						.then(function(board) {
 
 							var collaboratorIds = board.collaborators.map(function(collaborator) {
@@ -119,8 +176,47 @@ block script
 
 							vm.board
 								.setId(board._id)
-								.setCollaboratorIds(collaboratorIds)
+								.setCollaboratorIds(collaboratorIds);
 						
+						})
+						.catch(function(error) {
+							console.log(error)
+						})
+				},
+				getCards : function() {
+					var vm = this;
+
+					var boardId = $('meta[name=boardId]').attr("content");
+					var url = '/api/board/' + boardId + '/cards';
+
+					var request = $.get({
+						url : url
+					})
+
+					return request
+						.then(function(cards) {
+							cards.forEach(function(card) {
+								
+								var cardInstance = new Card();
+								var creatorOfCard = new User(card.creator.id, card.creator.name, null);
+								
+								var cardRelation = new Relation();
+									cardRelation
+										.setTo(card.related.to)
+										.setType(card.related.type);
+
+								cardInstance
+									.setId(card._id)
+									.setTitle(card.title)
+									.setContent(card.content)
+									.setType(card.type)
+									.setCreator(creatorOfCard)
+									.setLeft(card.left)
+									.setTop(card.top)
+									.setRelation(cardRelation);
+
+								vm.cards.push(cardInstance);
+							})
 						})
 						.catch(function(error) {
 							console.log(error)
@@ -128,22 +224,256 @@ block script
 				},
 				openCreateBoardToCreateContention : function() {
 					this.formStatus = 'create-contention';
+					this.tobe.sendCardType = 'contention';
 
 					this.openCreateCardModal();
 				},
 				openCreateCardModal : function() {
-					this.modals.createCardModal.modal({
+					this.modals.createCard.modal({
 						backdrop : 'static',
 						keyboard : false
 					})
 				},
 				closeCreateCardModal : function() {
-					this.modals.createCardModal.modal('hide');
+					this.modals.createCard.modal('hide');
+				},
+				openDeleteCardConfimationModal : function() {
+					this.modals.deleteCardConfirmation.modal({
+						backdrop : 'static',
+						keyboard : false
+					})
+				},
+				closeDeleteCardConfirmationModal : function() {
+					this.modals.deleteCardConfirmation.modal('hide');
+				},
+				createCard : function() {
+					
+					var vm = this;
+
+					var newCardFormData = new CreateCardForm();
+					
+					newCardFormData
+						.setTitle(this.forms.createCard.title)
+						.setContent(this.getCardContent())
+						.setType(vm.tobe.sendCardType);
+
+					if(vm.formStatus != 'create-contention') {
+						newCardFormData
+							.setRelatedTo(vm.tobe.relatedId)
+							.setRelationType(vm.tobe.sendCardType);
+					}
+
+					var request = $.post({
+						url: '/api/board/'+ vm.board.getId() +'/card',
+						data : JSON.stringify(newCardFormData.toPlainObject()),
+						contentType : 'application/json; charset=UTF-8',
+					});
+
+					request.then(function(message) {
+						vm.closeCreateCardModal();
+					})
+					.catch(function(error) {
+						console.log(error)
+					})
+				},
+				getCardContent : function() {
+					return this.editor.summernote('code');
+				},
+				scaleChange : function(event) {
+					var leftSubtractValueMap = {
+						'0.2' 	: 10,
+						'0.3' 	: 10,
+						'0.4' 	: 10,
+						'0.5' 	: 10,
+						'0.6' 	: 10,
+						'0.7' 	: 10,
+						'0.8' 	: 10,
+						'0.9' 	: 10,
+						'1' 	: 0
+					};
+
+					var topSubtractValueMap = {
+						'0.2'	: 200,
+						'0.3'	: 100,
+						'0.4' 	: 80,
+						'0.5'	: 26,
+						'0.6'	: 25,
+						'0.7'	: 20,
+						'0.8'	: 10,
+						'0.9' 	: 10,
+						'1' 	: 0
+					};
+
+					this.scale = parseFloat(event.target.value);;
+
+					var scaleValue = parseFloat(event.target.value);
+					var scaleCssValue = 'scale(' + scaleValue.toString() + ')';
+
+					$("#argumen-container").css({
+						"-webkit-transform"	: scaleCssValue,
+						"-moz-transform"	: scaleCssValue,
+						"-ms-transform"		: scaleCssValue,
+						"-o-transform"		: scaleCssValue,
+						"transform"			: scaleCssValue,
+						"-webkit-transform-origin": 'left 1%'
+					});
+
+					jsPlumb.setZoom(scaleValue);
+
+					this.leftSubtractValue = leftSubtractValueMap[scaleValue.toString()];
+					this.topSubtractValue = topSubtractValueMap[scaleValue.toString()];
+					
+				},
+				saveCardPositionChange : function(args) {
+					
+					var cardIdToBeUpdated = this.cards[args.index].getId();
+					var url = '/api/card/'+ cardIdToBeUpdated +'/updatePosition'
+					var boardId = this.board.getId();
+
+					var data = {
+						top : args.pageX, 
+						left : args.pageY,
+						boardId : boardId
+					}
+
+					var request = $.post({
+						url: url,
+						data : JSON.stringify(data),
+						contentType : 'application/json; charset=UTF-8',
+					});
+
+					request
+						.then(function(data) {
+							
+						})
+						.catch(function(error) {
+
+						})
+				},
+				openModalAndSetCardToBeDeleted : function(args) {
+					this.tobe.deletedCardIndex = args.index;
+					this.openDeleteCardConfimationModal();
+				},
+				deleteCardByIndex : function() {
+
+					var vm = this;
+
+					var cardIdToBeUpdated = this.cards[this.tobe.deletedCardIndex].getId();
+					var url = '/api/card/'+ cardIdToBeUpdated +'/delete'
+					var boardId = this.board.getId();
+
+					var data = {
+						boardId : boardId
+					}
+
+					var request = $.post({
+						url: url,
+						data : JSON.stringify(data),
+						contentType : 'application/json; charset=UTF-8',
+					});
+
+					request
+						.then(function(data) {
+							vm.closeDeleteCardConfirmationModal();
+						})
+						.catch(function(error) {
+
+						})	
+				},
+				createRelatedCard : function(args) {
+					var vm = this;
+
+					vm.tobe.relatedId = vm.cards[args.index].getId();  
+					vm.formStatus = 'create-' + args.type;
+
+					vm.openCreateCardModal();
 				}
 			},
-			mounted :function() {
-				this.getBoardData();
+			computed : {
+				createFormTitle : function() {
+					var formTitleMappingFormStatus = {
+						'create-contention' : 'Buat Kesimpulan',
+						'create-objection' : 'Buat Keberatan',
+						'create-reason' : 'Buat Alasan'
+					};
 
-				this.modals.createCardModal = $('#create-card-modal');
+					return formTitleMappingFormStatus[this.formStatus];
+				},
+			},
+			mounted :function() {
+				
+				var vm = this;
+
+				vm.getUser();
+
+				this.getBoardData()
+					.then(function() {
+						
+						vm.sockets.card = io('/card');;
+						
+						var cardCreatedEventName = vm.board.getId() + ':card-created';
+						
+						vm.sockets.card.on(cardCreatedEventName, function(newCard) {
+							
+							var cardInstance = new Card();
+							var creatorOfCard = new User(newCard.creator.id, newCard.creator.name, null);
+							
+							var cardRelation = new Relation();
+								cardRelation
+									.setTo(newCard.related.to)
+									.setType(newCard.related.type);
+
+							cardInstance
+								.setId(newCard._id)
+								.setTitle(newCard.title)
+								.setContent(newCard.content)
+								.setType(newCard.type)
+								.setCreator(creatorOfCard)
+								.setLeft(newCard.left)
+								.setTop(newCard.top)
+								.setRelation(cardRelation);
+
+							vm.cards.push(cardInstance);
+						})
+
+						var cardPositionChangedEventName = vm.board.getId() + ':card-position-changed';
+						
+						vm.sockets.card.on(cardPositionChangedEventName, function(cardData) {
+							var indexOfCardToBeChangedPosition = R.findIndex(R.propEq('id', cardData.cardId), vm.cards);
+							vm.cards[indexOfCardToBeChangedPosition].setTop(cardData.top);
+							vm.cards[indexOfCardToBeChangedPosition].setLeft(cardData.left);
+
+							setTimeout(function() {
+								jsPlumb.repaintEverything();
+							}, 2000)
+						})
+
+						var cardDeletedEventName = vm.board.getId() + ':card-deleted';
+						
+						vm.sockets.card.on(cardDeletedEventName, function(cardData) {
+							var indexOfCardToBeDeleted = R.findIndex(R.propEq('id', cardData.cardId), vm.cards);
+							vm.cards.splice(indexOfCardToBeDeleted, 1)
+						})
+					});
+
+				this.getCards();
+
+				this.editor = $('#content-editor');
+
+				this.editor.summernote({
+					height: 300,          
+				  	minHeight: null,    
+				  	maxHeight: null,
+				  	focus: true,
+				  	dialogsInBody: true
+				});
+
+				this.modals.createCard = $('#create-card-modal');
+				this.modals.deleteCardConfirmation = $('#delete-card-confirmation-modal');
+
+				this.modals.createCard.on('hide.bs.modal', function() {
+					vm.forms.createCard.title = '';
+					vm.editor.summernote('reset');	
+				})	
 			}
 		})
