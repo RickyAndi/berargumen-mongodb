@@ -12,8 +12,20 @@ var cardSchema = new Schema({
 	top : String,
 	left : String,
 	updated : { type: Date, default: Date.now },
-	relatedTo : { type : Schema.Types.ObjectId, ref : 'Card' },
-	boardId : { type : Schema.Types.ObjectId, ref : 'Board' }
+	related : {
+		to : { 
+			type : Schema.Types.ObjectId, 
+			ref : 'Card' 
+		},
+		type : {
+			type : String
+		}  
+	},
+	boardId : { type : Schema.Types.ObjectId, ref : 'Board' },
+	deleted : {
+		type : Boolean,
+		default : false
+	}
 });
 
 module.exports = Mongoose.model('Card', cardSchema);
