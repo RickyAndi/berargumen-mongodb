@@ -11,7 +11,7 @@ var boardSchema = new Schema({
 	description : String,
 	updated : { type: Date, default: Date.now },
 	tags : [String],
-	collabolators : [
+	collaborators : [
 		{
 			userId : { 
 				type : Schema.Types.ObjectId, 
