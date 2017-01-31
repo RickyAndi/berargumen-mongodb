@@ -1,9 +1,223 @@
 var panelClassMappingArgumentType = {
 	'contention' : 'panel panel-default',
 	'reason' : 'panel panel-success',
+	'co-reason' : 'panel panel-info',
+	'objection' : 'panel panel-danger',
+	'rebuttal' : 'panel panel-warning',
+	'lemma' : 'panel panel-success'
 }
 
-var cardComponent = Vue.component('draggable-card', {
+var ownerBox = function(component, createElement) {
+	if(!component.isUserOwner()) {
+		return [];
+	}
+
+	return [
+		createElement('button', {
+			attrs : {
+				class : 'btn btn-danger btn-xs',
+				'data-toggle' : 'popover',
+				'data-content' : 'Hapus card ini',
+				'data-trigger' : 'hover',
+			},
+			on : {
+				click : component.deleteThisCard
+			}
+		}, [
+			createElement('i', {
+				attrs : {
+					class : 'glyphicon glyphicon-remove'
+				}
+			})
+		]),
+		createElement('button', {
+			attrs : {
+				class : 'btn btn-primary btn-xs',
+				'data-toggle' : 'popover',
+				'data-content' : 'Ubah card ini',
+				'data-trigger' : 'hover',
+			},
+			on : {
+				click : component.deleteThisCard
+			}
+		}, [
+			createElement('i', {
+				attrs : {
+					class : 'glyphicon glyphicon-pencil'
+				}
+			})
+		])
+	]
+}
+
+var toolsBox = function(component, type, createElement) {
+	if(!component.isUserLoggedIn()) {
+		return;
+	}
+
+	var toolsBox = {
+		'contention' : function() {
+			return createElement('div', {
+				attrs : {
+					class : 'btn-group btn-group-xs'
+				}
+			}, 
+				[
+					createElement('button', {
+						attrs : {
+							'data-toggle' : 'popover',
+							'data-content' : 'Buat Alasan',
+							'data-trigger' : 'hover',
+							class : 'btn btn-success btn-xs'
+						},
+						on : {
+							click : component.createRelatedCard.bind(null, 'reason')
+						}
+
+					}, [
+						createElement('i', {
+							attrs : {
+								class : 'glyphicon glyphicon-ok'
+							}
+						})
+					]),
+					createElement('button', {
+						attrs : {
+							'data-toggle' : 'popover',
+							'data-content' : 'Buat Keberatan',
+							'data-trigger' : 'hover',
+							class : 'btn btn-danger btn-xs'
+						},
+						on : {
+							click : component.createRelatedCard.bind(null, 'objection') 
+						}
+
+					}, [
+						createElement('i', {
+							attrs : {
+								class : 'glyphicon glyphicon-volume-off'
+							}
+						})
+					]),
+				]
+			)
+		},
+		'objection' : function() {
+			return createElement('div', {
+				attrs : {
+					class : 'btn-group btn-group-xs'
+				}
+			}, 
+				[
+					createElement('button', {
+						attrs : {
+							'data-toggle' : 'popover',
+							'data-content' : 'Buat Alasan',
+							'data-trigger' : 'hover',
+							class : 'btn btn-success btn-xs'
+						},
+						on : {
+							click : component.createRelatedCard.bind(null, 'reason')
+						}
+
+					}, [
+						createElement('i', {
+							attrs : {
+								class : 'glyphicon glyphicon-ok'
+							}
+						})
+					]),
+					createElement('button', {
+						attrs : {
+							'data-toggle' : 'popover',
+							'data-content' : 'Buat Bantahan',
+							'data-trigger' : 'hover',
+							class : 'btn btn-danger btn-xs'
+						},
+						on : {
+							click : component.createRelatedCard.bind(null, 'rebuttal') 
+						}
+
+					}, [
+						createElement('i', {
+							attrs : {
+								class : 'glyphicon glyphicon-volume-off'
+							}
+						})
+					]),
+				]
+			)
+		},
+		'reason' : function() {
+			return createElement('div', {
+				attrs : {
+					class : 'btn-group btn-group-xs'
+				}
+			}, 
+				[
+					createElement('button', {
+						attrs : {
+							'data-toggle' : 'popover',
+							'data-content' : 'Buat Alasan',
+							'data-trigger' : 'hover',
+							class : 'btn btn-success btn-xs'
+						},
+						on : {
+							click : component.createRelatedCard.bind(null, 'reason')
+						}
+
+					}, [
+						createElement('i', {
+							attrs : {
+								class : 'glyphicon glyphicon-ok'
+							}
+						})
+					]),
+					createElement('button', {
+						attrs : {
+							'data-toggle' : 'popover',
+							'data-content' : 'Buat Sub Alasan',
+							'data-trigger' : 'hover',
+							class : 'btn btn-success btn-xs'
+						},
+						on : {
+							click : component.createRelatedCard.bind(null, 'co-reason')
+						}
+
+					}, [
+						createElement('i', {
+							attrs : {
+								class : 'glyphicon glyphicon-ok'
+							}
+						})
+					]),
+					createElement('button', {
+						attrs : {
+							'data-toggle' : 'popover',
+							'data-content' : 'Buat Keberatan',
+							'data-trigger' : 'hover',
+							class : 'btn btn-danger btn-xs'
+						},
+						on : {
+							click : component.createRelatedCard.bind(null, 'objection') 
+						}
+
+					}, [
+						createElement('i', {
+							attrs : {
+								class : 'glyphicon glyphicon-volume-off'
+							}
+						})
+					]),
+				]
+			)
+		}
+	}
+
+	return toolsBox[type]();
+}
+
+var draggableCardComponent = Vue.component('draggable-card', {
 	render : function(createElement) {
 		return createElement('div', {
 			attrs : {
@@ -21,7 +235,7 @@ var cardComponent = Vue.component('draggable-card', {
 					class : panelClassMappingArgumentType[this.card.getType()],
 				},
 				style : {
-					width : '250px'
+					width : '200px'
 				}
 			},
 			[
@@ -29,33 +243,59 @@ var cardComponent = Vue.component('draggable-card', {
 					attrs : {
 						class : 'panel-heading'
 					}
-				}, this.card.getTitle()),
+				}, [
+					createElement('div', {
+						attrs : {
+							class : 'row'
+						}
+					}, [
+						createElement('div', {
+							attrs : {
+								class : 'col-md-12'
+							}
+						}, [
+							createElement('div', {
+								attrs : {
+									class : 'pull-left'
+								}
+							}, ownerBox(this, createElement)),
+							createElement('div', {
+								attrs : {
+									class : 'pull-right'
+								}
+							}, [
+								createElement('button', {
+									attrs : {
+										class : 'btn btn-info btn-xs',
+										'data-toggle' : 'popover',
+										'data-content' : 'Lihat isi card ini',
+										'data-trigger' : 'hover',	
+									}
+								}, [
+									createElement('i', {
+										attrs : {
+											class : 'glyphicon glyphicon-eye-open'
+										}
+									})
+								])
+							])
+						])
+					])
+				]),
 				createElement('div', {
 					attrs : {
 						class : 'panel-body'
 					},
 					style : {
 						'overflow-y' : 'scroll',
-						'height' : '200px'
+						'min-height' : '70px'
 					}
-				}, this.card.getContent()),
+				}, this.card.getTitle()),
 				createElement('div', {
 					attrs : {
 						class : 'panel-footer'
 					}
-				}, 
-				[
-					createElement('button', {
-						attrs : {
-							class : 'btn btn-primary btn-xs'
-						},
-						on : {
-							click : this.emitArgumenChange
-						}
-					}, 
-						'Rubah'
-					)
-				]),
+				}, [toolsBox(this, this.card.getType(), createElement)]),
 			])
 		])
 	},
@@ -79,10 +319,14 @@ var cardComponent = Vue.component('draggable-card', {
 		topsubtraction : {
 			type : Number,
 			required : true
+		},
+		user : {
+			type : User,
+			required : true
 		}
 	},
 	methods : {
-		emitArgumenChange : function() {
+		emitCardChange : function() {
 			this.$emit('change-card', { index : this.index })
 		},
 		dragFix : function(event, ui, scale, leftValue, topValue) {
@@ -94,6 +338,21 @@ var cardComponent = Vue.component('draggable-card', {
 			
 			ui.position.left = newLeft - leftValue;
 			ui.position.top = newTop - topValue;
+		},
+		createRelatedCard : function(type) {
+			this.$emit('create-related-card', { 
+				index : this.index,
+				type : type 
+			});
+		},
+		deleteThisCard : function() {
+			this.$emit('delete-card', { index : this.index })
+		},
+		isUserOwner : function() {
+			return this.user.getId() == this.card.getCreator().getId();
+		},
+		isUserLoggedIn : function() {
+			return this.user.isLoggedIn();	
 		}
 	},
 	mounted : function() {
@@ -102,7 +361,7 @@ var cardComponent = Vue.component('draggable-card', {
 
 		$('#' + vm.card.getId()).draggable({
 			stop : function(event, ui) {
-				vm.$emit('on-drag-stop', { pageY : this.style.left, pageX : this.style.top, index : vm.index });
+				vm.$emit('drag-stop', { pageY : this.style.left, pageX : this.style.top, index : vm.index });
 			},
 			drag : function(event, ui) {
 				vm.dragFix(event, ui, vm.scale, vm.leftsubtraction, vm.topsubtraction);
@@ -132,6 +391,10 @@ var cardComponent = Vue.component('draggable-card', {
 				});
 			}, 1000)
 		}
+
+		$('[data-toggle="popover"]').popover({
+			container: 'body'
+		}); 
 	},
 	computed : {
 		left : function() {
