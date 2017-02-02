@@ -98,6 +98,76 @@ module.exports = function(app, io) {
 			})
 	})
 
+	app.get('/api/card/:cardId/catatan', function(req, res) {
+
+		var cardId = req.params.cardId;
+		var userId = req.user._id;
+		var boardId = req.body.boardId;
+
+		Card.findOne({ _id : cardId, 'creator.id' : userId}).then(function(card) {
+			if(!card) {
+				res.status(404).json({
+					message : 'Card Not Found'
+				})
+			}
+			
+			var cardData = {
+				catatan : card.content
+			}
+
+			res
+				.status(200)
+				.json(cardData)
+
+		}).catch(function(error) {
+			res
+				.status(500)
+				.json({
+					message : error.toString()
+				})
+		})
+	})
+
+	app.post('/api/card/:cardId/update', authMiddleware, function(req, res) {
+
+		var cardId = req.params.cardId;
+		var userId = req.user._id;
+		var boardId = req.body.boardId;
+		var isi = req.body.title;
+		var catatan = req.body.content;
+
+		Card.findOneAndUpdate({ _id : cardId, 'creator.id' : userId}, {
+			title : isi,
+			content : catatan
+		}).then(function(card) {
+			if(!card) {
+				res.status(404).json({
+					message : 'Card Not Found'
+				})
+			}
+
+			var cardUpdatedEventName = boardId + ':card-updated';
+			
+			var payload = {
+				cardId : card._id,
+				title : isi
+			}
+
+			io.card.emit(cardUpdatedEventName, payload);
+			
+			res.status(200).json({
+				message : 'Card Updated'
+			})
+
+		}).catch(function(error) {
+			res
+				.status(500)
+				.json({
+					message : error.toString()
+				})
+		})
+	})
+
 	app.post('/api/card/:cardId/delete', authMiddleware, function(req, res) {
 
 		var cardId = req.params.cardId;
@@ -122,7 +192,7 @@ module.exports = function(app, io) {
 			io.card.emit(cardDeletedEventName, payload);
 			
 			res.status(200).json({
-				message : 'Card Deleted Updated'
+				message : 'Card Deleted'
 			})
 
 		}).catch(function(error) {
