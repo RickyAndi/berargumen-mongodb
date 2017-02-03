@@ -1,7 +1,7 @@
 var panelClassMappingArgumentType = {
 	'contention' : 'panel panel-default',
 	'reason' : 'panel panel-success',
-	'co-reason' : 'panel panel-info',
+	'co-reason' : 'panel panel-success',
 	'objection' : 'panel panel-danger',
 	'rebuttal' : 'panel panel-warning',
 	'lemma' : 'panel panel-success'
@@ -51,7 +51,7 @@ var ownerBox = function(component, createElement) {
 }
 
 var toolsBox = function(component, type, createElement) {
-	if(!component.isUserLoggedIn()) {
+	if(!component.isCurrentUserCollaboratorOfBoard) {
 		return;
 	}
 
@@ -433,6 +433,14 @@ var draggableCardComponent = Vue.component('draggable-card', {
 		user : {
 			type : User,
 			required : true
+		},
+		isCurrentUserCollaboratorOfBoard : {
+			type : Boolean,
+			required : true
+		},
+		isUserBoardOwner : {
+			type : Boolean,
+			required : true
 		}
 	},
 	methods : {
@@ -474,7 +482,9 @@ var draggableCardComponent = Vue.component('draggable-card', {
 
 		$('#' + vm.card.getId()).draggable({
 			stop : function(event, ui) {
-				vm.$emit('drag-stop', { pageY : this.style.left, pageX : this.style.top, index : vm.index });
+				if(vm.isUserOwner() || vm.isUserBoardOwner) {
+					vm.$emit('drag-stop', { pageY : this.style.left, pageX : this.style.top, index : vm.index });
+				}
 			},
 			drag : function(event, ui) {
 				vm.dragFix(event, ui, vm.scale, vm.leftsubtraction, vm.topsubtraction);
@@ -489,15 +499,15 @@ var draggableCardComponent = Vue.component('draggable-card', {
 		if(vm.card.hasRelation()) {
 			setTimeout(function() {
 					
-					var target = vm.card.getRelatedTo();
+					var source = vm.card.getRelatedTo();
 
-					if(!$('#' + target).length) {
+					if(!$('#' + source).length) {
 						return;
 					}
 
 					var connectionDataMapping = {
 						'reason' : {
-							'labelContent' : 'Jadi',
+							'labelContent' : 'Karena',
 							'connectionColor' : '#22BE34',
 							'cssClass' : 'label-reason'
 						},
@@ -507,7 +517,7 @@ var draggableCardComponent = Vue.component('draggable-card', {
 							'cssClass' : 'label-co-reason'
 						},
 						'objection' : {
-							'labelContent' : 'Namun',
+							'labelContent' : 'Tetapi',
 							'connectionColor' : '#D01919',
 							'cssClass' : 'label-objection'
 						},
@@ -519,7 +529,7 @@ var draggableCardComponent = Vue.component('draggable-card', {
 
 					}
 
-					var source = vm.card.getId();
+					var target = vm.card.getId();
 					
 
 					var connection = jsPlumb.connect({
@@ -560,9 +570,12 @@ var draggableCardComponent = Vue.component('draggable-card', {
 			}, 1000)
 		}
 
-		$('[data-toggle="popover"]').popover({
-			container: 'body'
-		}); 
+		setTimeout(function() {
+			$('[data-toggle="popover"]').popover({
+				container: 'body'
+			}); 
+		}, 1000)
+		
 	},
 	computed : {
 		left : function() {
@@ -570,6 +583,6 @@ var draggableCardComponent = Vue.component('draggable-card', {
 		},
 		top : function() {
 			return this.card.getTop()
-		}
+		},
 	}
 })
