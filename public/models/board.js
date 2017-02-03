@@ -5,7 +5,7 @@ function Board(id, title, description, user, updatedDate, tags, collaboratorIds)
 	this.user = user;
 	this.updatedDate = updatedDate;
 	this.tags = tags;
-	this.collaboratorIds = collaboratorIds
+	this.collaboratorIds = [];
 }
 
 Board.prototype.setId = function(id) {
