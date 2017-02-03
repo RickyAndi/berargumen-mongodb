@@ -3,19 +3,31 @@ var authMiddleware = require('../middlewares/auth');
 var Board = require('../models/board');
 var mongoose = require('mongoose');
 
+var async = require('asyncawait/async');
+var await = require('asyncawait/await');
+
 module.exports = function(app) {
 
 	app.get('/my-boards', ensureLoggedIn('/login'), function(req, res) {
 		res.render('myboard', { user : req.user });
 	})
 
-	app.get('/board/:boardId', function(req, res) {
-		Board.findById(req.params.boardId).then(function(board) {
-			res.render('viewboard', { 
-				user : req.user,
-				board : board,
-				title : 'Lihat Board' 
-			})
+	app.get('/board/:boardId', async(function(req, res) {
+		
+		var board = await(Board.findById(req.params.boardId));
+
+		var isUserBoardOwner = false;
+		
+		if(req.user) {
+			isUserBoardOwner = board.user.id == req.user._id;
+		}
+		
+		res.render('viewboard', { 
+			user : req.user,
+			board : board,
+			title : board.title,
+			isUserBoardOwner : isUserBoardOwner
 		})
-	})
+
+	}))
 }

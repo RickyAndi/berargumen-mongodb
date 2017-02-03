@@ -1,16 +1,18 @@
 var User = require('../models/user');
 var mongoose = require('mongoose');
 
+var async = require('asyncawait/async');
+var await = require('asyncawait/await');
 
 module.exports = function(app) {
-	app.get('/profile/:userId', function(req, res) {
+	app.get('/profile/:userId', async(function(req, res) {
 		
 		var userId = mongoose.Types.ObjectId(req.user._id);
 
-		User.find(userId).then(function(user) {
-			res.render('profile', {
-				user : user
-			});
-		})
-	})
+		var user = await(User.findById(userId));
+
+		res.render('profile', {
+			user : user
+		});
+	}))
 }
