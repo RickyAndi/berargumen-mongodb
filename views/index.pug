@@ -2,6 +2,8 @@ extends layouts/main.pug
 
 block stylehead
 	link(rel='stylesheet' href='/bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.css')
+	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
+
 	style().
 		div.bootstrap-tagsinput {
 			float:right; 
@@ -20,6 +22,10 @@ block stylehead
 		.btn-in-table {
 			margin-right: 1px;
 			margin-left: 1px;
+		}
+
+		* {
+			font-family: "Times New Roman", Georgia, Serif;
 		}
 
 block content
@@ -84,9 +90,7 @@ block content
 															button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()") {{ tag }}
 														td() {{ board.getUpdatedDate() }}
 														td(class='text-center')
-															button(class='btn btn-info btn-xs btn-in-table') Lihat
-															button(class='btn btn-success btn-xs') Deskripsi
-
+															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs btn-in-table') Lihat
 											div(class='row')
 												div(class='col-md-6')
 													ul(class='pagination')
@@ -110,18 +114,19 @@ block content
 												thead()
 													tr()
 														th(class='text-center') Judul
+														th(class='text-center') Deskripsi
 														th(class='text-center') Tags
 														th(class='text-center') Diperbaharui
 														th(class='text-center') 
 												tbody()
 													tr(v-for="board in boards.currentUser")
 														td() {{ board.getTitle() }}
+														td() {{ board.getDescription() }}
 														td()
 															button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()") {{ tag }}
 														td() {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs btn-in-table') Lihat
-															button(@click="viewBoard(board.getId())" class='btn btn-success btn-xs btn-in-table') Deskripsi
 											div(class='row')
 												div(class='col-md-6')
 													ul(class='pagination')
@@ -148,6 +153,7 @@ block content
 												thead()
 													tr()
 														th(class='text-center') Judul
+														th(class='text-center') Deskripsi
 														th(class='text-center') Pemilik
 														th(class='text-center') Tags
 														th(class='text-center') Diperbaharui
@@ -155,13 +161,13 @@ block content
 												tbody()
 													tr(v-for="board in boards.bookmarked")
 														td() {{ board.getTitle() }}
+														td() {{ board.getDescription() }}
 														td() {{ board.getUser().getName() }}
 														td() 
 															button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()") {{ tag }}
 														td() {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs') Lihat
-															button(@click="viewBoard(board.getId())" class='btn btn-success btn-xs') Deskripsi
 											div(class='row')
 												div(class='col-md-6')
 													ul(class='pagination')
@@ -188,6 +194,7 @@ block content
 												thead()
 													tr()
 														th(class='text-center') Judul
+														th(class='text-center') Deskripsi
 														th(class='text-center') Pemilik
 														th(class='text-center') Tags
 														th(class='text-center') Diperbaharui
@@ -195,13 +202,13 @@ block content
 												tbody()
 													tr(v-for="board in boards.collaborated")
 														td() {{ board.getTitle() }}
+														td() {{ board.getDescription() }}
 														td() {{ board.getUser().getName() }}
 														td() 
 															button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()") {{ tag }}
 														td() {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs') Lihat
-															button(@click="viewBoard(board.getId())" class='btn btn-success btn-xs') Deskripsi
 											div(class='row')
 												div(class='col-md-6')
 													ul(class='pagination')
@@ -341,7 +348,7 @@ block script
 							currentUserBoards.docs.forEach(function(board) {
 								var user = new User(board.user.id, board.user.name, null);
 								var updatedDate = moment(board.updated).format('D-MM-YYYY');
-								var toBePushedboard  = new Board(board._id, board.title, null, null, updatedDate, board.tags);
+								var toBePushedboard  = new Board(board._id, board.title, board.description, null, updatedDate, board.tags);
 								vm.boards.currentUser.push(toBePushedboard);
 							})
 						})
@@ -369,7 +376,7 @@ block script
 							allBoards.docs.forEach(function(board) {
 								var user = new User(board.user.id, board.user.name, null);
 								var updatedDate = moment(board.updated).format('D-MM-YYYY');
-								var toBePushedboard  = new Board(board._id, board.title, null, user, updatedDate, board.tags);
+								var toBePushedboard  = new Board(board._id, board.title, board.description, user, updatedDate, board.tags);
 								vm.boards.all.push(toBePushedboard);
 							})
 						})
@@ -394,10 +401,10 @@ block script
 
 							vm.numberOfPages.bookmarkedBoards= bookmarkedBoards.pages;
 
-							boards.docs.forEach(function(board) {
+							bookmarkedBoards.docs.forEach(function(board) {
 								var user = new User(board.user.id, board.user.name, null);
 								var updatedDate = moment(board.updated).format('D-MM-YYYY');
-								var toBePushedboard  = new Board(board._id, board.title, null, user, updatedDate, board.tags);
+								var toBePushedboard  = new Board(board._id, board.title, board.description, user, updatedDate, board.tags);
 								vm.boards.bookmarked.push(toBePushedboard);
 							})
 						})
@@ -422,10 +429,10 @@ block script
 
 							vm.numberOfPages.collaboratedBoards = collaboratedBoards.pages;
 
-							boards.docs.forEach(function(board) {
+							collaboratedBoards.docs.forEach(function(board) {
 								var user = new User(board.user.id, board.user.name, null);
 								var updatedDate = moment(board.updated).format('D-MM-YYYY');
-								var toBePushedboard  = new Board(board._id, board.title, null, user, updatedDate, board.tags);
+								var toBePushedboard  = new Board(board._id, board.title, board.description, user, updatedDate, board.tags);
 								vm.boards.collaborated.push(toBePushedboard);
 							})
 						})
