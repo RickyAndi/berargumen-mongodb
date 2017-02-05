@@ -85,7 +85,7 @@ block content
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
 														td()
-															a() {{ board.getUser().getName() }}
+															a(href="#" @click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
 														td()
 															button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()") {{ tag }}
 														td() {{ board.getUpdatedDate() }}
@@ -162,7 +162,8 @@ block content
 													tr(v-for="board in boards.bookmarked")
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
-														td() {{ board.getUser().getName() }}
+														td()
+															a(href="#" @click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
 														td() 
 															button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()") {{ tag }}
 														td() {{ board.getUpdatedDate() }}
@@ -203,7 +204,8 @@ block content
 													tr(v-for="board in boards.collaborated")
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
-														td() {{ board.getUser().getName() }}
+														td()
+															a(href="#" @click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
 														td() 
 															button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()") {{ tag }}
 														td() {{ board.getUpdatedDate() }}
@@ -492,6 +494,9 @@ block script
 				},
 				displayPaginationButton : function(currentPage, page) {
 					return (currentPage - 2) > page || (currentPage + 2) < page  
+				},
+				viewUserProfile : function(userId) {
+					window.open('/profile/' + userId);
 				}
 			},
 			mounted : function() {
