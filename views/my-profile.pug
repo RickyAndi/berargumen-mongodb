@@ -1,0 +1,163 @@
+extends layouts/main.pug
+
+block stylehead
+	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
+	style(type='text/css').
+		.navbar-lower {
+			top: 50px;
+		    z-index: 1029;
+		    background-color : rgb(253,224,193);
+		}
+
+block content
+	div(class='navbar navbar-fixed-top navbar-default navbar-lower' role='navigation')
+		div(class='container')
+			div(class='pull-right')
+				button(class='btn btn-primary navbar-btn btn-sm' @click="openCreateBoardModal()") Buat Board
+
+	div(class='container')
+		div(class='row')
+			div(class='col-md-12' style="margin-top: 10%;")
+				div(class='panel panel-default')
+					div(class='panel-body')
+						div(class='row')
+							div(class='col-md-6')
+								div(class='panel panel-default')
+									div(class='panel-heading')
+										p Saya
+									div(class='panel-body')
+										table(class='table table-default table-bordered table-striped')
+											tbody()
+												tr()
+													th Nama
+													td= user.name
+												tr()
+													th Jenis Kelamin
+													td= user.gender
+												tr()
+													th Jumlah Board
+													td 0
+												tr()
+													th Jumlah Card
+													td 0
+
+							div(class='col-md-12')
+								div(class='panel panel-default')
+									div(class='panel-heading')
+										p Board Saya
+									div(class='panel-body')
+										table(class='table table-default table-bordered table-striped')
+											thead()
+												tr()
+													th() Judul
+													th() Deskripsi
+													th(class='text-center') Aksi
+											tbody()
+												tr(v-for="board in boards")
+													td(width='47%') {{ board.getTitle() }}
+													td(width='47%') {{ board.getDescription() }}
+													td(class="text-center")
+														button(class='btn btn-info btn-xs' @click="viewBoard(board.getId())") Lihat
+	
+	div(class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="createBoardModal")
+		div(class="modal-dialog modal-lg" role="document")
+			div(class="modal-content")
+				div(class="modal-header")
+					div(class='row')
+						div(class='col-md-12')
+							h4() Buat Board
+				div(class="modal-body")
+					div(class="row")
+						div(class="col-md-12")
+							div(class="form-group")
+								label() Judul
+								input(v-model="forms.createBoard.title" class="form-control")
+							div(class="form-group")
+								label() Deskripsi
+								textarea(v-model="forms.createBoard.description" class="form-control")
+							div(class="form-group")
+								button(class='btn btn-primary btn-sm' @click='createBoard()') Buat
+								button(class='btn btn-warning btn-sm' @click='hideCreateBoardModal()') Tutup
+
+
+block script
+	script(type='text/javascript' src='bower_components/jquery/dist/jquery.js')
+	script(type='text/javascript' src='bower_components/bootstrap/dist/js/bootstrap.js')
+	script(type='text/javascript' src='bower_components/vue/dist/vue.js')
+	script(type='text/javascript' src='models/board.js')
+
+	script(type='text/javascript').
+		var app = new Vue({
+			el : '#app',
+			data : {
+				forms : {
+					createBoard : {
+						title : '',
+						description : ''
+					}
+				},
+				modals : {
+					createBoardModal : null
+				},
+				boards : []
+			},
+			methods : {
+				openCreateBoardModal : function() {
+					this.modals.createBoardModal.modal({
+						backdrop: 'static',
+						keyboard: false
+					})
+				},
+				hideCreateBoardModal : function() {
+					this.modals.createBoardModal.modal('hide')
+				},
+				createBoard : function() {
+					var vm = this;
+
+					var request = $.post({
+						url : '/api/my-board',
+						data : JSON.stringify(vm.forms.createBoard),
+						contentType : 'application/json; charset=UTF-8',
+					});
+
+					request
+						.then(function(newBoard) {
+							
+							var board  = new Board(newBoard._id, newBoard.title, newBoard.description);
+							vm.boards.push(board);
+							
+							vm.hideCreateBoardModal();
+						})
+						.catch(function(error) {
+							console.log(error)
+						})
+				},
+				getBoards : function() {
+					var vm = this;
+
+					var request = $.get({
+						url : '/api/my-boards',
+					});
+
+					request
+						.then(function(boards) {
+							boards.docs.forEach(function(board) {
+								var toBePushedboard  = new Board(board._id, board.title, board.description);
+								vm.boards.push(toBePushedboard);
+							})
+						})
+						.catch(function(error) {
+							console.log(error)
+						})
+				},
+				viewBoard : function(boardId) {
+					var url = '/board/' + boardId;
+					window.open(url);
+				}
+			},
+			mounted : function() {
+				this.modals.createBoardModal = $('#createBoardModal');
+
+				this.getBoards();
+			}
+		})
