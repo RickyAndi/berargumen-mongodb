@@ -1,0 +1,78 @@
+extends layouts/main.pug
+
+block stylehead
+	- var cardTypeMapping = { 'contention' : 'Kesimpulan', 'reason' : 'Alasan', 'co-reason' : 'Pendukung Alasan', 'objection' : 'Keberatan', 'rebuttal' : 'Bantahan' };
+	
+	link(rel='stylesheet' href='/bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.css')
+	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
+	
+	style().
+		* {
+			font-family: "Times New Roman", Georgia, Serif;
+		}
+
+		.card-title {
+			font-weight: 600;
+		}
+
+block content
+	div(class='container' style="margin-top:5%;")
+		div(class='row')
+			div(class='col-md-12')
+				div(class='panel panel-default')
+					div(class='panel-heading')
+						h4() Detail Card
+					div(class='panel-body')
+						div(class='row')
+							div(class='col-md-12')
+								div(class='row')
+									div(class='col-md-6')
+										div(class='panel panel-default')
+											div(class='panel-heading')
+												p() 
+													strong Pembuat
+											div(class='panel-body')
+												p()= card.creator.name
+														
+									div(class='col-md-6')
+										div(class='panel panel-default')
+											div(class='panel-heading')
+												p() 
+													strong Tipe dan Relasi
+											div(class='panel-body')
+												table(class='table table-bordered')
+													tbody()
+														tr(width="20%") 
+															td() 
+																strong Tipe Card
+															td()= cardTypeMapping[card.type]
+														tr()
+															if relatedCardTitle == null
+
+															else 
+
+																td(width="20%") 
+																	strong Ke
+																td()
+																	a(target='blank_' href='/card/' + card.related.to)= relatedCardTitle
+
+
+							div(class='col-md-12')
+								div(class='panel panel-default')
+									div(class='panel-heading')
+										p() 
+											strong Isi
+									div(class='panel-body')
+										p(class='card-title')= card.title
+
+							div(class='col-md-12')
+								div(class='panel panel-default')
+									div(class='panel-heading')
+										p() 
+											strong Catatan
+									div(class='panel-body')
+										if card.content == '<p><br></p>'
+											p(class='text-center') Tidak Ada Catatan
+										else
+											p()!= card.content							
+block script
