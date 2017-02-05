@@ -14,6 +14,7 @@ var indexRoute = require('./server/routes/index');
 var boardRoute = require('./server/routes/my-board');
 var apiRoute = require('./server/routes/api');
 var profileRoute = require('./server/routes/profile');
+var cardRoute = require('./server/routes/card');
 
 // route
 indexRoute(app, sockets);
@@ -21,6 +22,7 @@ authRoute(app, sockets);
 boardRoute(app, sockets);
 apiRoute(app, sockets);
 profileRoute(app, sockets);
+cardRoute(app);
 
 
 mongoose.connect('mongodb://localhost/berargumen');
