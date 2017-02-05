@@ -401,7 +401,8 @@ var draggableCardComponent = Vue.component('draggable-card', {
 					},
 					style : {
 						'overflow-y' : 'scroll',
-						'max-height' : '150px'
+						'max-height' : '120px',
+						'min-height' : '120px'
 					}
 				}, this.card.getTitle()),
 				createElement('div', {
