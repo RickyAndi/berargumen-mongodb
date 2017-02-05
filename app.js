@@ -21,7 +21,7 @@ indexRoute(app, sockets);
 authRoute(app, sockets);
 boardRoute(app, sockets);
 apiRoute(app, sockets);
-profileRoute(app, sockets);
+profileRoute(app);
 cardRoute(app);
 
 
