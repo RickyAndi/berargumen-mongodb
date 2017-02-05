@@ -5,6 +5,14 @@ var Board = require('../models/board');
 var User = require('../models/user');
 var Card = require('../models/card');
 
+var multer  = require('multer')
+var upload = multer({ 
+	dest: 'public/uploads/',
+	limits : {
+		fileSize : 1000000
+	}
+})
+
 var async = require('asyncawait/async');
 var await = require('asyncawait/await');
 
@@ -664,4 +672,12 @@ module.exports = function(app, io) {
 				})
 		}
 	}))
+
+	app.post('/api/upload-image', upload.single('image'), function(req, res) {
+		res
+			.json({
+				message : 'upload complete',
+				imageUrl : '/uploads/' + req.file.filename
+			})
+	})
 }
