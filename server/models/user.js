@@ -7,7 +7,13 @@ var userSchema = new Schema({
 	profilePicUrl : String,
 	gender : String,
 	email : String,
-	addedOn : { type: Date, default: Date.now }
+	addedOn : { type: Date, default: Date.now },
+	numberOfBoards : {
+		type : Number
+	},
+	numberOfCards : {
+		type : Number
+	}
 })
 
 module.exports = Mongoose.model('User', userSchema);
