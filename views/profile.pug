@@ -11,14 +11,24 @@ block content
 			div(class='col-md-12')
 				div(class='panel panel-default')
 					div(class='panel-heading')
-						p() Isi
+						h5 Profil Pengguna
 					div(class='panel-body')
-						p()= card.title
+						div(class='row')
+							div(class='col-md-6')
+								table(class='table table-default table-bordered')
+									tbody()
+										tr()
+											td()
+												strong Gambar
+											td()
+												img(src=user.profilePicUrl)
+										tr()
+											td()
+												strong Nama
+											td()= user.name
+										tr()
+											td()
+												strong Jenis Kelamin
+											td()= user.gender
 
-			div(class='col-md-12')
-				div(class='panel panel-default')
-					div(class='panel-heading')
-						p() Catatan
-					div(class='panel-body')
-						p()!= card.content							
 block script
