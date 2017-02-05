@@ -7,7 +7,7 @@ var await = require('asyncawait/await');
 module.exports = function(app) {
 	app.get('/profile/:userId', async(function(req, res) {
 		
-		var userId = mongoose.Types.ObjectId(req.user._id);
+		var userId = req.params.userId;
 
 		var user = await(User.findById(userId));
 
