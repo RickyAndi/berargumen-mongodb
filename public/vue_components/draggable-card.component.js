@@ -345,7 +345,7 @@ var draggableCardComponent = Vue.component('draggable-card', {
 					class : panelClassMappingArgumentType[this.card.getType()],
 				},
 				style : {
-					width : '200px'
+					width : '250px'
 				}
 			},
 			[
@@ -378,8 +378,11 @@ var draggableCardComponent = Vue.component('draggable-card', {
 									attrs : {
 										class : 'btn btn-info btn-xs',
 										'data-toggle' : 'popover',
-										'data-content' : 'Lihat isi card ini',
+										'data-content' : 'Lihat card ini secara detail',
 										'data-trigger' : 'hover',	
+									},
+									on : {
+										click : this.viewCardDetail
 									}
 								}, [
 									createElement('i', {
@@ -398,7 +401,7 @@ var draggableCardComponent = Vue.component('draggable-card', {
 					},
 					style : {
 						'overflow-y' : 'scroll',
-						'min-height' : '70px'
+						'max-height' : '150px'
 					}
 				}, this.card.getTitle()),
 				createElement('div', {
@@ -474,6 +477,9 @@ var draggableCardComponent = Vue.component('draggable-card', {
 		},
 		isUserLoggedIn : function() {
 			return this.user.isLoggedIn();	
+		},
+		viewCardDetail : function() {
+			window.open('/card/' + this.card.getId());
 		}
 	},
 	mounted : function() {
