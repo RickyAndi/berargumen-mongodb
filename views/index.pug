@@ -94,8 +94,8 @@ block content
 											div(class='row')
 												div(class='col-md-6')
 													ul(class='pagination')
-														li(v-for='page in numberOfPages.allBoards' v-if="!displayPaginationButton(currentPage.allBoards, page)" v-bind:class="{ 'active' : currentPage.currentUserBoards == page }")
-															a(@click="currentUserBoardsGoToPage(page)") {{ page }}
+														li(v-for='page in numberOfPages.allBoards' v-if="!displayPaginationButton(currentPage.allBoards, page)" v-bind:class="{ 'active' : currentPage.allBoards == page }")
+															a(@click="allBoardsGoToPage(page)") {{ page }}
 
 								div(class="tab-pane" id="2")
 									div(class='row')
@@ -480,15 +480,15 @@ block script
 				},
 				allBoardsGoToPage : function(page) {
 					this.currentPage.allBoards = page;
-					this.getCurrentUserBoards(page);
+					this.getAllBoards(page);
 				},
 				bookmarkedBoardsGoToPage : function(page) {
 					this.currentPage.bookmarkedBoards = page;
-					this.getCurrentUserBoards(page);
+					this.getBookmarkedBoards(page);
 				},
 				collaboratedBoardsGoToPage : function(page) {
 					this.currentPage.collaboratedBoards = page;
-					this.getCurrentUserBoards(page);
+					this.getCollaboratedBoards(page);
 				},
 				displayPaginationButton : function(currentPage, page) {
 					return (currentPage - 2) > page || (currentPage + 2) < page  
