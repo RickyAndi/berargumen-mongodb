@@ -5,6 +5,9 @@ block stylehead
 	link(rel='stylesheet' href='/bower_components/summernote/dist/summernote.css')
 	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
 	style(type='text/css').
+		.modal {
+		    overflow-y: scroll;
+		}
 		.navbar-lower {
 			top: 50px;
 		    z-index: 1029;
@@ -163,9 +166,10 @@ block content
 				div(class="modal-body")
 					div(class='form-group')
 						label(class='label-control') Isi
-						textarea(class='form-control' v-model="forms.createCard.title")
+						textarea(class='form-control' v-model="forms.createCard.title" rows="10")
 					div(class='form-group')
-						label(class='label-control') Catatan
+						label(class='label-control') Catatan 
+							span(style='font-size:11px;') (Anda bisa menambahkan catatan berupa penjelasan, referensi, link, gambar, video, dll)
 						div(id="content-editor")
 					div(class='form-group')
 						button(class='btn btn-success btn-sm' @click="createCard()") Simpan
@@ -185,7 +189,7 @@ block content
 	if isUserBoardOwner
 
 		div(class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="collaborator-modal")
-			div(class="modal-dialog modal-lg" role="document")
+			div(class="modal-dialog modal-md" role="document")
 				div(class="modal-content")
 					div(class="modal-header")
 						h4() Kolaborator
@@ -196,28 +200,34 @@ block content
 								table(class='table table-default table-striped table-bordered')
 									thead()
 										tr()
-											th() Gambar 
-											th() Nama
-									tbody()
+											th(class='text-center') Gambar 
+											th(class='text-center') Nama
+									tbody(v-if="boardCollaborators.length")
 										tr(v-for="collaborator in boardCollaborators")
-											td()
+											td(class='text-center')
 												img(v-bind:src="collaborator.profilePic")
-											td() {{ collaborator.name }}
+											td(class='text-center') {{ collaborator.name }}
+									tbody(v-if="!boardCollaborators.length")
+										tr()
+											td(colspan='2') Tidak Ada Kolaborator
 							div(class='col-md-12')
 								h4() Permintaan Kolaborator
 								table(class='table table-default table-striped table-bordered')
 									thead()
 										tr()
-											th() Gambar
-											th() Nama
-											th() 
-									tbody()
+											th(class='text-center') Gambar
+											th(class='text-center') Nama
+											th(class='text-center') 
+									tbody(v-if="collaboratorsRequest.length")
 										tr(v-for="(collaborator, index) in collaboratorsRequest")
 											td()
 												img(v-bind:src="collaborator.profilePic")
 											td() {{ collaborator.name }}
 											td()
 												button(class='btn btn-success btn-sm' @click="acceptCollaboratorRequest(collaborator.userId, index)") Terima
+									tbody(v-if="!collaboratorsRequest.length")
+										tr()
+											td(colspan='3' class='text-center') Tidak Ada Permintaan
 							div(class='col-md-12')
 								div(class='pull-right')
 									button(class='btn btn-danger btn-sm' @click="hideCollaboratorsModal()") Tutup
@@ -227,6 +237,7 @@ block script
 	script(type='text/javascript' src='/bower_components/bootstrap/dist/js/bootstrap.js')
 	script(type='text/javascript' src='/bower_components/vue/dist/vue.js')
 	script(type='text/javascript' src='/bower_components/summernote/dist/summernote.js')
+	script(type='text/javascript' src='/bower_components/summernote/lang/summernote-id-ID.js')
 	script(type='text/javascript' src='/bower_components/jsplumb/dist/js/jsplumb.js')
 	script(type='text/javascript' src='/bower_components/ramda/dist/ramda.js')
 	script(type='text/javascript' src='/bower_components/socket.io-client/dist/socket.io.js')
@@ -380,8 +391,8 @@ block script
 				},
 				openCreateCardModal : function() {
 					this.modals.createCard.modal({
-						backdrop : 'static',
-						keyboard : false
+						keyboard : false,
+						backdrop : 'static'
 					})
 				},
 				closeCreateCardModal : function() {
@@ -722,7 +733,7 @@ block script
 						url : url,
 						data : JSON.stringify({ userId : userId }),
 						contentType : 'application/json; charset=UTF-8',
-					})
+					});
 
 					request
 						.then(function(collaborator) {
@@ -732,6 +743,22 @@ block script
 						.catch(function(error) {
 
 						})
+				},
+				uploadImage : function(image) {
+					
+					var formData = new FormData();
+					formData.append('image', image);
+
+					var uploadUrl = '/api/upload-image';
+
+					var request = $.post({
+						url : uploadUrl,
+						data : formData,
+						contentType : false,
+						processData : false
+					});
+
+					return request;
 				}
 			},
 			computed : {
@@ -857,11 +884,33 @@ block script
 				this.editor = $('#content-editor');
 
 				this.editor.summernote({
-					height: 300,          
-				  	minHeight: null,    
-				  	maxHeight: null,
-				  	focus: true,
-				  	dialogsInBody: true
+					toolbar: [
+					    ['style', ['bold', 'italic', 'underline', 'clear']],
+					    ['font', ['strikethrough']],
+					    ['fontsize', ['fontsize']],
+					    ['color', ['color']],
+					    ['para', ['ul', 'ol', 'paragraph']],
+					    ['height', ['height']],
+					    ['insert', ['picture', 'link', 'video']]
+					],
+					height: 300,
+				  	minHeight: null,
+					maxHeight: null,
+					focus: true,
+					dialogsInBody: true,
+					lang: 'id-ID',
+					callbacks : {
+						onImageUpload: function(images) {
+							
+							vm.uploadImage(images[0])
+							.then(function(data) {
+								vm.editor.summernote('editor.insertImage', data.imageUrl);
+							})
+							.catch(function(error) {
+
+							})
+						}
+					}
 				});
 
 				this.modals.createCard = $('#create-card-modal');
