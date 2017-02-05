@@ -80,7 +80,7 @@ block content
 														th(class='text-center') Tags
 														th(class='text-center') Diperbaharui
 														th(class='text-center') 
-												tbody()
+												tbody(v-if="boards.all.length")
 													tr(v-for="board in boards.all")
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
@@ -91,6 +91,11 @@ block content
 														td() {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs btn-in-table') Lihat
+												tbody(v-if="!boards.all.length")
+													tr()
+														td(class='text-center' colspan="6") Tidak Ada Board
+														
+
 											div(class='row')
 												div(class='col-md-6')
 													ul(class='pagination')
@@ -118,7 +123,7 @@ block content
 														th(class='text-center') Tags
 														th(class='text-center') Diperbaharui
 														th(class='text-center') 
-												tbody()
+												tbody(v-if="boards.currentUser.length")
 													tr(v-for="board in boards.currentUser")
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
@@ -127,6 +132,10 @@ block content
 														td() {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs btn-in-table') Lihat
+												tbody(v-if="!boards.currentUser.length")
+													tr()
+														td(class='text-center' colspan="6") Tidak Ada Board Yang And Buat
+
 											div(class='row')
 												div(class='col-md-6')
 													ul(class='pagination')
@@ -158,7 +167,7 @@ block content
 														th(class='text-center') Tags
 														th(class='text-center') Diperbaharui
 														th(class='text-center') 
-												tbody()
+												tbody(v-if="boards.bookmarked.length")
 													tr(v-for="board in boards.bookmarked")
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
@@ -169,6 +178,10 @@ block content
 														td() {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs') Lihat
+												tbody(v-if="!boards.bookmarked.length")
+													tr()
+														td(class='text-center' colspan="6") Tidak Ada Board Yang Anda Tandai
+
 											div(class='row')
 												div(class='col-md-6')
 													ul(class='pagination')
@@ -200,7 +213,7 @@ block content
 														th(class='text-center') Tags
 														th(class='text-center') Diperbaharui
 														th()
-												tbody()
+												tbody(v-if="boards.collaborated.length")
 													tr(v-for="board in boards.collaborated")
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
@@ -211,6 +224,10 @@ block content
 														td() {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs') Lihat
+												tbody(v-if="!boards.collaborated.length")
+													tr()
+														td(class='text-center' colspan="6") Tidak Ada Board Yang Anda Berkolaborasi
+
 											div(class='row')
 												div(class='col-md-6')
 													ul(class='pagination')
