@@ -8,7 +8,7 @@ html(lang="en")
 
 	body
 		
-		nav(class='navbar navbar-inverse navbar-fixed-top')
+		nav(class='navbar navbar-inverse navbar-fixed-top' style="border-color: rgb(23,30,38); background-color: rgb(23,30,38);")
 			div(class='container')
 				div(class='navbar-header')
 					a(class='navbar-brand' href='/') Berargumen
@@ -16,10 +16,10 @@ html(lang="en")
 					ul(class='nav navbar-nav navbar-right')
 						if user == null
 							li(style='margin-right:1px; margin-left:1px;')
-								button(onclick="window.location.href='/login'" class='btn btn-primary navbar-btn btn-sm') Masuk
+								button(onclick="window.location.href='/login'" class='btn btn-success navbar-btn btn-sm') Masuk
 						if user != null
 							li(style='margin-right:1px; margin-left:1px;')
-								button(onclick="window.location.href='/my-profile'" class='btn btn-success navbar-btn btn-sm') Profil Saya
+								button(onclick="window.open('/my-profile')" class='btn btn-success navbar-btn btn-sm') Profil Saya
 							li(style='margin-right:1px; margin-left:1px;')
 								button(onclick="window.location.href='/logout'" class='btn btn-danger navbar-btn btn-sm') Keluar
 		div(id='app')
