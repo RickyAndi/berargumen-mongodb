@@ -15,7 +15,8 @@ module.exports = function(app) {
 
 		res.render('profile', {
 			profileUser : user,
-			user : req.user
+			user : req.user,
+			title : user.name
 		});
 	}))
 
