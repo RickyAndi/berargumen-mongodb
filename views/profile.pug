@@ -30,5 +30,27 @@ block content
 											td()
 												strong Jenis Kelamin
 											td()= profileUser.gender
-
+			
+			div(class='col-md-12' id="app")
+				div(class='panel panel-default')
+					div(class='panel-heading')
+						h5 Boards
+					div(class='panel-body')
+						div(class='row')
+							div(class='col-md-6')
+								table(class='table table-default table-bordered')
+									tbody()
+										tr()
+											td()
+												strong Gambar
+											td()
+												img(src=profileUser.profilePicUrl)
+										tr()
+											td()
+												strong Nama
+											td()= profileUser.name
+										tr()
+											td()
+												strong Jenis Kelamin
+											td()= profileUser.gender												
 block script
