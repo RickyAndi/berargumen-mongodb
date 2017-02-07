@@ -34,12 +34,6 @@ block content
 												tr()
 													th Jenis Kelamin
 													td= user.gender
-												tr()
-													th Jumlah Board
-													td 0
-												tr()
-													th Jumlah Card
-													td 0
 
 							div(class='col-md-12')
 								div(class='panel panel-default')
@@ -58,7 +52,12 @@ block content
 													td(width='47%') {{ board.getDescription() }}
 													td(class="text-center")
 														button(class='btn btn-info btn-xs' @click="viewBoard(board.getId())") Lihat
-	
+										div(class='row')
+											div(class='col-md-6')
+												ul(class='pagination')
+													li(v-for='page in numberOfPages' v-if="!displayPaginationButton(currentPage, page)" v-bind:class="{ 'active' : currentPage == page }")
+														a(@click="boardsGoToPage(page)") {{ page }}
+
 	div(class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="createBoardModal")
 		div(class="modal-dialog modal-lg" role="document")
 			div(class="modal-content")
@@ -96,6 +95,8 @@ block script
 						description : ''
 					}
 				},
+				numberOfPages : 0,
+				currentPage : 1,
 				modals : {
 					createBoardModal : null
 				},
@@ -132,15 +133,22 @@ block script
 							console.log(error)
 						})
 				},
-				getBoards : function() {
+				getBoards : function(page) {
 					var vm = this;
 
 					var request = $.get({
 						url : '/api/my-boards',
+						data: { 
+						   page: page == null ? 1 : page, 
+						},
 					});
 
 					request
 						.then(function(boards) {
+
+							vm.boards.splice(0, vm.boards.length)
+							vm.numberOfPages = boards.pages;
+
 							boards.docs.forEach(function(board) {
 								var toBePushedboard  = new Board(board._id, board.title, board.description);
 								vm.boards.push(toBePushedboard);
@@ -153,7 +161,14 @@ block script
 				viewBoard : function(boardId) {
 					var url = '/board/' + boardId;
 					window.open(url);
-				}
+				},
+				boardsGoToPage : function(page) {
+					this.currentPage = page;
+					this.getBoards(page);
+				},
+				displayPaginationButton : function(currentPage, page) {
+					return (currentPage - 2) > page || (currentPage + 2) < page  
+				},
 			},
 			mounted : function() {
 				this.modals.createBoardModal = $('#createBoardModal');
