@@ -139,7 +139,7 @@ block content
 								button(v-bind:disabled="!isCurrentUserTheBoardCreator()" class='btn btn-primary navbar-btn btn-sm' @click="openCreateBoardToCreateContention()") Buat Kesimpulan
 
 	
-	div(id="argumen-container" style="min-width: 10000px; min-height:5000px;")
+	div(id="argumen-container" style="margin-top:100px; min-width: 10000px; min-height:5000px;")
 		draggable-card(
 			v-for="(card, index) in cards" 
 			v-bind:user="user" 
