@@ -29,18 +29,31 @@ block stylehead
 		}
 
 block content
-	div(class='jumbotron')
+	div(class='jumbotron' style="background-color:rgb(23,30,38);")
 		div(class='container' style='padding-top:50px;')
-			h1() Berargumen
-			p() &nbsp;Visualisasi argumen anda dengan diagram argumen
+			div(class='row')
+				div(class='col-md-6')
+					h1(style="color: white;") Berargumen
+					p(style="color: white;") &nbsp;Visualisasi argumen anda dengan diagram argumen
+				div(class='col-md-6')
+					img(src='/images/example.png' class="img-responsive img-rounded")
 	
 	
 
 	
 
-	div(class='container' style='min-height: 5000px;')
+	div(class='container' style='min-height: 1000px;')
 		div(class='row')
-			div(class='col-md-12')
+			div(class='col-md-12' style='margin-top: 5%; ')
+				div(class='row')
+					div(class='col-md-4')
+						p() Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+					div(class='col-md-4')
+						p() Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+					div(class='col-md-4')
+						p() Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+			div(class='col-md-12' style="margin-top: 10%;")
 				div(class='panel panel-default')
 					div(class='panel-heading')
 						p() Board
@@ -191,7 +204,7 @@ block content
 
 										div(class='col-md-12 text-center' v-if="currentUser == null")
 											br()
-											h5() Anda harus login untuk melihat board anda
+											h5() Anda harus login untuk melihat board yang anda tandai
 
 								div(class="tab-pane" id="4")
 									div(class='row')
