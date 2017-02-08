@@ -641,9 +641,12 @@ module.exports = function(app, io) {
 			}));
 			
 			var boardCollaboratorAddedEventName = boardId + ':collaborator-added';
-			
 			io.card.emit(boardCollaboratorAddedEventName, { userId : idToBeAddedToCollaborators });
 			
+			var boardCollaboratorAddedEventName = boardId + ':' + idToBeAddedToCollaborators + ':collaboratoration-state-change';
+			io.card.emit(boardCollaboratorAddedEventName, { 
+				value : true 
+			});
 			
 			res
 				.status(200)
@@ -661,7 +664,58 @@ module.exports = function(app, io) {
 					message : error.toString()
 				})
 		}
+	}));
+
+	app.post('/api/board/:boardId/reject-join', authMiddleware, async(function(req, res) {
+		
+		var boardId = req.params.boardId;
+		var idToBeRejected = req.body.userId;
+		var boardOwnerId = req.user._id;
+
+		try {
+
+			var board = await(Board.findOne({ _id : boardId, 'user.id' : boardOwnerId}));
+
+			if(!board) {
+				res
+					.status(404)
+					.json({
+						message : 'Board Not Found'
+					})
+			}
+
+			var collaboratorsRequests = board.collaboratorsRequest;
+
+			var collaboratorToBeRejected = collaboratorsRequests.find(function(request) {
+				return request.userId == idToBeRejected;
+			})
+
+			var updatedBoard = await(Board.update({ _id : boardId}, {
+				$push : { rejectedCollaboratorsRequest : collaboratorToBeRejected },
+				$pull : { collaboratorsRequest : { userId : idToBeRejected }}
+			}));
+			
+			var boardCollaboratorAddedEventName = boardId + ':' + idToBeRejected  + ':collaboratoration-state-change';
+			io.card.emit(boardCollaboratorAddedEventName, { 
+				value : false 
+			});
+			
+			res
+				.status(200)
+				.json({
+					message : 'Request Rejected Successfully'
+				})
+
+		} catch(error) {
+
+			res
+				.status(500)
+				.json({
+					message : error.toString()
+				})
+		}
 	}))
+
 
 	app.post('/api/board/:boardId/card', authMiddleware, async(function(req, res) {
 		
@@ -813,23 +867,104 @@ module.exports = function(app, io) {
 			isUserCollaborator : false,
 			isUserOwnerOfBoard : false,
 			isUserBookmarkedThisBoard : false,
+			isUserInRequestingToBeCollaborator : false,
+			isUserCollaboratorRequestRejected : false,
 			boardCards : [],
+			isUserLoggedIn : false,
+			boardCollaborators : [],
+			boardCollaboratorsRequest : [],
+			boardId : null,
+			user : null
 		};
 
-		var user = req.user;
-		var boardId = req.query.boardId;
-		var board = await(Board.findById(boardId));
-		
-		if(!board) {
+		try {
+
+			var user = req.user;
+			var boardId = req.query.boardId;
+			var board = await(Board.findById(boardId));
+			
+			if(!board) {
+
+				res
+					.status(404)
+					.json({
+						message : 'Board Not Found'
+					});
+			}
+
+			var cardsOfThisBoard = await(Card.find({ 
+				boardId : boardId,
+				deleted : false 
+			}));
+
+			dataToSent.boardId = board._id;
+			dataToSent.boardCards = cardsOfThisBoard;
+
+			if(user != null) {
+				
+				dataToSent.user = user;
+				
+				dataToSent.isUserLoggedIn = true;
+
+				// check if user is collaborators of board
+				var anyUserIdInCollaborator = board.collaborators.find(function(collaborator) {
+					return collaborator.userId == user._id;
+				});
+
+				if(anyUserIdInCollaborator != undefined) {
+					dataToSent.isUserCollaborator = true;				
+				}
+
+				//check if user is owner of board
+				if(board.user.id == user._id) {
+					
+					dataToSent.isUserOwnerOfBoard = true;
+					dataToSent.isUserCollaborator = true;
+
+					dataToSent.boardCollaborators = board.collaborators;
+					dataToSent.boardCollaboratorsRequest = board.collaboratorsRequest;
+				}
+
+				// check if user is in requesting to be collaborators
+				var anyUserIdInRequestCollaborators = board.collaboratorsRequest.find(function(collaborator) {
+					return collaborator.userId == user._id;
+				});
+
+				if(anyUserIdInRequestCollaborators != undefined) {
+					dataToSent.isUserInRequestingToBeCollaborator = true;				
+				}
+
+				// check if user collaborator request is rejected
+				var anyUserIdInRejectedRequestCollaborators = board.rejectedCollaboratorsRequest.find(function(collaborator) {
+					return collaborator.userId == user._id;
+				});
+
+				if(anyUserIdInRejectedRequestCollaborators != undefined) {
+					dataToSent.isUserCollaboratorRequestRejected = true;				
+				}
+
+				// check if user is already bookmarked this board
+				var anyUserIdInBookmarkedBy = board.bookmarkedBy.find(function(userIdThatBookmarkedThisBoard) {
+					return userIdThatBookmarkedThisBoard == user._id;
+				});
+
+				if(anyUserIdInBookmarkedBy != undefined) {
+					dataToSent.isUserBookmarkedThisBoard  = true;				
+				}
+			}
 
 			res
-				.status(404)
-				.json({
-					message : 'Board Not Found'
-				});
-		}
+				.status(200)
+				.json(dataToSent);
 
-		var cardsOfThisBoard = await();
+		} catch(error) {
+
+			res
+				.status(500)
+				.json({
+					message : error.toString()
+				})
+		}
 		
 
 	}));
