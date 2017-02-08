@@ -488,6 +488,7 @@ var draggableCardComponent = Vue.component('draggable-card', {
 		var vm = this;
 
 		$('#' + vm.card.getId()).draggable({
+			containment : 'parent',
 			stop : function(event, ui) {
 				if(vm.isUserOwner() || vm.isUserBoardOwner) {
 					vm.$emit('drag-stop', { pageY : this.style.left, pageX : this.style.top, index : vm.index });
