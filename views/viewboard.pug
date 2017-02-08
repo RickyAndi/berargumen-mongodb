@@ -90,11 +90,17 @@ block content
 									option(value="0.4") 40%
 									option(value="0.3") 30%
 									option(value="0.2") 20%
-							div(class='col-md-6' v-if="board.getUser() != null")
+							div(class='col-md-6')
 								if isUserBoardOwner && user != null
-									button(v-bind:disabled="!isCurrentUserTheBoardCreator()" class='btn btn-primary navbar-btn btn-sm' @click="openCreateBoardToCreateContention()") Buat Kesimpulan
+									button(v-bind:disabled="!isUserOwnerOfBoard" class='btn btn-primary navbar-btn btn-sm' @click="openCreateBoardToCreateContention()") Buat Kesimpulan
 								else 
-									button(v-bind:disabled="!isCurrentUserTheBoardCreator()" class='btn btn-primary navbar-btn btn-sm') Buat Kesimpulan
+									button( 
+										class='btn btn-danger navbar-btn btn-sm'
+										data-toggle='popover',
+										data-content='Hanya pemilik board yang bisa buat kesimpulan'
+										data-trigger='hover'
+										data-placement="left" 
+									) Anda tidak bisa buat kesimpulan
 	
 	div(class='panel panel-default' style='width : 250px; position: fixed; top: 115px; left: 15px; z-index: 100;')
 		div(class='panel-body')
@@ -108,25 +114,45 @@ block content
 			) Mengenai Board Ini
 				
 			if !isUserBoardOwner && user != null
-				div(v-if="board.getUser() != null")
+				div()
+					
+					button(
+						class='btn btn-danger navbar-btn btn-sm btn-block' 
+						data-toggle='popover',
+						data-content='Permintaan menjadi kolaborator anda ditolak'
+						data-trigger='hover'
+						v-if="!isUserCollaborator && !isUserInRequestingToBeCollaborator && isUserCollaboratorRequestRejected"
+						v-cloak
+					) Permintaan anda ditolak
+
+					button(
+						class='btn btn-warning navbar-btn btn-sm btn-block' 
+						data-toggle='popover',
+						data-content='Menunggu persetujuan pemilik board'
+						data-trigger='hover'
+						v-if="!isUserCollaborator && isUserInRequestingToBeCollaborator"
+						v-cloak
+					) Menunggu persetujuan pemilik board
+
 					button(
 						class='btn btn-success navbar-btn btn-sm btn-block' 
 						data-toggle='popover',
 						data-content='Jika anda ingin gabung ke board ini, klik tombol ini'
 						data-trigger='hover'
-						v-if="!currentUserIsCollaborator"
+						v-if="!isUserCollaborator && !isUserInRequestingToBeCollaborator && !isUserCollaboratorRequestRejected"
 						@click="requestToJoinBoard()"
 						v-cloak
 					) Gabung ke board ini
 
 					button(
-						class='btn btn-warning navbar-btn btn-sm btn-block' 
+						class='btn btn-success navbar-btn btn-sm btn-block' 
 						data-toggle='popover',
 						data-content='Anda Sudah Tergabung Ke Board Ini '
 						data-trigger='hover'
-						v-if="currentUserIsCollaborator"
+						v-if="isUserCollaborator && !isUserInRequestingToBeCollaborator && !isUserCollaboratorRequestRejected"
 						v-cloak
 					) Sudah Tergabung Ke Board Ini
+
 			else if user == null
 				div()
 			else if user && isUserBoardOwner
@@ -140,16 +166,28 @@ block content
 					) Board Anda
 
 				div()
-					button(v-cloak class='btn btn-primary navbar-btn btn-sm btn-block' @click="openCollaboratorsModal()") Permintaan Kolaborator 
+					button(v-cloak class='btn btn-warning navbar-btn btn-sm btn-block' @click="openCollaboratorsModal()") Permintaan Kolaborator 
 						span(class='badge' v-cloak) {{ numberOfCollaboratorsRequest }}
-
-			button(
-				class='btn btn-default navbar-btn btn-sm btn-block' 
-				data-toggle='popover',
-				data-content='Tandai board ini agar anda mudah untuk menemukannya nanti'
-				data-trigger='hover'
-				v-cloak
-			) Tandai Board Ini
+			
+			if !isUserBoardOwner && user != null
+				button(
+					@click="bookmarkThisBoard()"
+					class='btn btn-default navbar-btn btn-sm btn-block' 
+					data-toggle='popover',
+					data-content='Tandai board ini agar anda mudah untuk menemukannya nanti'
+					data-trigger='hover'
+					v-cloak
+					v-if="!isUserBookmarkedThisBoard"
+				) Tandai Board Ini
+				button(
+					@click="removeBookmarkThisBoard()"
+					class='btn btn-success navbar-btn btn-sm btn-block' 
+					data-toggle='popover',
+					data-content='Anda sudah mendandai board ini'
+					data-trigger='hover'
+					v-cloak
+					v-if="isUserBookmarkedThisBoard"
+				) Hilangkan tanda dari board ini
 
 	div(class='container-fluid')
 		div(class='row')
@@ -163,8 +201,8 @@ block content
 						v-bind:scale="scale" 
 						v-bind:leftsubtraction="leftSubtractValue" 
 						v-bind:topsubtraction="topSubtractValue"
-						v-bind:is-current-user-collaborator-of-board="currentUserIsCollaborator" 
-						v-bind:is-user-board-owner="isCurrentUserTheBoardCreator()" 
+						v-bind:is-current-user-collaborator-of-board="isUserCollaborator" 
+						v-bind:is-user-board-owner="isUserOwnerOfBoard" 
 						v-on:drag-stop="saveCardPositionChange" 
 						v-on:delete-card="openModalAndSetCardToBeDeleted" 
 						v-on:create-related-card="createRelatedCard"
@@ -206,12 +244,10 @@ block content
 		div(class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="collaborator-modal")
 			div(class="modal-dialog modal-md" role="document")
 				div(class="modal-content")
-					div(class="modal-header")
-						h4() Kolaborator
 					div(class="modal-body")
 						div(class='row')
 							div(class='col-md-12')
-								h4() Kolaborator
+								h5() Kolaborator
 								table(class='table table-default table-striped table-bordered')
 									thead()
 										tr()
@@ -224,9 +260,9 @@ block content
 											td(class='text-center') {{ collaborator.name }}
 									tbody(v-if="!boardCollaborators.length")
 										tr()
-											td(colspan='2') Tidak Ada Kolaborator
+											td(colspan='2' class='text-center') Tidak Ada Kolaborator
 							div(class='col-md-12')
-								h4() Permintaan Kolaborator
+								h5() Permintaan Kolaborator
 								table(class='table table-default table-striped table-bordered')
 									thead()
 										tr()
@@ -235,11 +271,12 @@ block content
 											th(class='text-center') 
 									tbody(v-if="collaboratorsRequest.length")
 										tr(v-for="(collaborator, index) in collaboratorsRequest")
-											td()
+											td(class='text-center')
 												img(v-bind:src="collaborator.profilePic")
-											td() {{ collaborator.name }}
-											td()
+											td(class='text-center') {{ collaborator.name }}
+											td(class='text-center')
 												button(class='btn btn-success btn-sm' @click="acceptCollaboratorRequest(collaborator.userId, index)") Terima
+												button(class='btn btn-danger btn-sm' @click="rejectCollaboratorRequest(collaborator.userId, index)") Tolak
 									tbody(v-if="!collaboratorsRequest.length")
 										tr()
 											td(colspan='3' class='text-center') Tidak Ada Permintaan
@@ -307,9 +344,13 @@ block script
 				scale : 1,
 				leftSubtractValue : 0,
 				topSubtractValue : 0,
-				isCurrentUserBoardCollaborator : false,
-				isCurrentUserInRequestingToBeBoardCollaborator : false,
-				isCurrentUserBookmarkedThisBoard : false
+				isUserBookmarkedThisBoard : false,
+				isUserCollaborator : false,
+				isUserInRequestingToBeCollaborator : false,
+				isUserLoggedIn : false,
+				isUserOwnerOfBoard : false,
+				isUserCollaboratorRequestRejected : false,
+				boardInitialization : true
 			},
 			components : {
 				'draggable-card' : draggableCardComponent
@@ -333,6 +374,8 @@ block script
 				},
 				getBoardData : function() {
 					
+					// set collaboratorIds
+
 					var vm = this;
 
 					var boardId = $('meta[name=boardId]').attr("content");
@@ -403,6 +446,83 @@ block script
 						.catch(function(error) {
 							console.log(error)
 						})
+				},
+				getViewBoardPageData : function() {
+
+					var vm = this;
+
+					var boardId = $('meta[name=boardId]').attr("content");
+
+					var url = '/api/page-data/view-board';
+
+					var request = $.get({
+						url : url,
+						data : {
+							boardId : boardId
+						}
+					});
+
+					return request
+						.then(function(data) {
+							
+							// set boardId
+							vm.board.setId(data.boardId);
+
+							// set User
+							if(data.isUserLoggedIn) {
+								vm.user
+									.setId(data.user._id)
+									.setName(data.user.name)
+							}
+							
+							// set user state from response
+							vm.isUserBookmarkedThisBoard = data.isUserBookmarkedThisBoard;
+							vm.isUserCollaborator = data.isUserCollaborator;
+							vm.isUserInRequestingToBeCollaborator = data.isUserInRequestingToBeCollaborator;
+							vm.isUserLoggedIn = data.isUserLoggedIn;
+							vm.isUserOwnerOfBoard = data.isUserOwnerOfBoard;
+							vm.isUserCollaboratorRequestRejected = data.isUserCollaboratorRequestRejected;
+
+							// if user is board owner, so get boardCollaborators and board collaborator request
+							if(data.isUserOwnerOfBoard) {
+								
+								data.boardCollaboratorsRequest.forEach(function(request) {
+									vm.collaboratorsRequest.push(request);
+								});
+
+								data.boardCollaborators.forEach(function(collaborator) {
+									vm.boardCollaborators.push(collaborator);
+								})
+							}
+
+							// get card data
+							data.boardCards.forEach(function(card) {
+								
+								var cardInstance = new Card();
+								var creatorOfCard = new User(card.creator.id, card.creator.name, null);
+								
+								var cardRelation = new Relation();
+									cardRelation
+										.setTo(card.related.to)
+										.setType(card.related.type);
+
+								cardInstance
+									.setId(card._id)
+									.setTitle(card.title)
+									.setContent(card.content)
+									.setType(card.type)
+									.setCreator(creatorOfCard)
+									.setLeft(card.left)
+									.setTop(card.top)
+									.setRelation(cardRelation);
+
+								vm.cards.push(cardInstance);
+							});
+						})
+						.catch(function(error) {
+							alert('Error Happen');
+							console.log(error);
+						});
 				},
 				openCreateBoardToCreateContention : function() {
 					this.formStatus = 'create-contention';
@@ -677,46 +797,6 @@ block script
 				decideIfCurrentUserBoardCollaborator : function() {
 					return this.board.isUserCollaborator(this.user) || this.isCurrentUserTheBoardCreator();
 				},
-				getCollaboratorsRequest : function() {
-					var vm = this;
-
-					var boardId = $('meta[name=boardId]').attr("content");
-					var url = '/api/board/' + boardId + '/collaborators-request';
-
-					var request = $.get({
-						url : url
-					})
-
-					request
-						.then(function(collaboratorsRequest) {
-							collaboratorsRequest.forEach(function(request) {
-								vm.collaboratorsRequest.push(request);
-							})
-						})
-						.catch(function(error) {
-
-						})
-				},
-				getCollaborators : function() {
-					var vm = this;
-
-					var boardId = $('meta[name=boardId]').attr("content");
-					var url = '/api/board/' + boardId + '/collaborators';
-
-					var request = $.get({
-						url : url
-					})
-
-					request
-						.then(function(collaborators) {
-							collaborators.forEach(function(collaborator) {
-								vm.boardCollaborators.push(collaborator);
-							})
-						})
-						.catch(function(error) {
-
-						})
-				},
 				requestToJoinBoard : function() {
 					var vm = this;
 
@@ -729,10 +809,10 @@ block script
 
 					request
 						.then(function(collaboratorsRequest) {
-							console.log(collaboratorsRequest);
+							vm.isUserInRequestingToBeCollaborator = true;
 						})
 						.catch(function(error) {
-
+							console.log(error);
 						})
 				},
 				openCollaboratorsModal : function() {
@@ -780,6 +860,62 @@ block script
 					});
 
 					return request;
+				},
+				rejectCollaboratorRequest : function(userId, index) {
+					var vm = this;
+
+					var boardId = $('meta[name=boardId]').attr("content");
+					var url = '/api/board/' + boardId + '/reject-join';
+
+					var request = $.post({
+						url : url,
+						data : JSON.stringify({ userId : userId }),
+						contentType : 'application/json; charset=UTF-8',
+					});
+
+					request
+						.then(function(collaborator) {
+							vm.collaboratorsRequest.splice(index, 1);
+						})
+						.catch(function(error) {
+
+						})
+				},
+				bookmarkThisBoard : function() {
+					var vm = this;
+
+					var boardId = $('meta[name=boardId]').attr("content");
+					var url = '/api/board/' + boardId + '/bookmark';
+
+					var request = $.post({
+						url : url,
+					});
+
+					request
+						.then(function() {
+							vm.isUserBookmarkedThisBoard = true;
+						})
+						.catch(function(error) {
+
+						})
+				},
+				removeBookmarkThisBoard : function(){
+					var vm = this;
+
+					var boardId = $('meta[name=boardId]').attr("content");
+					var url = '/api/board/' + boardId + '/remove-bookmark';
+
+					var request = $.post({
+						url : url,
+					});
+
+					request
+						.then(function() {
+							vm.isUserBookmarkedThisBoard = false;
+						})
+						.catch(function(error) {
+
+						})
 				}
 			},
 			computed : {
@@ -804,39 +940,32 @@ block script
 				},
 				currentUserIsCollaborator : function() {
 					return this.decideIfCurrentUserBoardCollaborator()
-				},
-				getViewBoardPageData : function() {
-					var boardId = $('meta[name=boardId]').attr("content");
 				}
 			},
 			mounted :function() {
 				
-				jsPlumb.setContainer("argumen-container");
-
 				var vm = this;
 
-				this.getBoardData()
+				jsPlumb.setContainer("argumen-container");
+
+				this.getViewBoardPageData()
 					.then(function() {
-						
-						vm.getUser()
-							.then(function() {
-								vm.isCurrentUserBoardCollaborator = vm.decideIfCurrentUserBoardCollaborator();
 
-								if(vm.isCurrentUserTheBoardCreator()) {
+						$('[data-toggle="popover"]').popover({
+							container: 'body'
+						}); 
+					
+						vm.sockets.card = io('/card');
 
-									var collaboratorsRequestAddedEventName = vm.board.getId() + ':collaborator-request-added';
-									
-									vm.sockets.card.on(collaboratorsRequestAddedEventName, function(userData) {
-										vm.collaboratorsRequest.push(userData)
-									})
+						if(vm.isUserOwnerOfBoard) {
 
-									vm.getCollaborators();
-									vm.getCollaboratorsRequest();
-								}
-							});
+							var collaboratorsRequestAddedEventName = vm.board.getId() + ':collaborator-request-added';
+							
+							vm.sockets.card.on(collaboratorsRequestAddedEventName, function(userData) {
+								vm.collaboratorsRequest.push(userData)
+							})
+						}
 
-						vm.sockets.card = io('/card');;
-						
 						var cardCreatedEventName = vm.board.getId() + ':card-created';
 						
 						vm.sockets.card.on(cardCreatedEventName, function(newCard) {
@@ -894,17 +1023,23 @@ block script
 						var collaboratorAddedEventName = vm.board.getId() + ':collaborator-added';
 						
 						vm.sockets.card.on(collaboratorAddedEventName, function(userData) {
-							console.log(userData)
 							vm.board.collaboratorIds.push(userData.userId);
 						})
+
+						var currentUserChangeCollaboratorState = vm.board.getId() + ':' + vm.user.getId() + ':collaboratoration-state-change';
+						
+						vm.sockets.card.on(currentUserChangeCollaboratorState, function(userCollaborationState) {
+							if(userCollaborationState.value) {
+								vm.isUserCollaborator = true;
+								vm.isUserInRequestingToBeCollaborator = false;
+							} else {
+								vm.isUserCollaboratorRequestRejected = true;
+								vm.isUserInRequestingToBeCollaborator = false;
+							}
+						})
+
 					});
-
-				this.getCards().then(function() {
-					$('[data-toggle="popover"]').popover({
-						container: 'body'
-					}); 
-				});
-
+				
 				this.editor = $('#content-editor');
 
 				this.editor.summernote({
