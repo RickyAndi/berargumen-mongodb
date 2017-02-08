@@ -84,6 +84,27 @@ module.exports = function(app, io) {
 		
 	}))
 
+	app.get('/api/user/:userId/boards', async(function(req, res) {
+
+		var page = req.query.page;
+		var userId = req.params.userId;
+
+		try {
+			
+			var boards = await(Board.paginate({'user.id' : userId }, { page: page, limit: 5 }));
+			res.json(boards)
+
+		} catch(error) {
+
+			res
+				.status(500)
+				.json({
+					message : error.toString()
+				})
+		}
+		
+	}))
+
 	app.get('/api/collaborated-boards', authMiddleware, async(function(req, res) {
 		
 		var userId = req.user._id;
