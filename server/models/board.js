@@ -31,6 +31,16 @@ var boardSchema = new Schema({
 			profilePic : String	
 		}
 	],
+	rejectedCollaboratorsRequest : [
+		{
+			userId : { 
+				type : Schema.Types.ObjectId, 
+				ref : 'User' 
+			},
+			name : String,
+			profilePic : String	
+		}
+	],
 	bookmarkedBy : [{
 		type : Schema.Types.ObjectId, 
 		ref : 'User'
