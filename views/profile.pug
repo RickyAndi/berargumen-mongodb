@@ -3,6 +3,7 @@ extends layouts/main.pug
 block stylehead
 	link(rel='stylesheet' href='/bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.css')
 	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
+	meta(name='userId' content=profileUser._id)
 
 
 block content
@@ -26,31 +27,102 @@ block content
 											td()
 												strong Nama
 											td()= profileUser.name
-										tr()
-											td()
-												strong Jenis Kelamin
-											td()= profileUser.gender
 			
-			div(class='col-md-12' id="app")
+			div(class='col-md-12' id="board-panel")
 				div(class='panel panel-default')
 					div(class='panel-heading')
 						h5 Boards
 					div(class='panel-body')
 						div(class='row')
-							div(class='col-md-6')
+							div(class='col-md-12')
 								table(class='table table-default table-bordered')
-									tbody()
+									thead()
 										tr()
-											td()
-												strong Gambar
-											td()
-												img(src=profileUser.profilePicUrl)
+											th(class='text-center') Judul
+											th(class='text-center') Deskripsi
+											th(class='text-center') Tags
+											th(class='text-center') Diperbaharui
+											th(class='text-center') 
+									tbody(v-if="boards.length")
+										tr(v-for="board in boards")
+											td() {{ board.getTitle() }}
+											td() {{ board.getDescription() }}
+											td() 
+												button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()") {{ tag }}
+											td() {{ board.getUpdatedDate() }}
+											td(class='text-center')
+												button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs') Lihat
+									tbody(v-if="!boards.length")
 										tr()
-											td()
-												strong Nama
-											td()= profileUser.name
-										tr()
-											td()
-												strong Jenis Kelamin
-											td()= profileUser.gender												
+											td(class='text-center' colspan="5") Tidak ada board
+
+								div(class='row')
+										div(class='col-md-12')
+											ul(class='pagination')
+												li(v-for='page in numberOfPages' v-if="!displayPaginationButton(currentPage, page)" v-bind:class="{ 'active' : currentPage == page }")
+													a(@click="boardsGoToPage(page)") {{ page }}				
 block script
+	script(type='text/javascript' src='/bower_components/jquery/dist/jquery.js')
+	script(type='text/javascript' src='/bower_components/bootstrap/dist/js/bootstrap.js')
+	script(type='text/javascript' src='/bower_components/vue/dist/vue.js')
+	script(type='text/javascript' src='/bower_components/moment/moment.js')
+	script(type='text/javascript' src='/models/board.js')
+
+	script(type='text/javascript').
+		var app = new Vue({
+			el: '#board-panel',
+			data : {
+				boards : [],
+				userId : null,
+				currentPage : 1,
+				numberOfPages : 0
+			},
+			methods : {
+				getBoards : function(page) {
+					
+					var vm = this;
+					
+					var url = '/api/user/' + this.userId + '/boards';
+					var request = $.get({
+						url : url,
+						data : {
+							page : page == null ? 1 : page
+						}
+					})
+
+					return request
+						.then(function(boards) {
+							vm.boards.splice(0, vm.boards.length)
+
+							vm.numberOfPages = boards.pages;
+
+							boards.docs.forEach(function(board) {
+								var updatedDate = moment(board.updated).format('D-MM-YYYY');
+								var toBePushedboard  = new Board(board._id, board.title, board.description, null, updatedDate, board.tags);
+
+								vm.boards.push(toBePushedboard);
+							})
+						})
+						.catch(function() {
+
+						})
+				},
+				displayPaginationButton : function(currentPage, page) {
+					return (currentPage - 2) > page || (currentPage + 2) < page  
+				},
+				boardsGoToPage : function(page) {
+					this.currentPage = page;
+					this.getBoards(page);
+				},
+				viewBoard : function(boardId) {
+					var url = '/board/' + boardId;
+					window.open(url);
+				},
+			},
+			mounted : function() {
+				this.userId = $('meta[name=userId]').attr("content");
+				
+				this.getBoards();
+			}
+
+		})
