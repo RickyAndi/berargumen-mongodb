@@ -74,51 +74,7 @@ block content
 				div(class='col-md-12')
 					div(class='pull-left')
 						div(class='row')
-							div(class='col-md-4')
-								button(
-									class='btn btn-primary navbar-btn btn-sm' 
-									data-toggle='popover',
-									title=board.title
-									data-content='oleh ' + board.user.name
-									data-trigger='hover'
-									v-cloak
-								) Mengenai Board Ini
-									
-							if !isUserBoardOwner && user != null
-								div(class='col-md-4' v-if="board.getUser() != null")
-									button(
-										class='btn btn-success navbar-btn btn-sm' 
-										data-toggle='popover',
-										data-content='Jika anda ingin gabung ke board ini, klik tombol ini'
-										data-trigger='hover'
-										v-if="!currentUserIsCollaborator"
-										@click="requestToJoinBoard()"
-										v-cloak
-									) Gabung ke board ini
-
-									button(
-										class='btn btn-warning navbar-btn btn-sm' 
-										data-toggle='popover',
-										data-content='Anda Sudah Tergabung Ke Board Ini '
-										data-trigger='hover'
-										v-if="currentUserIsCollaborator"
-										v-cloak
-									) Sudah Tergabung Ke Board Ini
-							else if user == null
-								div(class='col-md-4')
-							else if user && isUserBoardOwner
-								div(class='col-md-4')
-									button(
-										class='btn btn-success navbar-btn btn-sm' 
-										data-toggle='popover',
-										data-content='Board Anda'
-										data-trigger='hover'
-										v-cloak
-									) Board Anda
-
-								div(class='col-md-4')
-									button(v-cloak class='btn btn-primary navbar-btn btn-sm' @click="openCollaboratorsModal()") Permintaan Kolaborator 
-										span(class='badge' v-cloak) {{ numberOfCollaboratorsRequest }}
+							
 
 
 					div(class='pull-right')
@@ -134,29 +90,88 @@ block content
 									option(value="0.4") 40%
 									option(value="0.3") 30%
 									option(value="0.2") 20%
-									option(value="0.1") 10%
 							div(class='col-md-6' v-if="board.getUser() != null")
-								button(v-bind:disabled="!isCurrentUserTheBoardCreator()" class='btn btn-primary navbar-btn btn-sm' @click="openCreateBoardToCreateContention()") Buat Kesimpulan
-
+								if isUserBoardOwner && user != null
+									button(v-bind:disabled="!isCurrentUserTheBoardCreator()" class='btn btn-primary navbar-btn btn-sm' @click="openCreateBoardToCreateContention()") Buat Kesimpulan
+								else 
+									button(v-bind:disabled="!isCurrentUserTheBoardCreator()" class='btn btn-primary navbar-btn btn-sm') Buat Kesimpulan
 	
-	div(id="argumen-container" style="margin-top:100px; min-width: 10000px; min-height:5000px;")
-		draggable-card(
-			v-for="(card, index) in cards" 
-			v-bind:user="user" 
-			v-bind:card="card" 
-			v-bind:index="index" 
-			v-bind:scale="scale" 
-			v-bind:leftsubtraction="leftSubtractValue" 
-			v-bind:topsubtraction="topSubtractValue"
-			v-bind:is-current-user-collaborator-of-board="currentUserIsCollaborator" 
-			v-bind:is-user-board-owner="isCurrentUserTheBoardCreator()" 
-			v-on:drag-stop="saveCardPositionChange" 
-			v-on:delete-card="openModalAndSetCardToBeDeleted" 
-			v-on:create-related-card="createRelatedCard"
-			v-on:connection-created="addCardConnection"
-			v-on:card-destroyed="removeConnectionByCardId"
-			v-on:change-card="openModalToChangeCard"
-		) 
+	div(class='panel panel-default' style='width : 250px; position: fixed; top: 115px; left: 15px; z-index: 100;')
+		div(class='panel-body')
+			button(
+				class='btn btn-primary navbar-btn btn-sm btn-block' 
+				data-toggle='popover',
+				title=board.title
+				data-content='oleh ' + board.user.name
+				data-trigger='hover'
+				v-cloak
+			) Mengenai Board Ini
+				
+			if !isUserBoardOwner && user != null
+				div(v-if="board.getUser() != null")
+					button(
+						class='btn btn-success navbar-btn btn-sm btn-block' 
+						data-toggle='popover',
+						data-content='Jika anda ingin gabung ke board ini, klik tombol ini'
+						data-trigger='hover'
+						v-if="!currentUserIsCollaborator"
+						@click="requestToJoinBoard()"
+						v-cloak
+					) Gabung ke board ini
+
+					button(
+						class='btn btn-warning navbar-btn btn-sm btn-block' 
+						data-toggle='popover',
+						data-content='Anda Sudah Tergabung Ke Board Ini '
+						data-trigger='hover'
+						v-if="currentUserIsCollaborator"
+						v-cloak
+					) Sudah Tergabung Ke Board Ini
+			else if user == null
+				div()
+			else if user && isUserBoardOwner
+				div()
+					button(
+						class='btn btn-success navbar-btn btn-sm btn-block' 
+						data-toggle='popover',
+						data-content='Board Anda'
+						data-trigger='hover'
+						v-cloak
+					) Board Anda
+
+				div()
+					button(v-cloak class='btn btn-primary navbar-btn btn-sm btn-block' @click="openCollaboratorsModal()") Permintaan Kolaborator 
+						span(class='badge' v-cloak) {{ numberOfCollaboratorsRequest }}
+
+			button(
+				class='btn btn-default navbar-btn btn-sm btn-block' 
+				data-toggle='popover',
+				data-content='Tandai board ini agar anda mudah untuk menemukannya nanti'
+				data-trigger='hover'
+				v-cloak
+			) Tandai Board Ini
+
+	div(class='container-fluid')
+		div(class='row')
+			div(class="col-md-12")
+				div(id="argumen-container" style="margin-top:100px; min-width: 10000px; min-height:5000px;")
+					draggable-card(
+						v-for="(card, index) in cards" 
+						v-bind:user="user" 
+						v-bind:card="card" 
+						v-bind:index="index" 
+						v-bind:scale="scale" 
+						v-bind:leftsubtraction="leftSubtractValue" 
+						v-bind:topsubtraction="topSubtractValue"
+						v-bind:is-current-user-collaborator-of-board="currentUserIsCollaborator" 
+						v-bind:is-user-board-owner="isCurrentUserTheBoardCreator()" 
+						v-on:drag-stop="saveCardPositionChange" 
+						v-on:delete-card="openModalAndSetCardToBeDeleted" 
+						v-on:create-related-card="createRelatedCard"
+						v-on:connection-created="addCardConnection"
+						v-on:card-destroyed="removeConnectionByCardId"
+						v-on:change-card="openModalToChangeCard"
+					) 
 			
 	div(class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="create-card-modal")
 		div(class="modal-dialog modal-lg" role="document")
@@ -169,7 +184,7 @@ block content
 						textarea(class='form-control' v-model="forms.createCard.title" rows="10")
 					div(class='form-group')
 						label(class='label-control') Catatan 
-							span(style='font-size:11px;') (Anda bisa menambahkan catatan berupa penjelasan, referensi, link, gambar, video, dll)
+							span(style='font-size:11px;') (Anda bisa menambahkan catatan berupa penjelasan, referensi, link, gambar, link video)
 						div(id="content-editor")
 					div(class='form-group')
 						button(class='btn btn-success btn-sm' @click="createCard()") Simpan
@@ -231,9 +246,13 @@ block content
 							div(class='col-md-12')
 								div(class='pull-right')
 									button(class='btn btn-danger btn-sm' @click="hideCollaboratorsModal()") Tutup
+
+block scriptHead
+	script(type='text/javascript' src='/bower_components/jquery/dist/jquery.min.js')
+	script(type='text/javascript' src='/bower_components/jquery-ui/jquery-ui.min.js')
+	
+
 block script
-	script(type='text/javascript' src='/bower_components/jquery/dist/jquery.js')
-	script(type='text/javascript' src='/bower_components/jquery-ui/jquery-ui.js')
 	script(type='text/javascript' src='/bower_components/bootstrap/dist/js/bootstrap.js')
 	script(type='text/javascript' src='/bower_components/vue/dist/vue.js')
 	script(type='text/javascript' src='/bower_components/summernote/dist/summernote.js')
@@ -288,7 +307,9 @@ block script
 				scale : 1,
 				leftSubtractValue : 0,
 				topSubtractValue : 0,
-				isCurrentUserBoardCollaborator : false
+				isCurrentUserBoardCollaborator : false,
+				isCurrentUserInRequestingToBeBoardCollaborator : false,
+				isCurrentUserBookmarkedThisBoard : false
 			},
 			components : {
 				'draggable-card' : draggableCardComponent
@@ -330,9 +351,9 @@ block script
 
 							var boardCreator = new User();
 
-								boardCreator
-									.setName(board.user.name)
-									.setId(board.user.id);
+							boardCreator
+								.setName(board.user.name)
+								.setId(board.user.id);
 
 							vm.board
 								.setId(board._id)
@@ -455,19 +476,19 @@ block script
 						'0.7' 	: 10,
 						'0.8' 	: 10,
 						'0.9' 	: 10,
-						'1' 	: 0
+						'1' 	: 10
 					};
 
 					var topSubtractValueMap = {
-						'0.2'	: 200,
-						'0.3'	: 100,
-						'0.4' 	: 80,
-						'0.5'	: 26,
-						'0.6'	: 25,
-						'0.7'	: 20,
-						'0.8'	: 10,
-						'0.9' 	: 10,
-						'1' 	: 0
+						'0.2'	: 500,
+						'0.3'	: 320,
+						'0.4' 	: 250,
+						'0.5'	: 190,
+						'0.6'	: 170,
+						'0.7'	: 150,
+						'0.8'	: 130,
+						'0.9' 	: 100,
+						'1' 	: 90
 					};
 
 					this.scale = parseFloat(event.target.value);;
@@ -783,6 +804,9 @@ block script
 				},
 				currentUserIsCollaborator : function() {
 					return this.decideIfCurrentUserBoardCollaborator()
+				},
+				getViewBoardPageData : function() {
+					var boardId = $('meta[name=boardId]').attr("content");
 				}
 			},
 			mounted :function() {
