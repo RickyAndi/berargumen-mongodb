@@ -506,6 +506,111 @@ module.exports = function(app, io) {
 		}
 	}))
 
+	app.post('/api/board/:boardId/bookmark', authMiddleware, async(function(req, res) {
+
+		var boardId = req.params.boardId;
+		var userId = req.user._id;
+
+		try {
+
+			var board = await(Board.findById(boardId));
+
+			if(!board) {
+				res
+					.status(404)
+					.json({
+						message : 'Boar Not Found'
+					})
+			}
+
+			var isUserIdInBookmarkedBy = board.bookmarkedBy.find(function(userIdThatBookmarkedThisBoard) {
+				return userId == userIdThatBookmarkedThisBoard; 
+			});
+
+			if(isUserIdInBookmarkedBy == undefined) {
+				
+				var updatedBoard = await(Board.update({ _id : boardId}, {
+					$push : { bookmarkedBy : mongoose.Types.ObjectId(userId) }
+				}));
+
+				res
+					.status(200)
+					.json({
+						message : 'Successfully bookmarked'
+					});
+
+			} else {
+				res
+					.status(400)
+					.json({
+						message : 'Already Bookmarked'
+					})
+			}
+
+		} catch(error) {
+
+			res
+				.status(500)
+				.json({
+					message : error.toString()
+				});
+		}
+
+	}));
+
+	app.post('/api/board/:boardId/remove-bookmark', authMiddleware, async(function(req, res) {
+		
+		var boardId = req.params.boardId;
+		var userId = req.user._id;
+
+		try {
+
+			var board = await(Board.findById(boardId));
+
+			if(!board) {
+				res
+					.status(404)
+					.json({
+						message : 'Board Not Found'
+					})
+			}
+
+			var isUserIdInBookmarkedBy = board.bookmarkedBy.find(function(userIdThatBookmarkedThisBoard) {
+				return userId == userIdThatBookmarkedThisBoard; 
+			});
+
+			if(isUserIdInBookmarkedBy != undefined) {
+				
+				var updatedBoard = await(Board.update({ _id : boardId}, {
+					$pull : { bookmarkedBy : mongoose.Types.ObjectId(userId) }
+				}));
+
+
+				res
+					.status(200)
+					.json({
+						message : 'Bookmark successfully removed'
+					});
+
+			} else {
+				res
+					.status(400)
+					.json({
+						message : 'Trying to remove bookmark, but this board is not bookmarked'
+					})
+			}
+
+		} catch(error) {
+
+			res
+				.status(500)
+				.json({
+					message : error.toString()
+				});
+		}
+
+	}));
+
 	app.post('/api/board/:boardId/accept-join', authMiddleware, async(function(req, res) {
 		
 		var boardId = req.params.boardId;
@@ -578,8 +683,8 @@ module.exports = function(app, io) {
 			var cardTitle = req.body.title;
 			var cardContent = req.body.content;
 			var cardType = req.body.type;
-			var cardTop = '100px';
-			var cardLeft = '100px';
+			var cardTop = '200px';
+			var cardLeft = '200px';
 			var cardId = null;
 			var relationType = null;
 
@@ -700,5 +805,32 @@ module.exports = function(app, io) {
 				message : 'upload complete',
 				imageUrl : '/uploads/' + req.file.filename
 			})
-	})
+	});
+
+	app.get('/api/page-data/view-board', async(function(req, res) {
+		
+		var dataToSent = {
+			isUserCollaborator : false,
+			isUserOwnerOfBoard : false,
+			isUserBookmarkedThisBoard : false,
+			boardCards : [],
+		};
+
+		var user = req.user;
+		var boardId = req.query.boardId;
+		var board = await(Board.findById(boardId));
+		
+		if(!board) {
+
+			res
+				.status(404)
+				.json({
+					message : 'Board Not Found'
+				});
+		}
+
+		var cardsOfThisBoard = await();
+		
+
+	}));
 }
