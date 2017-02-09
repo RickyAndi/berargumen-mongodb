@@ -174,7 +174,92 @@ module.exports = function(app, io) {
 					message : 'Error Happen'
 				});
 		}
-	}))
+	}));
+
+	app.post('/api/board', authMiddleware, async(function(req, res) {
+		
+		var userId = mongoose.Types.ObjectId(req.user._id);
+		var userName = req.user.name;
+
+		var tags = req.body.tags.split(','); 
+		
+		if(!tags.length) {
+			tags = [];
+		}
+		
+		var newBoard = new Board({
+			user : {
+				id : userId,
+				name : userName
+			},
+			title : req.body.title,
+			description : req.body.description,
+			tags : tags
+		})
+
+		try {
+			
+			var newBoard = await(newBoard.save());
+			
+			res
+				.status(200)
+				.json(newBoard);
+		
+		} catch(error) {
+
+			res
+				.status(500)
+				.json({ 
+					message : 'Error Happen'
+				});
+		}
+
+	}));
+
+	app.post('/api/board/:boardId/update', authMiddleware, async(function(req, res) {
+		
+		var boardId = req.params.boardId;
+
+		var title = req.body.title;
+		var description = req.body.description;
+		var tags = req.body.tags.split(','); 
+		var user = req.user;
+
+		if(!tags.length) {
+			tags = [];
+		}
+
+		try {
+			var updatedBoard = await(Board.findOneAndUpdate({ _id: boardId, 'user.id' : user._id }, {
+				$set : {
+					title : title,
+					description : description,
+					tags : tags
+				}
+			}));
+
+			if(!updatedBoard) {
+				res
+					.status(404)
+					.json({
+						message : 'Board Not Found'
+					})
+			}
+
+			res
+				.status(200)
+				.json(updatedBoard)
+
+		} catch(error) {
+
+			res
+				.status(500)
+				.json({
+					message : error.toString()
+				})
+		}
+
+	}));
 
 	app.get('/api/card/:cardId/catatan', async(function(req, res) {
 
