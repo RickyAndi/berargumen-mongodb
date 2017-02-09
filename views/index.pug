@@ -103,7 +103,7 @@ block content
 															a(href="#" @click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
 														td()
 															button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()") {{ tag }}
-														td() {{ board.getUpdatedDate() }}
+														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs btn-in-table') Lihat
 												tbody(v-if="!boards.all.length")
@@ -123,7 +123,7 @@ block content
 											div(class='row')
 												div(class='col-md-6')
 													br()
-													button(@click="openCreateBoardModal()" class='btn btn-primary btn-sm' v-bind:disabled="currentUser == null") Buat Board
+													button(@click="openModalToCreateBoard()" class='btn btn-primary btn-sm' v-bind:disabled="currentUser == null") Buat Board
 												div(class='col-md-6')
 													br()
 													input(class='form-control input-sm' v-bind:disabled="currentUser == null" placeholder='Cari berdasar judul, deskripsi, tag')
@@ -139,14 +139,15 @@ block content
 														th(class='text-center') Diperbaharui
 														th(class='text-center') 
 												tbody(v-if="boards.currentUser.length")
-													tr(v-for="board in boards.currentUser")
+													tr(v-for="(board, index) in boards.currentUser")
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
 														td()
 															button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()") {{ tag }}
-														td() {{ board.getUpdatedDate() }}
+														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs btn-in-table') Lihat
+															button(@click="openModalToEditBoard(index)" class='btn btn-success btn-xs btn-in-table') Ubah
 												tbody(v-if="!boards.currentUser.length")
 													tr()
 														td(class='text-center' colspan="6") Tidak Ada Board Yang And Buat
@@ -190,7 +191,7 @@ block content
 															a(href="#" @click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
 														td() 
 															button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()") {{ tag }}
-														td() {{ board.getUpdatedDate() }}
+														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs') Lihat
 												tbody(v-if="!boards.bookmarked.length")
@@ -236,7 +237,7 @@ block content
 															a(href="#" @click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
 														td() 
 															button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()") {{ tag }}
-														td() {{ board.getUpdatedDate() }}
+														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs') Lihat
 												tbody(v-if="!boards.collaborated.length")
@@ -275,7 +276,8 @@ block content
 						div(class="modal-header")
 							div(class='row')
 								div(class='col-md-12')
-									h4() Buat Board
+									h4(v-if="forms.createBoard.status == 'create-board'") Buat Board
+									h4(v-if="forms.createBoard.status == 'edit-board'") Ubah Board
 						div(class="modal-body")
 							div(class="row")
 								div(class="col-md-12")
@@ -292,7 +294,8 @@ block content
 										p(style="font-size:13px;") Untuk menambah tags, isikan kata lalu tekan 
 											strong() Enter
 									div(class="form-group" style="padding-top:5%;")
-										button(class='btn btn-primary btn-sm' @click='createBoard()') Buat
+										button(v-if="forms.createBoard.status == 'create-board'" class='btn btn-primary btn-sm' @click='createBoard()') Buat
+										button(v-if="forms.createBoard.status == 'edit-board'" class='btn btn-success btn-sm' @click='editBoard()') Ubah
 										button(class='btn btn-warning btn-sm' @click='hideCreateBoardModal()') Tutup
 
 
@@ -314,9 +317,13 @@ block script
 					currentUser : [],
 					all : [],
 					bookmarked : [],
-					collaborated : []
+					collaborated : [],
+				},
+				toBe : {
+					boardIndexEdited : null
 				},
 				currentUser : null,
+
 				modals : {
 					createBoardModal : null
 				},
@@ -324,7 +331,8 @@ block script
 					createBoard : {
 						title : null,
 						description : null,
-						tags : null
+						tags : null,
+						status : 'create-board'
 					}
 				},
 				inputs : {
@@ -418,6 +426,32 @@ block script
 							console.log(error)
 						})
 				},
+				editBoard : function() {
+					
+					var vm = this;
+
+					var boardIdToBeEdited = this.boards.currentUser[this.toBe.boardIndexEdited].getId();
+					var url = '/api/board/' + boardIdToBeEdited + '/update';
+
+					vm.forms.createBoard.tags = vm.inputs.tags.val();
+
+					var request = $.post({
+						url : url,
+						data : JSON.stringify(vm.forms.createBoard),
+						contentType : 'application/json; charset=UTF-8',
+					});
+
+					return request
+						.then(function() {
+							vm.getCurrentUserBoards(vm.currentPage.currentUserBoards);
+							vm.hideCreateBoardModal();
+						})
+						.catch(function(error) {
+							console.log(error);
+							alert('Errro Happen')
+							vm.hideCreateBoardModal();
+						})
+				},
 				getBookmarkedBoards : function(page) {
 					var vm = this;
 
@@ -480,6 +514,10 @@ block script
 						keyboard: false
 					})
 				},
+				openModalToCreateBoard : function() {
+					this.forms.createBoard.status = 'create-board';
+					this.openCreateBoardModal();
+				},
 				hideCreateBoardModal : function() {
 					this.modals.createBoardModal.modal('hide')
 				},
@@ -529,6 +567,20 @@ block script
 				},
 				viewUserProfile : function(userId) {
 					window.open('/profile/' + userId);
+				},
+				openModalToEditBoard : function(index) {
+					var vm = this;
+					
+					vm.forms.createBoard.status = 'edit-board';
+					vm.toBe.boardIndexEdited = index;
+					
+					vm.boards.currentUser[index].getTags().forEach(function(tag) {
+						vm.inputs.tags.tagsinput('add', tag);						
+					})
+					vm.forms.createBoard.title = vm.boards.currentUser[index].getTitle();
+					vm.forms.createBoard.description = vm.boards.currentUser[index].getDescription();
+
+					vm.openCreateBoardModal();
 				}
 			},
 			mounted : function() {
@@ -539,6 +591,8 @@ block script
 					
 				vm.modals.createBoardModal = $('#create-board-modal');
 				vm.modals.createBoardModal.on('hidden.bs.modal', function() {
+					vm.forms.createBoard.title = '';
+					vm.forms.createBoard.description = '';
 					vm.inputs.tags.tagsinput('removeAll');
 				})
 				
