@@ -353,6 +353,19 @@ module.exports = function(app, io) {
 
 		try {
 
+			var cardsThatRelatedToToBeDeletedCard = await(Card.find({ 'related.to' : cardId }));
+
+			if(cardsThatRelatedToToBeDeletedCard.length) {
+				
+				res
+					.status(400)
+					.json({
+						message : 'Anda tidak bisa menghapus card yang berelasi dengan card lain, hapus card yang berelasi dengan card ini dulu.'
+					});
+
+				return;
+			}
+
 			var card = await(Card.findOneAndUpdate({ 
 				_id : cardId, 
 				'creator.id' : userId

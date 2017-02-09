@@ -669,9 +669,20 @@ block script
 
 					var vm = this;
 
-					var cardIdToBeUpdated = this.cards[this.tobe.deletedCardIndex].getId();
-					var url = '/api/card/'+ cardIdToBeUpdated +'/delete'
+					var cardIdToBeDeleted = this.cards[this.tobe.deletedCardIndex].getId();
+					var url = '/api/card/'+ cardIdToBeDeleted +'/delete'
 					var boardId = this.board.getId();
+
+					check if any card related to this cardData
+					var relatedCards = vm.cards.filter(function(card) {
+					 	return card.getRelatedTo() == cardIdToBeDeleted;
+					});
+
+					if(relatedCards.length) {
+					 	toastr.warning('Anda tidak bisa menghapus card yang berelasi dengan card lain, hapus card yang berelasi dengan card ini dulu.');
+					 	vm.closeDeleteCardConfirmationModal();
+					 	return;
+					}
 
 					var data = {
 						boardId : boardId
@@ -686,9 +697,14 @@ block script
 					request
 						.then(function(data) {
 							vm.closeDeleteCardConfirmationModal();
+							toastr.success('Card telah terhapus');
 						})
 						.catch(function(error) {
+							
+							var message = JSON.parse(error.responseText).message;
+							toastr.error(message);
 
+							vm.closeDeleteCardConfirmationModal();
 						})	
 				},
 				createRelatedCard : function(args) {
