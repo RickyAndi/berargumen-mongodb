@@ -822,8 +822,8 @@ module.exports = function(app, io) {
 			var cardTitle = req.body.title;
 			var cardContent = req.body.content;
 			var cardType = req.body.type;
-			var cardTop = '200px';
-			var cardLeft = '200px';
+			var cardTop = req.body.pageY.toString() + 'px';
+			var cardLeft = req.body.pageX.toString() + 'px';
 			var cardId = null;
 			var relationType = null;
 
