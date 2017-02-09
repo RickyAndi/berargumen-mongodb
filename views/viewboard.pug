@@ -226,7 +226,7 @@ block content
 							span(style='font-size:11px;') (Anda bisa menambahkan catatan berupa penjelasan, referensi, link, gambar, link video)
 						div(id="content-editor")
 					div(class='form-group')
-						button(class='btn btn-success btn-sm' @click="createCard()") Simpan
+						button(class='btn btn-success btn-sm' @click="createCard($event)") Simpan
 						button(class='btn btn-danger btn-sm' @click="closeCreateCardModal()") Tutup
 
 	div(class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="delete-card-confirmation-modal")
@@ -549,7 +549,7 @@ block script
 				closeDeleteCardConfirmationModal : function() {
 					this.modals.deleteCardConfirmation.modal('hide');
 				},
-				createCard : function() {
+				createCard : function(event) {
 					
 					var vm = this;
 
@@ -559,12 +559,17 @@ block script
 					}
 
 					var newCardFormData = new CreateCardForm();
-					
+					var pageX = event.pageX;
+					var pageY = event.pageY;
+
 					newCardFormData
 						.setTitle(this.forms.createCard.title)
 						.setContent(this.getCardContent())
-						.setType(vm.tobe.sendCardType);
+						.setType(vm.tobe.sendCardType)
+						.setPageX(pageX)
+						.setPageY(pageY);
 
+						
 					if(vm.formStatus != 'create-contention') {
 						newCardFormData
 							.setRelatedTo(vm.tobe.relatedId)
@@ -946,6 +951,24 @@ block script
 				var vm = this;
 
 				jsPlumb.setContainer("argumen-container");
+
+				toastr.options = {
+				  "closeButton": false,
+				  "debug": false,
+				  "newestOnTop": false,
+				  "progressBar": true,
+				  "positionClass": "toast-bottom-right",
+				  "preventDuplicates": true,
+				  "onclick": null,
+				  "showDuration": "300",
+				  "hideDuration": "1000",
+				  "timeOut": "5000",
+				  "extendedTimeOut": "1000",
+				  "showEasing": "swing",
+				  "hideEasing": "linear",
+				  "showMethod": "fadeIn",
+				  "hideMethod": "fadeOut"
+				}
 
 				this.getViewBoardPageData()
 					.then(function() {
