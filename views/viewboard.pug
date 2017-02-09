@@ -673,7 +673,7 @@ block script
 					var url = '/api/card/'+ cardIdToBeDeleted +'/delete'
 					var boardId = this.board.getId();
 
-					check if any card related to this cardData
+					//check if any card related to this cardData
 					var relatedCards = vm.cards.filter(function(card) {
 					 	return card.getRelatedTo() == cardIdToBeDeleted;
 					});
