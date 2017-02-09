@@ -3,6 +3,7 @@ extends layouts/main.pug
 block stylehead
 	meta(name='boardId' content=board._id)
 	link(rel='stylesheet' href='/bower_components/summernote/dist/summernote.css')
+	link(rel='stylesheet' href='/bower_components/toastr/toastr.css')
 	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
 	style(type='text/css').
 		.modal {
@@ -297,7 +298,7 @@ block script
 	script(type='text/javascript' src='/bower_components/jsplumb/dist/js/jsplumb.js')
 	script(type='text/javascript' src='/bower_components/ramda/dist/ramda.js')
 	script(type='text/javascript' src='/bower_components/socket.io-client/dist/socket.io.js')
-	
+	script(type='text/javascript' src='/bower_components/toastr/toastr.js')
 	script(type='text/javascript' src='/models/board.js')
 	script(type='text/javascript' src='/models/card.js')
 	script(type='text/javascript' src='/models/user.js')
@@ -577,6 +578,7 @@ block script
 					});
 
 					request.then(function(message) {
+						toastr.success('Card telah tersimpan')
 						vm.closeCreateCardModal();
 					})
 					.catch(function(error) {
@@ -650,11 +652,8 @@ block script
 					});
 
 					request
-						.then(function(data) {
-							
-						})
 						.catch(function(error) {
-
+							toastr.error('Perpindahan posisi card tidak tersimpan, mungkin koneksi anda bermasalah')
 						})
 				},
 				openModalAndSetCardToBeDeleted : function(args) {
