@@ -310,12 +310,12 @@ block script
 
 	script(type='text/javascript').
 		
-		var initBoard = new Board(null, null, null, null, null, null, null);
+		var initBoard = new Board();
 
 		var app = new Vue({
 			el: '#app',
 			data : {
-				user : new User(null, null, null),
+				user : new User(),
 				board : initBoard,
 				cards : [],
 				connections : [],
@@ -424,8 +424,12 @@ block script
 							cards.forEach(function(card) {
 								
 								var cardInstance = new Card();
-								var creatorOfCard = new User(card.creator.id, card.creator.name, null);
 								
+								var creatorOfCard = new User();
+								creatorOfCard
+									.setId(card.creator.id)
+									.setName(card.creator.name)
+
 								var cardRelation = new Relation();
 									cardRelation
 										.setTo(card.related.to)
@@ -500,8 +504,12 @@ block script
 							data.boardCards.forEach(function(card) {
 								
 								var cardInstance = new Card();
-								var creatorOfCard = new User(card.creator.id, card.creator.name, null);
 								
+								var creatorOfCard = new User();
+								creatorOfCard
+									.setId(card.creator.id)
+									.setName(card.creator.name)
+
 								var cardRelation = new Relation();
 									cardRelation
 										.setTo(card.related.to)
@@ -1009,8 +1017,12 @@ block script
 						vm.sockets.card.on(cardCreatedEventName, function(newCard) {
 							
 							var cardInstance = new Card();
-							var creatorOfCard = new User(newCard.creator.id, newCard.creator.name, null);
 							
+							var creatorOfCard = new User();
+							creatorOfCard
+								.setId(newCard.creator.id)
+								.setName(newCard.creator.name);
+
 							var cardRelation = new Relation();
 								cardRelation
 									.setTo(newCard.related.to)

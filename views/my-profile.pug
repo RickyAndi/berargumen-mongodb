@@ -211,8 +211,13 @@ block script
 
 							boards.docs.forEach(function(board) {
 								
-								var toBePushedboard  = new Board(board._id, board.title, board.description);
-								toBePushedboard.setTags(board.tags);
+								var toBePushedboard  = new Board();
+								
+								toBePushedboard
+									.setId(board._id)
+									.setTitle(board.title)
+									.setDescription(board.description)
+									.setTags(board.tags);
 
 								vm.boards.push(toBePushedboard);
 							})

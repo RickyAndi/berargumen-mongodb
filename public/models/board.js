@@ -1,10 +1,10 @@
-function Board(id, title, description, user, updatedDate, tags, collaboratorIds) {
-	this.id = id;
-	this.title  = title;
-	this.description = description;
-	this.user = user;
-	this.updatedDate = updatedDate;
-	this.tags = tags;
+function Board() {
+	this.id = null;
+	this.title  = null;
+	this.description = null;
+	this.user = null;
+	this.updatedDate = null;
+	this.tags = null;
 	this.collaboratorIds = [];
 }
 

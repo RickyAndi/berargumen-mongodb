@@ -96,7 +96,12 @@ block script
 					request
 						.then(function(newBoard) {
 							
-							var board  = new Board(newBoard._id, newBoard.title, newBoard.description);
+							var board  = new Board();
+							board
+								.setId(newBoard._id)
+								.setTitle(newBoard.title)
+								.setDescription(newBoard.description);
+
 							vm.boards.push(board);
 							
 							vm.hideCreateBoardModal();
@@ -115,7 +120,13 @@ block script
 					request
 						.then(function(boards) {
 							boards.docs.forEach(function(board) {
-								var toBePushedboard  = new Board(board._id, board.title, board.description);
+								
+								var toBePushedboard  = new Board();
+								toBePushedboard
+										.setId(board._id)
+										.setTitle(board.title)
+										.setDescription(board.description);
+										
 								vm.boards.push(toBePushedboard);
 							})
 						})

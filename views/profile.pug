@@ -112,8 +112,16 @@ block script
 							vm.numberOfPages = boards.pages;
 
 							boards.docs.forEach(function(board) {
+								
 								var updatedDate = moment(board.updated).format('D-MM-YYYY');
-								var toBePushedboard  = new Board(board._id, board.title, board.description, null, updatedDate, board.tags);
+								
+								var toBePushedboard  = new Board();
+								toBePushedboard
+									.setId(board._id)
+									.setTitle(board.title)
+									.setDescription(board.description)
+									.setUpdatedDate(updatedDate)
+									.setTags(board.tags);
 
 								vm.boards.push(toBePushedboard);
 							})

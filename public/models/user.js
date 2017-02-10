@@ -1,7 +1,7 @@
-function User(id, name, photoUrl) {
-	this.id = id;
-	this.name = name;
-	this.photoUrl = photoUrl;
+function User() {
+	this.id = null;
+	this.name = null;
+	this.photoUrl = null;
 }
 
 User.prototype.getId = function() {
