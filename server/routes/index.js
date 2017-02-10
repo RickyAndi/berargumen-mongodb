@@ -4,7 +4,10 @@ var ensureLoggedOut = require('connect-ensure-login').ensureLoggedOut;
 module.exports = function(app) {
 	
 	app.get('/', function(req, res) {
-		res.render('index', { title: 'Home', message: 'Hello there!', user : req.user })
+		res.render('index', { 
+			title: 'Berargumen', 
+			user : req.user 
+		})
 	});
 	
 	app.get('/login', ensureLoggedOut('/'), function(req, res) {
