@@ -28,32 +28,94 @@ block stylehead
 			font-family: "Times New Roman", Georgia, Serif;
 		}
 
+		footer{
+			background: rgb(23,30,38);
+			padding: 60px 20px;
+		}
+		
+		footer ul, footer p{
+			margin-bottom: 0;
+		}
+		
+		footer .footer-block{
+			margin-bottom: 30px;
+		}
+		
+		footer a{
+			color: #188b87;
+		}
+		
+		footer .footer-menu a{
+			text-transform: uppercase;
+		}
+		
+		footer .social-icon a{
+			display: block;
+			width: 40px;
+			height: 40px;
+			line-height: 40px;
+			text-align: center;
+			border:1px solid #ddd;
+		}
+		
+		@media (max-width: 767px){
+			footer .footer-menu{
+				text-align: center;
+			}
+			footer .social-icon{
+				float: none !important;
+				text-align: center;
+			}
+		}
+
+		p.copyright {
+			color: white;
+		}
+
+		.panel {
+			border-color: black;
+		}
+
+		.nav-tabs {
+			border-color: black;
+		}
+
+		.penjelasan {
+			font-size: 18px;
+		}
+
+		body {
+			background-color: #ddd;
+		}
+
 block content
 	div(class='jumbotron' style="background-color:rgb(23,30,38);")
 		div(class='container' style='padding-top:50px;')
 			div(class='row')
-				div(class='col-md-6')
-					h1(style="color: white;") Berargumen
-					p(style="color: white;") &nbsp;Visualisasi argumen dengan diagram argumen
-				div(class='col-md-6')
-					img(src='/images/example.png' class="img-responsive img-rounded")
+				div(class='col-md-12 text-center')
+					h1(style="color: white; font-size: 120px;") Berargumen
+					br()
+					p(style="color: white; font-size: 25px;") &nbsp;Visualisasi argumen dengan diagram argumen
 	
-	
-
-	
-
 	div(class='container' style='min-height: 1000px;')
 		div(class='row')
 			div(class='col-md-12')
 				div(class='row')
 					div(class='col-md-12 text-center')
-						h2 Kenapa Memakai Diagram Argumen ?
-					div(class='col-md-4' style='margin-top: 5%;')
-						p() Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-					div(class='col-md-4' style='margin-top: 5%;')
-						p() Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-					div(class='col-md-4' style='margin-top: 5%;')
-						p() Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+						h2 Kenapa Memakai <strong>Berargumen</strong> ?
+					
+					div(class='col-md-6' style='margin-top: 5%;')
+						p(class='penjelasan') Dengan <strong>Berargumen</strong>, anda bisa mengundang teman anda untuk berkolaborasi secara real-time, membuat suatu argumen yang baik, dan anda bisa mengundang lawan anda untuk memberikan argumen argumen yang berlawanan dengan anda, sehingga kta bisa melihat suatu topik dari kedua sisi.
+					div(class='col-md-6' style='margin-top: 5%;')
+
+					div(class='col-md-6' style='margin-top: 5%;')
+					div(class='col-md-6' style='margin-top: 5%;')
+						p(class='penjelasan') Sebuah argumen terdiri dari beberapa bagian, seperti kesimpulan (Contention), alasan (Reason), dan lain sebagainya, dengan <strong>Berargumen</strong>, maka seseorang akan bisa mengerti bagian bagian tersebut dengan lebih mudah, sehingga alur argumen anda juga lebih mudah dimengerti, lain halnya jika anda menyampaikan sebuah argumen hanya dengan tulisan, dimana seseorang perlu menganalisa tulisan anda tersebut untuk mengetahui bagian bagian argumen dan alur dari argumen anda, dan tidak semua orang dengan mudah bisa melakukan hal ini, sehingga dengan <strong>Berargumen</strong> pembaca juga semakin banyak karena semua orang bisa mengerti sebuah argumen dengan mudah.
+					
+
+					div(class='col-md-6' style='margin-top: 5%;')
+						p(class='penjelasan') Dalam forum forum internet sering dijumpai suatu perdebatan dengan topik yang terus diulang-ulang, sering juga ditemui suatu perdebatan tiada henti (debat kusir) yang tiada titik temu, hal ini karena pada forum forum teresebut, argumennya disajikan secara tidak teratur, tidak jelas seseorang mendukung bagian argumen mana ?, atau membantah yang bagian mana ?, hal ini menimbulkan kesalahfahaman. Dengan <strong>Berargumen</strong>, sesorang bisa dengan jelas memberikan argumennya untuk mendukung bagian mana atau membantah suatu bagian argumen mana, sehingga tidak perlu ada yang diulang-ulang.
+					div(class='col-md-6' style='margin-top: 5%;')
 
 			div(class='col-md-12' style="margin-top: 10%;")
 				div(class='panel panel-default')
@@ -102,7 +164,7 @@ block content
 														td()
 															a(href="#" @click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
 														td()
-															button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()") {{ tag }}
+															button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()" @click="viewBoardByTag(tag)") {{ tag }}
 														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs btn-in-table') Lihat
@@ -190,7 +252,7 @@ block content
 														td()
 															a(href="#" @click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
 														td() 
-															button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()") {{ tag }}
+															button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()" @click="viewBoardByTag(tag)") {{ tag }}
 														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs') Lihat
@@ -259,12 +321,8 @@ block content
 
 			div(class='col-md-12')
 				div(class='row')
-					div(class='col-md-12')
-						div(class='panel panel-default')
-							div(class='panel-heading')
-								p() User
-							div(class='panel-body')
-					div(class='col-md-12')
+					div(class='col-md-6')
+					div(class='col-md-6')
 						div(class='panel panel-default')
 							div(class='panel-heading')
 								p() Tag Populer
@@ -297,8 +355,20 @@ block content
 										button(v-if="forms.createBoard.status == 'create-board'" class='btn btn-primary btn-sm' @click='createBoard()') Buat
 										button(v-if="forms.createBoard.status == 'edit-board'" class='btn btn-success btn-sm' @click='editBoard()') Ubah
 										button(class='btn btn-warning btn-sm' @click='hideCreateBoardModal()') Tutup
-
-
+	footer(style="margin-top: 30%;")
+		div(class="container")
+			div(class="row")
+				div(class="col-sm-4")
+					div(class="footer-block")
+						ul(class="list-inline footer-menu")
+							
+						
+				div(class="col-sm-4")
+					div(class="footer-block text-center")
+						p(class="copyright") © 2017 Berargumen.
+				div(class="col-sm-4")
+					div(class="footer-block")
+					
 block script
 	script(type='text/javascript' src='/bower_components/jquery/dist/jquery.js')
 	script(type='text/javascript' src='/bower_components/bootstrap/dist/js/bootstrap.js')
@@ -581,6 +651,10 @@ block script
 					vm.forms.createBoard.description = vm.boards.currentUser[index].getDescription();
 
 					vm.openCreateBoardModal();
+				},
+				viewBoardByTag : function(tag) {
+					var url = '/tag/board?tag=' + tag;
+					window.open(url);
 				}
 			},
 			mounted : function() {
