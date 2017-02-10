@@ -14,20 +14,39 @@ module.exports = function(app) {
 
 	app.get('/board/:boardId', async(function(req, res) {
 		
-		var board = await(Board.findById(req.params.boardId));
+		try {
+			
+			var board = await(Board.findById(req.params.boardId));
 
-		var isUserBoardOwner = false;
-		
-		if(req.user) {
-			isUserBoardOwner = board.user.id == req.user._id;
+			if(!board) {
+				throw new Error('Board tidak ditemukan');
+			}
+
+			var isUserBoardOwner = false;
+			
+			if(req.user) {
+				isUserBoardOwner = board.user.id == req.user._id;
+			}
+			
+			res
+				.render('viewboard', { 
+					user : req.user,
+					board : board,
+					title : board.title,
+					isUserBoardOwner : isUserBoardOwner
+				})
+
+		} catch(error) {
+
+			var message = 'Board tidak ditemukan';
+
+			res
+				.status(404)
+				.render('error-page', {
+					message : message,
+					title : message
+				});
+
 		}
-		
-		res.render('viewboard', { 
-			user : req.user,
-			board : board,
-			title : board.title,
-			isUserBoardOwner : isUserBoardOwner
-		})
-
 	}))
 }
