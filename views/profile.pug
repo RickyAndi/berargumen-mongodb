@@ -5,6 +5,21 @@ block stylehead
 	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
 	meta(name='userId' content=profileUser._id)
 
+	style().
+		
+		.pagination > li.active > a {
+			background-color: #22be34 !important;
+			border-color: #22be34 !important;
+		}
+
+		.btn-in-table {
+			margin-right: 1px;
+			margin-left: 1px;
+		}
+
+		* {
+			font-family: "Times New Roman", Georgia, Serif;
+		}
 
 block content
 	div(class='container' style="margin-top:5%;")
@@ -20,38 +35,38 @@ block content
 									tbody()
 										tr()
 											td()
-												strong Gambar
-											td()
+												strong Gambar Profil
+											td(class='text-center')
 												img(src=profileUser.profilePicUrl)
 										tr()
 											td()
 												strong Nama
-											td()= profileUser.name
+											td(class='text-center')= profileUser.name
 			
 			div(class='col-md-12' id="board-panel")
 				div(class='panel panel-default')
 					div(class='panel-heading')
 						h5 Boards
-					div(class='panel-body')
+					div(class='panel-body' style="min-height: 300px;")
 						div(class='row')
 							div(class='col-md-12')
 								table(class='table table-default table-bordered')
 									thead()
 										tr()
-											th(class='text-center') Judul
-											th(class='text-center') Deskripsi
-											th(class='text-center') Tags
-											th(class='text-center') Diperbaharui
-											th(class='text-center') 
+											th(class='text-center' width="20%") Judul
+											th(class='text-center' width="40%") Deskripsi
+											th(class='text-center' width="20%") Tags
+											th(class='text-center' width="10%") Diperbaharui
+											th(class='text-center' width="10%") 
 									tbody(v-if="boards.length")
 										tr(v-for="board in boards")
 											td() {{ board.getTitle() }}
 											td() {{ board.getDescription() }}
 											td() 
-												button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()") {{ tag }}
-											td() {{ board.getUpdatedDate() }}
+												button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()" @click="viewBoardByTag(tag)") {{ tag }}
+											td(class='text-center') {{ board.getUpdatedDate() }}
 											td(class='text-center')
-												button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs') Lihat
+												button(@click="viewBoard(board.getId())" class='btn btn-warning btn-xs') Lihat
 									tbody(v-if="!boards.length")
 										tr()
 											td(class='text-center' colspan="5") Tidak ada board
@@ -118,6 +133,10 @@ block script
 					var url = '/board/' + boardId;
 					window.open(url);
 				},
+				viewBoardByTag : function(tag) {
+					var url = '/tag/board?tag=' + tag;
+					window.open(url);
+				}
 			},
 			mounted : function() {
 				this.userId = $('meta[name=userId]').attr("content");

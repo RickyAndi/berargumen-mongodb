@@ -5,6 +5,17 @@ block stylehead
 	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
 
 	style().
+
+		.panel > .panel-heading {
+			background-color: rgb(23,30,38);
+			color : white;
+		}
+
+		.pagination > li.active > a {
+			background-color: #22be34 !important;
+			border-color: #22be34 !important;
+		}
+
 		div.bootstrap-tagsinput {
 			float:right; 
 			width: 100%;
@@ -84,9 +95,6 @@ block stylehead
 			font-size: 18px;
 		}
 
-		body {
-			background-color: #ddd;
-		}
 
 block content
 	div(class='jumbotron' style="background-color:rgb(23,30,38);")
@@ -120,8 +128,8 @@ block content
 			div(class='col-md-12' style="margin-top: 10%;")
 				div(class='panel panel-default')
 					div(class='panel-heading')
-						p() Board
-					div(class='panel-body')
+						p(style='font-size: 23px;') <strong>Board</strong>
+					div(class='panel-body' style='min-height: 550px;')
 						div(id="exTab2")
 							ul(class="nav nav-tabs")
 								li(class="active")
@@ -151,23 +159,23 @@ block content
 											table(class='table table-default table-striped table-bordered')
 												thead()
 													tr()
-														th(class='text-center') Judul
-														th(class='text-center') Deskripsi
-														th(class='text-center') Pemilik
-														th(class='text-center') Tags
-														th(class='text-center') Diperbaharui
-														th(class='text-center') 
+														th(class='text-center' width='15%') Judul
+														th(class='text-center' width='35%') Deskripsi
+														th(class='text-center' width='10%') Pemilik
+														th(class='text-center' width='20%') Tags
+														th(class='text-center' width='10%') Diperbaharui
+														th(class='text-center' width='10%') 
 												tbody(v-if="boards.all.length")
 													tr(v-for="board in boards.all")
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
 														td()
-															a(href="#" @click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
+															a(@click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
 														td()
 															button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()" @click="viewBoardByTag(tag)") {{ tag }}
 														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
-															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs btn-in-table') Lihat
+															button(@click="viewBoard(board.getId())" class='btn btn-warning btn-xs btn-in-table') Lihat
 												tbody(v-if="!boards.all.length")
 													tr()
 														td(class='text-center' colspan="6") Tidak Ada Board
@@ -208,7 +216,7 @@ block content
 															button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()") {{ tag }}
 														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
-															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs btn-in-table') Lihat
+															button(@click="viewBoard(board.getId())" class='btn btn-warning btn-xs btn-in-table') Lihat
 															button(@click="openModalToEditBoard(index)" class='btn btn-success btn-xs btn-in-table') Ubah
 												tbody(v-if="!boards.currentUser.length")
 													tr()
@@ -250,12 +258,12 @@ block content
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
 														td()
-															a(href="#" @click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
+															a(@click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
 														td() 
 															button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()" @click="viewBoardByTag(tag)") {{ tag }}
 														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
-															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs') Lihat
+															button(@click="viewBoard(board.getId())" class='btn btn-warning btn-xs') Lihat
 												tbody(v-if="!boards.bookmarked.length")
 													tr()
 														td(class='text-center' colspan="6") Tidak Ada Board Yang Anda Tandai
@@ -296,12 +304,12 @@ block content
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
 														td()
-															a(href="#" @click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
+															a(@click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
 														td() 
 															button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()") {{ tag }}
 														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
-															button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs') Lihat
+															button(@click="viewBoard(board.getId())" class='btn btn-warning btn-xs') Lihat
 												tbody(v-if="!boards.collaborated.length")
 													tr()
 														td(class='text-center' colspan="6") Tidak Ada Board Yang Anda Berkolaborasi
@@ -325,7 +333,7 @@ block content
 					div(class='col-md-6')
 						div(class='panel panel-default')
 							div(class='panel-heading')
-								p() Tag Populer
+								p(style='font-size: 23px;') <strong>Tag Populer</strong>
 							div(class='panel-body')
 
 			div(class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="create-board-modal")
