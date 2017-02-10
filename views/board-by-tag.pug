@@ -1,0 +1,136 @@
+extends layouts/main.pug
+
+block stylehead
+	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
+	meta(name='tag' content=tag)
+
+	style().
+		.btn-in-table {
+			margin-right: 1px;
+			margin-left: 1px;
+		}
+
+block content
+	div(class='container' style="margin-top:5%;")
+		div(class='row')
+			div(class='col-md-12')
+				div(class='panel panel-default')
+					div(class='panel-heading')
+						h5 Tag
+					div(class='panel-body')
+						div(class='row')
+							div(class='col-md-6')
+								p= tag
+			
+			div(class='col-md-12' id="board-panel")
+				div(class='panel panel-default')
+					div(class='panel-heading')
+						h5 Boards
+					div(class='panel-body')
+						div(class='row')
+							div(class='col-md-12')
+								table(class='table table-default table-bordered')
+									thead()
+										tr()
+											th(class='text-center') Judul
+											th(class='text-center') Deskripsi
+											th(class='text-center') Tags
+											th(class='text-center') Pemilik
+											th(class='text-center') Diperbaharui
+											th(class='text-center') 
+									tbody(v-if="boards.length")
+										tr(v-for="board in boards")
+											td() {{ board.getTitle() }}
+											td() {{ board.getDescription() }}
+											td() 
+												button(class='btn btn-default btn-xs btn btn-in-table' v-for="tag in board.getTags()") {{ tag }}
+											td()
+												a(@click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
+											td() {{ board.getUpdatedDate() }}
+											td(class='text-center')
+												button(@click="viewBoard(board.getId())" class='btn btn-info btn-xs') Lihat
+									tbody(v-if="!boards.length")
+										tr()
+											td(class='text-center' colspan="5") Tidak ada board
+
+								div(class='row')
+										div(class='col-md-12')
+											ul(class='pagination')
+												li(v-for='page in numberOfPages' v-if="!displayPaginationButton(currentPage, page)" v-bind:class="{ 'active' : currentPage == page }")
+													a(@click="boardsGoToPage(page)") {{ page }}		
+block script
+	script(type='text/javascript' src='/bower_components/jquery/dist/jquery.js')
+	script(type='text/javascript' src='/bower_components/bootstrap/dist/js/bootstrap.js')
+	script(type='text/javascript' src='/bower_components/vue/dist/vue.js')
+	script(type='text/javascript' src='/bower_components/moment/moment.js')
+	script(type='text/javascript' src='/models/board.js')
+	script(type='text/javascript' src='/models/user.js')
+
+	script(type='text/javascript').
+		
+		var app = new Vue({
+			el: '#board-panel',
+			data : {
+				boards : [],
+				userId : null,
+				currentPage : 1,
+				numberOfPages : 0,
+				tag : null
+			},
+			methods : {
+				getBoards : function(page) {
+					
+					var vm = this;
+					
+					var url = '/api/tag/boards';
+					
+					var request = $.get({
+						url : url,
+						data : {
+							page : page == null ? 1 : page,
+							tag : vm.tag
+						}
+					})
+
+					return request
+						.then(function(boards) {
+							
+							vm.boards.splice(0, vm.boards.length)
+
+							vm.numberOfPages = boards.pages;
+
+							boards.docs.forEach(function(board) {
+								var updatedDate = moment(board.updated).format('D-MM-YYYY');
+								
+								var user = new User(board.user.id, board.user.name, null);
+
+								var toBePushedboard  = new Board(board._id, board.title, board.description, user, updatedDate, board.tags);
+
+								vm.boards.push(toBePushedboard);
+							})
+						})
+						.catch(function() {
+
+						})
+				},
+				displayPaginationButton : function(currentPage, page) {
+					return (currentPage - 2) > page || (currentPage + 2) < page  
+				},
+				boardsGoToPage : function(page) {
+					this.currentPage = page;
+					this.getBoards(page);
+				},
+				viewBoard : function(boardId) {
+					var url = '/board/' + boardId;
+					window.open(url);
+				},
+				viewUserProfile : function(userId) {
+					window.open('/profile/' + userId);
+				},
+			},
+			mounted : function() {
+				this.tag = $('meta[name=tag]').attr('content');
+				
+				this.getBoards();
+			}
+		})
