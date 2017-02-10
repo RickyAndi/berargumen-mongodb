@@ -43,9 +43,22 @@ module.exports = function(app, io) {
 		var userId = req.user._id;
 		var page = req.query.page;
 
-		var boards = await(Board.paginate({ 'user.id': mongoose.Types.ObjectId(userId) }, { page: page, limit: 5 }));
+		try {
+
+			var boards = await(Board.paginate({ 'user.id': mongoose.Types.ObjectId(userId) }, { page: page, limit: 5 }));
+			
+			res
+				.json(boards);
+
+		} catch(error) {
+
+			res
+				.status(500)
+				.json({
+					message : error.toString()
+				})
+		}
 		
-		res.json(boards);
 	}))
 
 	app.get('/api/bookmarked-boards', authMiddleware, async(function(req, res) {
@@ -53,15 +66,57 @@ module.exports = function(app, io) {
 		var userId = req.user._id;
 		var page = req.query.page;
 
-		var boards = await(Board
-			.paginate({ 
-				'bookmarkedBy.' : mongoose.Types.ObjectId(userId) 
-			}, { 
-				page: page, 
-				limit: 5 
-			}));
+		try {
+			
+			var boards = await(Board
+				.paginate({ 
+					'bookmarkedBy.' : mongoose.Types.ObjectId(userId) 
+				}, { 
+					page: page, 
+					limit: 5 
+				}));
+			
+			res
+				.json(boards)
+
+		} catch(error) {
+
+			res
+				.status(500)
+				.json({
+					message : error.toString()
+				})
+		}
 		
-		res.json(boards)
+	}));
+
+	app.get('/api/tag/boards', async(function(req, res) {
+		
+		var tag = req.query.tag;
+		var page = req.query.page;
+
+		try {
+			
+			var boards = await(Board
+				.paginate({ 
+					'tags' : tag 
+				}, { 
+					page: page, 
+					limit: 5 
+				}));
+			
+			res
+				.json(boards);
+
+		} catch(error) {
+
+			res
+				.status(500)
+				.json({
+					message : error.toString()
+				});
+		}
+		
 	}));
 
 	app.get('/api/boards', async(function(req, res) {
