@@ -7,28 +7,47 @@ module.exports = function(app) {
 	
 	app.get('/card/:cardId', async(function(req, res) {
 		
-		var cardId = req.params.cardId;
-		var card = await(Card.findById(cardId));
-		
-		var relatedCard = null
-		var relatedCardTitle = null;
+		try {
 
-		if(card.related.to) {
-			relatedCard = await(Card.findById(card.related.to));
+			var cardId = req.params.cardId;
+			var card = await(Card.findById(cardId));
 			
-			if(relatedCard.title.length > 100) {
-				relatedCardTitle = relatedCard.title.slice(0, 100) + '.....';
-			} else {
-				relatedCardTitle = relatedCard.title;
+			if(!card) {
+				throw new Error();
 			}
+
+			var relatedCard = null
+			var relatedCardTitle = null;
+
+			if(card.related.to) {
+				relatedCard = await(Card.findById(card.related.to));
+				
+				if(relatedCard.title.length > 100) {
+					relatedCardTitle = relatedCard.title.slice(0, 100) + '.....';
+				} else {
+					relatedCardTitle = relatedCard.title;
+				}
+			}
+
+			res.render('card', {
+				card : card,
+				user : req.user,
+				title : 'Lihat Detail Card',
+				relatedCardTitle : relatedCardTitle
+			});
+
+		} catch(error) {
+
+			var message = 'Card tidak ditemukan';
+
+			res
+				.status(404)
+				.render('error-page', {
+					message : message,
+					title : message
+				})
 		}
-
-		res.render('card', {
-			card : card,
-			user : req.user,
-			title : 'Lihat Detail Card',
-			relatedCardTitle : relatedCardTitle
-		});
-
+	
 	}));
+
 }
