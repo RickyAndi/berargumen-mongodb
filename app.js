@@ -11,19 +11,20 @@ var sockets = {
 // require route
 var authRoute = require('./server/routes/auth');
 var indexRoute = require('./server/routes/index');
-var boardRoute = require('./server/routes/my-board');
+var myBoardRoute = require('./server/routes/my-board');
 var apiRoute = require('./server/routes/api');
 var profileRoute = require('./server/routes/profile');
 var cardRoute = require('./server/routes/card');
+var boardRoute = require('./server/routes/board');
 
 // route
 indexRoute(app, sockets);
 authRoute(app, sockets);
-boardRoute(app, sockets);
+myBoardRoute(app, sockets);
 apiRoute(app, sockets);
 profileRoute(app);
 cardRoute(app);
-
+boardRoute(app)
 
 mongoose.connect('mongodb://localhost/berargumen');
 
