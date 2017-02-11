@@ -21,6 +21,15 @@ block stylehead
 			margin-left: 1px;
 		}
 
+		.pagination > li.active > a {
+			background-color: #22be34 !important;
+			border-color: #22be34 !important;
+		}
+
+		* {
+			font-family: "Times New Roman", Georgia, Serif;
+		}
+
 block content
 	div(class='navbar navbar-fixed-top navbar-default navbar-lower' role='navigation')
 		div(class='container')
@@ -61,9 +70,9 @@ block content
 													td() {{ board.getTitle() }}
 													td() {{ board.getDescription() }}
 													td()
-														button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()") {{ tag }}
+														button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()" @click="viewBoardByTag(tag)") {{ tag }}
 													td(class="text-center")
-														button(class='btn btn-info btn-xs' @click="viewBoard(board.getId())") Lihat
+														button(class='btn btn-warning btn-xs' @click="viewBoard(board.getId())") Lihat
 														button(@click="openModalToEditBoard(index)" class='btn btn-success btn-xs btn-in-table') Ubah
 										div(class='row')
 		
@@ -256,6 +265,10 @@ block script
 					vm.forms.createBoard.description = vm.boards[index].getDescription();
 
 					vm.openCreateBoardModal();
+				},
+				viewBoardByTag : function(tag) {
+					var url = '/tag/board?tag=' + tag;
+					window.open(url);
 				}
 			},
 			mounted : function() {
