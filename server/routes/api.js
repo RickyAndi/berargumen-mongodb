@@ -55,12 +55,24 @@ module.exports = function(app, io) {
 					},
 				}, { 
 					page: page, 
-					limit: 10
+					limit: 10,
+					sort : { 
+						updated : -1 
+					}
 				}));
 			
 			} else {
 				
-				var boards = await(Board.paginate({ 'user.id': mongoose.Types.ObjectId(userId) }, { page: page, limit: 10 }));
+				var boards = await(
+					Board.paginate({ 
+						'user.id': mongoose.Types.ObjectId(userId) 
+					}, { 
+						page: page, 
+						limit: 10, 
+						sort : { 
+							updated : -1 
+						} 
+					}));
 			
 			}
 			
@@ -98,7 +110,10 @@ module.exports = function(app, io) {
 						'bookmarkedBy.' : mongoose.Types.ObjectId(userId) 
 					}, { 
 						page: page, 
-						limit: 10
+						limit: 10,
+						sort : { 
+							updated : -1 
+						}
 					})
 				);
 
@@ -109,7 +124,10 @@ module.exports = function(app, io) {
 						'bookmarkedBy.' : mongoose.Types.ObjectId(userId) 
 					}, { 
 						page: page, 
-						limit: 10
+						limit: 10,
+						sort : { 
+							updated : -1 
+						}
 					}));
 			}
 			
@@ -140,7 +158,10 @@ module.exports = function(app, io) {
 					'tags' : tag 
 				}, { 
 					page: page, 
-					limit: 10
+					limit: 10,
+					sort : { 
+						updated : -1 
+					}
 				}));
 			
 			res
@@ -167,12 +188,28 @@ module.exports = function(app, io) {
 			if(searchQuery && searchQuery != '') {
 				
 				var boards = await(
-					Board.paginate({ $text : { $search : searchQuery }}, { page: page, limit: 10 })
+					Board.paginate({ 
+						$text : { 
+							$search : searchQuery 
+						}
+					}, { 
+						page: page, 
+						limit: 10, 
+						sort : { 
+							updated : -1 
+						} 
+					})
 				);
 			
 			} else {
 
-				var boards = await(Board.paginate({}, { page: page, limit: 10 }));	
+				var boards = await(Board.paginate({}, { 
+					page: page, 
+					limit: 10, 
+					sort : { 
+						updated : -1 
+					} 
+				}));	
 			
 			}
 			
@@ -198,7 +235,13 @@ module.exports = function(app, io) {
 		
 		try {
 			
-			var boards = await(Board.paginate({'user.id' : userId }, { page: page, limit: 10 }));
+			var boards = await(Board.paginate({'user.id' : userId }, { 
+				page: page, 
+				limit: 10,
+				sort : { 
+					updated : -1 
+				} 
+			}));
 			
 			res
 				.status(200)
@@ -234,7 +277,10 @@ module.exports = function(app, io) {
 					$text : { $search : searchQuery }
 				}, { 
 						page: page, 
-						limit: 10
+						limit: 10,
+						sort : { 
+							updated : -1 
+						}
 					})
 				);
 
@@ -247,7 +293,10 @@ module.exports = function(app, io) {
 						}
 					}}, { 
 						page: page, 
-						limit: 10
+						limit: 10,
+						sort : { 
+							updated : -1 
+						}
 					})
 				);
 			}
