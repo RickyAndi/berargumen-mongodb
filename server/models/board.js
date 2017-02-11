@@ -47,6 +47,8 @@ var boardSchema = new Schema({
 	}]
 });
 
+boardSchema.index({ title : 'text', description : 'text', tags : 'text'});
+
 boardSchema.plugin(mongoosePaginate);
 
 module.exports = Mongoose.model('Board', boardSchema);
