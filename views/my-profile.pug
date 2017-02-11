@@ -118,174 +118,176 @@ block script
 	script(type='text/javascript' src='models/board.js')
 
 	script(type='text/javascript').
-		var app = new Vue({
-			el : '#app',
-			data : {
-				forms : {
-					createBoard : {
-						title : '',
-						description : '',
-						tags : '',
-						status : 'create-board'
+		(function() {
+			var app = new Vue({
+				el : '#app',
+				data : {
+					forms : {
+						createBoard : {
+							title : '',
+							description : '',
+							tags : '',
+							status : 'create-board'
+						}
+					},
+					toBe : {
+						indexBoardEdited : null
+					},
+					inputs : {
+						tags : null
+					},
+					numberOfPages : 0,
+					currentPage : 1,
+					modals : {
+						createBoardModal : null
+					},
+					boards : []
+				},
+				methods : {
+					openCreateBoardModal : function() {
+						this.modals.createBoardModal.modal({
+							backdrop: 'static',
+							keyboard: false
+						})
+					},
+					hideCreateBoardModal : function() {
+						this.modals.createBoardModal.modal('hide')
+					},
+					createBoard : function() {
+						
+						var vm = this;
+
+						vm.forms.createBoard.tags = vm.inputs.tags.val();
+
+						var request = $.post({
+							url : '/api/board',
+							data : JSON.stringify(vm.forms.createBoard),
+							contentType : 'application/json; charset=UTF-8',
+						});
+
+						request
+							.then(function(newBoard) {
+								vm.getBoards(vm.currentPage).then(function() {
+									vm.hideCreateBoardModal();
+								});
+							})
+							.catch(function(error) {
+								console.log(error)
+							})
+					},
+					editBoard : function() {
+
+						var vm = this;
+
+						var boardIdToBeEdited = this.boards[this.toBe.indexBoardEdited].getId();
+						var url = '/api/board/' + boardIdToBeEdited + '/update';
+
+						vm.forms.createBoard.tags = vm.inputs.tags.val();
+
+						var request = $.post({
+							url : url,
+							data : JSON.stringify(vm.forms.createBoard),
+							contentType : 'application/json; charset=UTF-8',
+						});
+
+						return request
+							.then(function() {
+								vm.getBoards(vm.currentPage).then(function() {
+									vm.hideCreateBoardModal();
+								});
+							})
+							.catch(function(error) {
+								console.log(error);
+								alert('Errro Happen')
+								vm.hideCreateBoardModal();
+							})
+
+					},
+					getBoards : function(page) {
+						var vm = this;
+
+						var request = $.get({
+							url : '/api/my-boards',
+							data: { 
+							   page: page == null ? 1 : page, 
+							},
+						});
+
+						return request
+							.then(function(boards) {
+
+								vm.boards.splice(0, vm.boards.length)
+								vm.numberOfPages = boards.pages;
+
+								boards.docs.forEach(function(board) {
+									
+									var toBePushedboard  = new Board();
+									
+									toBePushedboard
+										.setId(board._id)
+										.setTitle(board.title)
+										.setDescription(board.description)
+										.setTags(board.tags);
+
+									vm.boards.push(toBePushedboard);
+								})
+							})
+							.catch(function(error) {
+								console.log(error)
+							})
+					},
+					viewBoard : function(boardId) {
+						var url = '/board/' + boardId;
+						window.open(url);
+					},
+					boardsGoToPage : function(page) {
+						this.currentPage = page;
+						this.getBoards(page);
+					},
+					displayPaginationButton : function(currentPage, page) {
+						return (currentPage - 2) > page || (currentPage + 2) < page  
+					},
+					openModalToCreateBoard :function() {
+						this.forms.createBoard.status = 'create-board';
+						this.openCreateBoardModal();
+					},
+					openModalToEditBoard : function(index) {
+						
+						var vm = this;
+
+						this.forms.createBoard.status = 'edit-board';
+						this.toBe.indexBoardEdited = index;
+
+						this.boards[index].getTags().forEach(function(tag) {
+							vm.inputs.tags.tagsinput('add', tag);
+						});
+
+						vm.forms.createBoard.title = vm.boards[index].getTitle();
+						vm.forms.createBoard.description = vm.boards[index].getDescription();
+
+						vm.openCreateBoardModal();
+					},
+					viewBoardByTag : function(tag) {
+						var url = '/tag/board?tag=' + tag;
+						window.open(url);
 					}
 				},
-				toBe : {
-					indexBoardEdited : null
-				},
-				inputs : {
-					tags : null
-				},
-				numberOfPages : 0,
-				currentPage : 1,
-				modals : {
-					createBoardModal : null
-				},
-				boards : []
-			},
-			methods : {
-				openCreateBoardModal : function() {
-					this.modals.createBoardModal.modal({
-						backdrop: 'static',
-						keyboard: false
+				mounted : function() {
+					
+					var vm = this;
+
+					vm.inputs.tags =  $('#tagsinput');
+					vm.inputs.tags.tagsinput();
+
+					vm.modals.createBoardModal = $('#createBoardModal');
+					
+					vm.modals.createBoardModal.on('hidden.bs.modal', function() {
+						vm.forms.createBoard.title = '';
+						vm.forms.createBoard.description = '';
+						vm.inputs.tags.tagsinput('removeAll');
 					})
-				},
-				hideCreateBoardModal : function() {
-					this.modals.createBoardModal.modal('hide')
-				},
-				createBoard : function() {
-					
-					var vm = this;
 
-					vm.forms.createBoard.tags = vm.inputs.tags.val();
-
-					var request = $.post({
-						url : '/api/board',
-						data : JSON.stringify(vm.forms.createBoard),
-						contentType : 'application/json; charset=UTF-8',
-					});
-
-					request
-						.then(function(newBoard) {
-							vm.getBoards(vm.currentPage).then(function() {
-								vm.hideCreateBoardModal();
-							});
-						})
-						.catch(function(error) {
-							console.log(error)
-						})
-				},
-				editBoard : function() {
-
-					var vm = this;
-
-					var boardIdToBeEdited = this.boards[this.toBe.indexBoardEdited].getId();
-					var url = '/api/board/' + boardIdToBeEdited + '/update';
-
-					vm.forms.createBoard.tags = vm.inputs.tags.val();
-
-					var request = $.post({
-						url : url,
-						data : JSON.stringify(vm.forms.createBoard),
-						contentType : 'application/json; charset=UTF-8',
-					});
-
-					return request
-						.then(function() {
-							vm.getBoards(vm.currentPage).then(function() {
-								vm.hideCreateBoardModal();
-							});
-						})
-						.catch(function(error) {
-							console.log(error);
-							alert('Errro Happen')
-							vm.hideCreateBoardModal();
-						})
-
-				},
-				getBoards : function(page) {
-					var vm = this;
-
-					var request = $.get({
-						url : '/api/my-boards',
-						data: { 
-						   page: page == null ? 1 : page, 
-						},
-					});
-
-					return request
-						.then(function(boards) {
-
-							vm.boards.splice(0, vm.boards.length)
-							vm.numberOfPages = boards.pages;
-
-							boards.docs.forEach(function(board) {
-								
-								var toBePushedboard  = new Board();
-								
-								toBePushedboard
-									.setId(board._id)
-									.setTitle(board.title)
-									.setDescription(board.description)
-									.setTags(board.tags);
-
-								vm.boards.push(toBePushedboard);
-							})
-						})
-						.catch(function(error) {
-							console.log(error)
-						})
-				},
-				viewBoard : function(boardId) {
-					var url = '/board/' + boardId;
-					window.open(url);
-				},
-				boardsGoToPage : function(page) {
-					this.currentPage = page;
-					this.getBoards(page);
-				},
-				displayPaginationButton : function(currentPage, page) {
-					return (currentPage - 2) > page || (currentPage + 2) < page  
-				},
-				openModalToCreateBoard :function() {
-					this.forms.createBoard.status = 'create-board';
-					this.openCreateBoardModal();
-				},
-				openModalToEditBoard : function(index) {
-					
-					var vm = this;
-
-					this.forms.createBoard.status = 'edit-board';
-					this.toBe.indexBoardEdited = index;
-
-					this.boards[index].getTags().forEach(function(tag) {
-						vm.inputs.tags.tagsinput('add', tag);
-					});
-
-					vm.forms.createBoard.title = vm.boards[index].getTitle();
-					vm.forms.createBoard.description = vm.boards[index].getDescription();
-
-					vm.openCreateBoardModal();
-				},
-				viewBoardByTag : function(tag) {
-					var url = '/tag/board?tag=' + tag;
-					window.open(url);
+					vm.getBoards();
 				}
-			},
-			mounted : function() {
-				
-				var vm = this;
-
-				vm.inputs.tags =  $('#tagsinput');
-				vm.inputs.tags.tagsinput();
-
-				vm.modals.createBoardModal = $('#createBoardModal');
-				
-				vm.modals.createBoardModal.on('hidden.bs.modal', function() {
-					vm.forms.createBoard.title = '';
-					vm.forms.createBoard.description = '';
-					vm.inputs.tags.tagsinput('removeAll');
-				})
-
-				vm.getBoards();
-			}
-		})
+			})
+		})();
