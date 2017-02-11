@@ -42,10 +42,28 @@ module.exports = function(app, io) {
 		
 		var userId = req.user._id;
 		var page = req.query.page;
+		var searchQuery = req.query.q;
 
 		try {
 
-			var boards = await(Board.paginate({ 'user.id': mongoose.Types.ObjectId(userId) }, { page: page, limit: 5 }));
+			if(searchQuery && searchQuery != '') {
+
+				var boards = await(Board.paginate({ 
+					'user.id': mongoose.Types.ObjectId(userId),
+					$text : { 
+						$search : searchQuery 
+					},
+				}, { 
+					page: page, 
+					limit: 10
+				}));
+			
+			} else {
+				
+				var boards = await(Board.paginate({ 'user.id': mongoose.Types.ObjectId(userId) }, { page: page, limit: 10 }));
+			
+			}
+			
 			
 			res
 				.json(boards);
@@ -65,16 +83,36 @@ module.exports = function(app, io) {
 		
 		var userId = req.user._id;
 		var page = req.query.page;
+		var searchQuery = req.query.q;
 
 		try {
 			
-			var boards = await(Board
-				.paginate({ 
-					'bookmarkedBy.' : mongoose.Types.ObjectId(userId) 
-				}, { 
-					page: page, 
-					limit: 5 
-				}));
+
+			if(searchQuery && searchQuery != '') {
+				
+				var boards = await(
+					Board.paginate({ 
+						$text : { 
+							$search : searchQuery 
+						},
+						'bookmarkedBy.' : mongoose.Types.ObjectId(userId) 
+					}, { 
+						page: page, 
+						limit: 10
+					})
+				);
+
+			} else {
+
+				var boards = await(Board
+					.paginate({ 
+						'bookmarkedBy.' : mongoose.Types.ObjectId(userId) 
+					}, { 
+						page: page, 
+						limit: 10
+					}));
+			}
+			
 			
 			res
 				.json(boards)
@@ -102,7 +140,7 @@ module.exports = function(app, io) {
 					'tags' : tag 
 				}, { 
 					page: page, 
-					limit: 5 
+					limit: 10
 				}));
 			
 			res
@@ -122,11 +160,25 @@ module.exports = function(app, io) {
 	app.get('/api/boards', async(function(req, res) {
 
 		var page = req.query.page;
+		var searchQuery = req.query.q;
 
 		try {
 			
-			var boards = await(Board.paginate({}, { page: page, limit: 5 }));
-			res.json(boards)
+			if(searchQuery && searchQuery != '') {
+				
+				var boards = await(
+					Board.paginate({ $text : { $search : searchQuery }}, { page: page, limit: 10 })
+				);
+			
+			} else {
+
+				var boards = await(Board.paginate({}, { page: page, limit: 10 }));	
+			
+			}
+			
+			res
+				.status(200)
+				.json(boards);
 
 		} catch(error) {
 
@@ -143,11 +195,14 @@ module.exports = function(app, io) {
 
 		var page = req.query.page;
 		var userId = req.params.userId;
-
+		
 		try {
 			
-			var boards = await(Board.paginate({'user.id' : userId }, { page: page, limit: 5 }));
-			res.json(boards)
+			var boards = await(Board.paginate({'user.id' : userId }, { page: page, limit: 10 }));
+			
+			res
+				.status(200)
+				.json(boards)
 
 		} catch(error) {
 
@@ -164,21 +219,42 @@ module.exports = function(app, io) {
 		
 		var userId = req.user._id;
 		var page = req.query.page;
+		var searchQuery = req.query.q;
 
 		try {
 
-			var boards = await(Board.paginate({ 
-				collaborators : { 
-					$elemMatch : { 
-						userId : mongoose.Types.ObjectId(userId) 
-					}
-				}}, { 
-					page: page, 
-					limit: 5 
-				})
-			);
+			if(searchQuery && searchQuery != '') {
+
+				var boards = await(Board.paginate({ 
+					collaborators : { 
+						$elemMatch : { 
+							userId : mongoose.Types.ObjectId(userId) 
+						}
+					},
+					$text : { $search : searchQuery }
+				}, { 
+						page: page, 
+						limit: 10
+					})
+				);
+
+			} else {
+
+				var boards = await(Board.paginate({ 
+					collaborators : { 
+						$elemMatch : { 
+							userId : mongoose.Types.ObjectId(userId) 
+						}
+					}}, { 
+						page: page, 
+						limit: 10
+					})
+				);
+			}
 			
-			res.json(boards);
+			
+			res
+				.json(boards);
 
 		} catch(error) {
 
