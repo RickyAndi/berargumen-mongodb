@@ -92,7 +92,7 @@ block stylehead
 		}
 
 		.penjelasan {
-			font-size: 18px;
+			font-size: 16px;
 		}
 
 
@@ -112,18 +112,29 @@ block content
 					div(class='col-md-12 text-center')
 						h2 Kenapa Memakai <strong>Berargumen</strong> ?
 					
-					div(class='col-md-6' style='margin-top: 5%;')
-						p(class='penjelasan') Dengan <strong>Berargumen</strong>, anda bisa mengundang teman anda untuk berkolaborasi secara real-time, membuat suatu argumen yang baik, dan anda bisa mengundang lawan anda untuk memberikan argumen argumen yang berlawanan dengan anda, sehingga kta bisa melihat suatu topik dari kedua sisi.
-					div(class='col-md-6' style='margin-top: 5%;')
-
-					div(class='col-md-6' style='margin-top: 5%;')
-					div(class='col-md-6' style='margin-top: 5%;')
-						p(class='penjelasan') Sebuah argumen terdiri dari beberapa bagian, seperti kesimpulan (Contention), alasan (Reason), dan lain sebagainya, dengan <strong>Berargumen</strong>, maka seseorang akan bisa mengerti bagian bagian tersebut dengan lebih mudah, sehingga alur argumen anda juga lebih mudah dimengerti, lain halnya jika anda menyampaikan sebuah argumen hanya dengan tulisan, dimana seseorang perlu menganalisa tulisan anda tersebut untuk mengetahui bagian bagian argumen dan alur dari argumen anda, dan tidak semua orang dengan mudah bisa melakukan hal ini, sehingga dengan <strong>Berargumen</strong> pembaca juga semakin banyak karena semua orang bisa mengerti sebuah argumen dengan mudah.
+					div(class='col-md-12')
+						div(class='row')
+							div(class='col-md-6' style='margin-top: 5%;')
+								p(class='penjelasan') Dengan <strong>Berargumen</strong>, anda bisa mengundang teman anda untuk berkolaborasi secara real-time, membuat suatu argumen yang baik, dan anda bisa mengundang lawan anda untuk memberikan argumen argumen yang berlawanan dengan anda, sehingga kita bisa melihat suatu topik dari kedua sisi.
+							div(class='col-md-6 text-center' style='margin-top: 5%;')
+								<span style="font-size:10em;" class="glyphicon glyphicon-user"></span>
+								<span style="font-size:10em;" class="glyphicon glyphicon-comment"></span>
 					
+					div(class='col-md-12')
+						div(class='row')
+							div(class='col-md-6' style='margin-top: 5%;')
+								p(class='penjelasan') Sebuah argumen terdiri dari beberapa bagian, seperti kesimpulan (Contention), alasan (Reason), dan lain sebagainya, dengan <strong>Berargumen</strong>, maka seseorang akan bisa mengerti bagian bagian tersebut dengan lebih mudah, sehingga alur argumen anda juga lebih mudah dimengerti, lain halnya jika anda menyampaikan sebuah argumen hanya dengan tulisan, dimana seseorang perlu menganalisa tulisan anda tersebut untuk mengetahui bagian bagian argumen dan alur dari argumen anda, dan tidak semua orang dengan mudah bisa melakukan hal ini, sehingga dengan <strong>Berargumen</strong> pembaca juga semakin banyak karena semua orang bisa mengerti sebuah argumen dengan mudah.
+							div(class='col-md-6 text-center' style='margin-top: 5%;')
+								<span style="font-size:10em;" class="glyphicon glyphicon-eye-open"></span>
+								<span style="font-size:10em;" class="glyphicon glyphicon-ok-circle"></span>
 
-					div(class='col-md-6' style='margin-top: 5%;')
-						p(class='penjelasan') Dalam forum forum internet sering dijumpai suatu perdebatan dengan topik yang terus diulang-ulang, sering juga ditemui suatu perdebatan tiada henti (debat kusir) yang tiada titik temu, hal ini karena pada forum forum teresebut, argumennya disajikan secara tidak teratur, tidak jelas seseorang mendukung bagian argumen mana ?, atau membantah yang bagian mana ?, hal ini menimbulkan kesalahfahaman. Dengan <strong>Berargumen</strong>, sesorang bisa dengan jelas memberikan argumennya untuk mendukung bagian mana atau membantah suatu bagian argumen mana, sehingga tidak perlu ada yang diulang-ulang.
-					div(class='col-md-6' style='margin-top: 5%;')
+					div(class='col-md-12')
+						div(class='row')
+							div(class='col-md-6' style='margin-top: 5%;')
+								p(class='penjelasan') Dalam forum forum internet sering dijumpai suatu perdebatan dengan topik yang terus diulang-ulang, sering juga ditemui suatu perdebatan tiada henti (debat kusir) yang tiada titik temu, hal ini karena pada forum forum tersebut, argumennya disajikan secara tidak teratur, tidak jelas seseorang mendukung bagian argumen mana ?, atau membantah yang bagian mana ?, hal ini menimbulkan kesalahfahaman. Dengan <strong>Berargumen</strong>, sesorang bisa dengan jelas memberikan argumennya untuk mendukung bagian mana atau membantah suatu bagian argumen mana, sehingga tidak perlu ada yang diulang-ulang.
+							div(class='col-md-6 text-center' style='margin-top: 5%;')
+								<span style="font-size:10em;" class="glyphicon glyphicon-fire"></span>
+								<span style="font-size:10em;" class="glyphicon glyphicon-ban-circle"></span>
 
 			div(class='col-md-12' style="margin-top: 10%;")
 				div(class='panel panel-default')
@@ -213,7 +224,7 @@ block content
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
 														td()
-															button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()") {{ tag }}
+															button(class='btn btn-default btn-xs btn-in-table' v-for="tag in board.getTags()" @click="viewBoardByTag(tag)") {{ tag }}
 														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-warning btn-xs btn-in-table') Lihat
@@ -260,7 +271,7 @@ block content
 														td()
 															a(@click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
 														td() 
-															button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()" @click="viewBoardByTag(tag)") {{ tag }}
+															button(class='btn btn-default btn-xs btn btn-in-table' v-for="tag in board.getTags()" @click="viewBoardByTag(tag)") {{ tag }}
 														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-warning btn-xs') Lihat
@@ -306,7 +317,7 @@ block content
 														td()
 															a(@click="viewUserProfile(board.getUser().getId())") {{ board.getUser().getName() }}
 														td() 
-															button(class='btn btn-default btn-xs btn' v-for="tag in board.getTags()") {{ tag }}
+															button(class='btn btn-default btn-xs btn btn-in-table' v-for="tag in board.getTags()" @click="viewBoardByTag(tag)") {{ tag }}
 														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-warning btn-xs') Lihat
@@ -481,6 +492,7 @@ block script
 									.setTitle(board.title)
 									.setDescription(board.description)
 									.setUpdatedDate(updatedDate)
+									.setTags(board.tags);
 
 								vm.boards.currentUser.push(toBePushedboard);
 							})
@@ -522,6 +534,7 @@ block script
 									.setDescription(board.description)
 									.setUser(user)
 									.setUpdatedDate(updatedDate)
+									.setTags(board.tags);
 
 								vm.boards.all.push(toBePushedboard);
 							})
@@ -589,6 +602,7 @@ block script
 									.setDescription(board.description)
 									.setUser(user)
 									.setUpdatedDate(updatedDate)
+									.setTags(board.tags);
 
 								vm.boards.bookmarked.push(toBePushedboard);
 							})
@@ -630,6 +644,7 @@ block script
 									.setDescription(board.description)
 									.setUser(user)
 									.setUpdatedDate(updatedDate)
+									.setTags(board.tags);
 
 								vm.boards.collaborated.push(toBePushedboard);
 							})
