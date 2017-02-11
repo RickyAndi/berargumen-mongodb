@@ -520,7 +520,7 @@ block script
 								})
 							})
 							.catch(function(error) {
-								
+								vm.handleError(error);
 							})
 					},
 					getAllBoards : function(page) {
@@ -563,7 +563,7 @@ block script
 								})
 							})
 							.catch(function(error) {
-								
+								vm.handleError(error);
 							})
 					},
 					editBoard : function() {
@@ -632,7 +632,7 @@ block script
 								})
 							})
 							.catch(function(error) {
-								
+								vm.handleError(error);
 							})
 					},
 					getCollaboratedBoards : function(page) {
@@ -675,7 +675,7 @@ block script
 								})
 							})
 							.catch(function(error) {
-								
+								vm.handleError(error);
 							})
 					},
 					openCreateBoardModal : function() {
@@ -758,12 +758,10 @@ block script
 						window.open(url);
 					},
 					searchAllBoards : function(event) {
-						if(this.currentUser != null) {
-							this.currentPage.allBoards = 1;
-							this.loadings.allBoardsSearch = true;
-							this.textQueries.allBoards = event.target.value;
-							this.boardSearchSubjects.all.onNext(event.target.value);
-						}
+						this.currentPage.allBoards = 1;
+						this.loadings.allBoardsSearch = true;
+						this.textQueries.allBoards = event.target.value;
+						this.boardSearchSubjects.all.onNext(event.target.value);
 					},
 					searchCurrentUserBoards : function(event) {
 						if(this.currentUserv != null) {
@@ -794,6 +792,15 @@ block script
 					},
 					notifyThatSomethingSuccess : function(message) {
 						toastr.success(message);
+					},
+					handleError : function(error) {
+						if(error.status == 0) {
+							vm.notifyThatSomethingError('Kelihataanya koneksi internet anda bermasalah');
+						}
+
+						if(error.status == 401) {
+
+						}
 					}
 				},
 				mounted : function() {
