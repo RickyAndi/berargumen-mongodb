@@ -6,7 +6,8 @@ module.exports = function(app) {
 
 		res.render('board-by-tag', {
 			tag : tag,
-			title : 'Tag : ' + tag
+			title : 'Tag : ' + tag,
+			user : req.user
 		});
 
 	});
