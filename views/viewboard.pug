@@ -68,6 +68,48 @@ block stylehead
 			display : none;
 		}
 
+		.fa-spin-custom, .glyphicon-spin {
+		    -webkit-animation: spin 1000ms infinite linear;
+		    animation: spin 1000ms infinite linear;
+		}
+		@-webkit-keyframes spin {
+		    0% {
+		        -webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
+		    }
+		    100% {
+		        -webkit-transform: rotate(359deg);
+		        transform: rotate(359deg);
+		    }
+		}
+		@keyframes spin {
+		    0% {
+		        -webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
+		    }
+		    100% {
+		        -webkit-transform: rotate(359deg);
+		        transform: rotate(359deg);
+		    }
+		}
+
+		.submit-button {
+			width: 8%;
+			margin-right: 2px;
+		}
+
+		.delete-card-button {
+			width: 7%;
+		}
+
+		.help-inline {
+			color: #d01919;
+		}
+
+		.collaborate-button {
+			width: 60px;
+		}
+
 block content
 	div(class='navbar navbar-fixed-top navbar-default navbar-lower' role='navigation')
 		div(class='container')
@@ -133,22 +175,28 @@ block content
 						data-trigger='hover'
 						v-if="!isUserCollaborator && isUserInRequestingToBeCollaborator"
 						v-cloak
-					) Menunggu persetujuan pemilik board
+					) Menunggu persetujuan
 
 					button(
 						class='btn btn-success navbar-btn btn-sm btn-block' 
 						data-toggle='popover',
 						data-content='Jika anda ingin gabung ke board ini, klik tombol ini'
 						data-trigger='hover'
-						v-if="!isUserCollaborator && !isUserInRequestingToBeCollaborator && !isUserCollaboratorRequestRejected"
+						v-if="!isUserCollaborator && !isUserInRequestingToBeCollaborator && !isUserCollaboratorRequestRejected && !loadings.requestToBeCollaborator"
 						@click="requestToJoinBoard()"
 						v-cloak
 					) Gabung ke board ini
+					button(
+						class='btn btn-success navbar-btn btn-sm btn-block' 
+						v-if="loadings.requestToBeCollaborator"
+						v-bind:disabled="loadings.requestToBeCollaborator"
+					) 
+						span(class="glyphicon glyphicon-refresh glyphicon-spin")
 
 					button(
 						class='btn btn-success navbar-btn btn-sm btn-block' 
 						data-toggle='popover',
-						data-content='Anda Sudah Tergabung Ke Board Ini '
+						data-content='Anda Sudah Tergabung Ke Board Ini, anda bisa membuat card di board ini'
 						data-trigger='hover'
 						v-if="isUserCollaborator && !isUserInRequestingToBeCollaborator && !isUserCollaboratorRequestRejected"
 						v-cloak
@@ -171,24 +219,34 @@ block content
 						span(class='badge' v-cloak) {{ numberOfCollaboratorsRequest }}
 			
 			if !isUserBoardOwner && user != null
+				
 				button(
+					style="background-color: #ceb300; color: white;"
 					@click="bookmarkThisBoard()"
-					class='btn btn-default navbar-btn btn-sm btn-block' 
+					class='btn navbar-btn btn-sm btn-block' 
 					data-toggle='popover',
 					data-content='Tandai board ini agar anda mudah untuk menemukannya nanti'
 					data-trigger='hover'
 					v-cloak
-					v-if="!isUserBookmarkedThisBoard"
+					v-if="!isUserBookmarkedThisBoard && !loadings.bookmarkRequest"
 				) Tandai Board Ini
+
 				button(
+					style="background-color: #020660; color: white;"
 					@click="removeBookmarkThisBoard()"
-					class='btn btn-success navbar-btn btn-sm btn-block' 
+					class='btn navbar-btn btn-sm btn-block' 
 					data-toggle='popover',
 					data-content='Anda sudah mendandai board ini'
 					data-trigger='hover'
 					v-cloak
-					v-if="isUserBookmarkedThisBoard"
+					v-if="isUserBookmarkedThisBoard && !loadings.bookmarkRequest"
 				) Hilangkan tanda dari board ini
+
+				button(
+					class='btn btn-default navbar-btn btn-sm btn-block' 
+					v-if="loadings.bookmarkRequest"
+				)
+					span(class="glyphicon glyphicon-refresh glyphicon-spin")
 
 	div(class='container-fluid')
 		div(class='row')
@@ -218,16 +276,21 @@ block content
 				div(class="modal-header")
 					h4() {{ createFormTitle }}
 				div(class="modal-body")
-					div(class='form-group')
-						label(class='label-control') Isi
+					div(class='form-group has-feedback' v-bind:class="{ 'has-error' : formsError.createCard.title.error }")
+						label(class='control-label') Isi
 						textarea(class='form-control' v-model="forms.createCard.title" rows="6")
+						p(class='help-inline' style="margin-top: 5px;" v-if="formsError.createCard.title.error") {{ formsError.createCard.title.message }}
 					div(class='form-group')
 						label(class='label-control') Catatan 
 							span(style='font-size:11px;') (Anda bisa menambahkan catatan berupa penjelasan, referensi, link, gambar, link video)
 						div(id="content-editor")
 					div(class='form-group')
-						button(class='btn btn-success btn-sm' @click="createCard($event)") Simpan
-						button(class='btn btn-danger btn-sm' @click="closeCreateCardModal()") Tutup
+						button(class='btn btn-success btn-sm submit-button' @click="createCard($event)" v-if="!loadings.cardSubmit") Simpan
+						button(class='btn btn-success btn-sm submit-button' v-if="loadings.cardSubmit")
+							span(class="glyphicon glyphicon-refresh glyphicon-spin")
+
+						button(class='btn btn-danger btn-sm' v-if="!loadings.cardSubmit" @click="closeCreateCardModal()") Tutup
+						button(class='btn btn-danger btn-sm' v-if="loadings.cardSubmit" v-bind:disabled="loadings.cardSubmit") Tutup
 
 	div(class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="delete-card-confirmation-modal")
 		div(class="modal-dialog modal-md" role="document")
@@ -237,8 +300,13 @@ block content
 				div(class="modal-body")
 					div(class='row')
 						div(class='col-md-12')
-							button(class='btn btn-success btn-sm' @click="closeDeleteCardConfirmationModal()") Tidak
-							button(class='btn btn-danger btn-sm' @click="deleteCardByIndex()") Ya
+
+							button(class='btn btn-success btn-sm' v-if="!loadings.cardDelete" @click="closeDeleteCardConfirmationModal()") Tidak
+							button(class='btn btn-success btn-sm' v-if="loadings.cardDelete" v-bind:disabled="loadings.cardDelete") Tidak
+
+							button(v-if="!loadings.cardDelete" class='btn btn-danger btn-sm delete-card-button' @click="deleteCardByIndex()") Ya
+							button(v-if="loadings.cardDelete" v-bind:disabled="loadings.cardDelete" class='btn btn-danger btn-sm delete-card-button')
+								span(class="glyphicon glyphicon-refresh glyphicon-spin")
 
 	if isUserBoardOwner
 
@@ -264,6 +332,9 @@ block content
 											td(colspan='2' class='text-center') Tidak Ada Kolaborator
 							div(class='col-md-12')
 								h5() Permintaan Kolaborator
+								
+								p(style="font-size: 13px; color: red;") Sekali anda memasukan seseorang sebagai kolaborator, anda tidak bisa mengeluarkannya, perhitungkan sebelum menerima seseorang. Hal ini dilakukan agar jika terjadi debat, pemilik board tidak bisa mengeluarkan seorang kolaborator yang lebih unggul dalam argumennya.
+
 								table(class='table table-default table-striped table-bordered')
 									thead()
 										tr()
@@ -276,8 +347,17 @@ block content
 												img(v-bind:src="collaborator.profilePic")
 											td(class='text-center') {{ collaborator.name }}
 											td(class='text-center')
-												button(class='btn btn-success btn-sm' @click="acceptCollaboratorRequest(collaborator.userId, index)") Terima
-												button(class='btn btn-danger btn-sm' @click="rejectCollaboratorRequest(collaborator.userId, index)") Tolak
+												
+												button(v-if="!loadings.acceptJoin && !loadings.rejectJoin" class='btn btn-success btn-sm collaborate-button' @click="acceptCollaboratorRequest(collaborator.userId, index)") Terima
+												button(v-if="loadings.rejectJoin || (index != tobe.acceptedCollaboratorRequestIndex && null != tobe.acceptedCollaboratorRequestIndex)" v-bind:disabled="loadings.rejectJoin || (index != tobe.acceptedCollaboratorRequestIndex && null != tobe.acceptedCollaboratorRequestIndex)" class='btn btn-success btn-sm collaborate-button') Terima
+												button(v-if="loadings.acceptJoin && index == tobe.acceptedCollaboratorRequestIndex" class='btn btn-success btn-sm collaborate-button')
+													span(class="glyphicon glyphicon-refresh glyphicon-spin")
+
+												button(v-if="!loadings.acceptJoin && !loadings.rejectJoin" class='btn btn-danger btn-sm collaborate-button' @click="rejectCollaboratorRequest(collaborator.userId, index)") Tolak
+												button(v-if="loadings.acceptJoin || (index != tobe.rejectedCollaboratorRequestIndex && tobe.rejectedCollaboratorRequestIndex != null)" v-bind:disabled="loadings.acceptJoin || (index != tobe.rejectedCollaboratorRequestIndex && tobe.rejectedCollaboratorRequestIndex != null)" class='btn btn-danger btn-sm collaborate-button') Tolak
+												button(v-if="loadings.rejectJoin && index == tobe.rejectedCollaboratorRequestIndex" class='btn btn-danger btn-sm collaborate-button')
+													span(class="glyphicon glyphicon-refresh glyphicon-spin")
+									
 									tbody(v-if="!collaboratorsRequest.length")
 										tr()
 											td(colspan='3' class='text-center') Tidak Ada Permintaan
@@ -339,10 +419,28 @@ block script
 						relatedId : null,
 						deletedCardIndex : 0,
 						sendCardType : 'contention',
-						changedCardIndex : 0
+						changedCardIndex : 0,
+						rejectedCollaboratorRequestIndex : null,
+						acceptedCollaboratorRequestIndex : null,
 					},
 					sockets : {
 						card : null
+					},
+					loadings : {
+						cardSubmit : false,
+						requestToBeCollaborator : false,
+						cardDelete : false,
+						bookmarkRequest : false,
+						acceptJoin : false,
+						rejectJoin : false,
+					},
+					formsError : {
+						createCard : {
+							title : {
+								error : false,
+								message : ''
+							}
+						}
 					},
 					scale : 1,
 					leftSubtractValue : 0,
@@ -568,6 +666,8 @@ block script
 							return;
 						}
 
+						vm.loadings.cardSubmit = true;
+
 						var newCardFormData = new CreateCardForm();
 						var pageX = event.pageX;
 						var pageY = event.pageY;
@@ -593,11 +693,20 @@ block script
 						});
 
 						request.then(function(message) {
-							toastr.success('Card telah tersimpan')
+							vm.loadings.cardSubmit = false;
+							
+							vm.notifyThatSomethingSuccess('Card Telah Tersimpan');
 							vm.closeCreateCardModal();
 						})
 						.catch(function(error) {
-							console.log(error)
+							vm.loadings.cardSubmit = false;
+
+							vm.handleError(error, function(error) {
+								if(error.status == 400) {
+									var error = JSON.parse(error.responseText);
+									vm.handleValidationErrors(error.errors);
+								}
+							});
 						})
 					},
 					getCardContent : function() {
@@ -694,6 +803,8 @@ block script
 						 	return;
 						}
 
+						vm.loadings.cardDelete = true;
+
 						var data = {
 							boardId : boardId
 						}
@@ -706,13 +817,21 @@ block script
 
 						request
 							.then(function(data) {
-								vm.closeDeleteCardConfirmationModal();
-								toastr.success('Card telah terhapus');
+								
+								setTimeout(function() {
+									vm.loadings.cardDelete = false;
+
+									vm.closeDeleteCardConfirmationModal();
+									toastr.success('Card telah terhapus');
+								}, 3000);
+
+								
+								
 							})
 							.catch(function(error) {
+								vm.loadings.cardDelete = false;
 								
-								var message = JSON.parse(error.responseText).message;
-								toastr.error(message);
+								vm.handleError(error);
 
 								vm.closeDeleteCardConfirmationModal();
 							})	
@@ -784,6 +903,8 @@ block script
 						
 						var vm = this;
 
+						vm.loadings.cardSubmit = true;
+
 						var cardIdToBeEdited = this.cards[this.tobe.changedCardIndex].getId();
 						var url = '/api/card/'+ cardIdToBeEdited +'/update';
 						
@@ -800,10 +921,20 @@ block script
 						});
 
 						request.then(function(message) {
+							vm.loadings.cardSubmit = false;
+
 							vm.closeCreateCardModal();
 						})
 						.catch(function(error) {
-							console.log(error)
+							
+							vm.loadings.cardSubmit = false;
+
+							vm.handleError(error, function(error) {
+								if(error.status == 400) {
+									var error = JSON.parse(error.responseText);
+									vm.handleValidationErrors(error.errors);
+								}
+							});
 						})
 					},
 					isFormInEdit : function() {
@@ -830,6 +961,8 @@ block script
 					requestToJoinBoard : function() {
 						var vm = this;
 
+						vm.loadings.requestToBeCollaborator = true;
+
 						var boardId = $('meta[name=boardId]').attr("content");
 						var url = '/api/board/' + boardId + '/join';
 
@@ -839,10 +972,14 @@ block script
 
 						request
 							.then(function(collaboratorsRequest) {
-								vm.isUserInRequestingToBeCollaborator = true;
+								setTimeout(function() {
+									vm.isUserInRequestingToBeCollaborator = true;
+									vm.loadings.requestToBeCollaborator = false;
+								}, 9000)
 							})
 							.catch(function(error) {
-								console.log(error);
+								vm.loadings.requestToBeCollaborator = false;
+								vm.handleError(error)
 							})
 					},
 					openCollaboratorsModal : function() {
@@ -857,6 +994,9 @@ block script
 					acceptCollaboratorRequest : function(userId, index) {
 						var vm = this;
 
+						vm.loadings.acceptJoin = true;
+						vm.tobe.acceptedCollaboratorRequestIndex = index;
+
 						var boardId = $('meta[name=boardId]').attr("content");
 						var url = '/api/board/' + boardId + '/accept-join';
 
@@ -868,11 +1008,19 @@ block script
 
 						request
 							.then(function(collaborator) {
-								vm.boardCollaborators.push(collaborator);
-								vm.collaboratorsRequest.splice(index, 1);
+
+								setTimeout(function() {
+									vm.loadings.acceptJoin = false;
+									vm.boardCollaborators.push(collaborator);
+									vm.collaboratorsRequest.splice(index, 1);
+									vm.tobe.acceptedCollaboratorRequestIndex = null;
+								}, 9000)
+								
 							})
 							.catch(function(error) {
-
+								vm.tobe.acceptedCollaboratorRequestIndex = null;
+								vm.loadings.acceptJoin = false;
+								vm.handleError(error);
 							})
 					},
 					uploadImage : function(image) {
@@ -894,6 +1042,9 @@ block script
 					rejectCollaboratorRequest : function(userId, index) {
 						var vm = this;
 
+						vm.loadings.rejectJoin = true;
+						vm.tobe.rejectedCollaboratorRequestIndex = index;
+
 						var boardId = $('meta[name=boardId]').attr("content");
 						var url = '/api/board/' + boardId + '/reject-join';
 
@@ -905,14 +1056,24 @@ block script
 
 						request
 							.then(function(collaborator) {
-								vm.collaboratorsRequest.splice(index, 1);
+								setTimeout(function() {
+									vm.collaboratorsRequest.splice(index, 1);
+									vm.loadings.rejectJoin = false;
+									vm.tobe.rejectedCollaboratorRequestIndex = null;
+								}, 9000)
+								
 							})
 							.catch(function(error) {
 
+								vm.tobe.rejectedCollaboratorRequestIndex = null;
+								vm.loadings.rejectJoin = false;
+								vm.handleError(error);
 							})
 					},
 					bookmarkThisBoard : function() {
 						var vm = this;
+
+						vm.loadings.bookmarkRequest = true;
 
 						var boardId = $('meta[name=boardId]').attr("content");
 						var url = '/api/board/' + boardId + '/bookmark';
@@ -923,14 +1084,22 @@ block script
 
 						request
 							.then(function() {
-								vm.isUserBookmarkedThisBoard = true;
+								setTimeout(function() {
+									vm.isUserBookmarkedThisBoard = true;
+									vm.loadings.bookmarkRequest = false;
+								}, 9000)
+								
 							})
 							.catch(function(error) {
-
+								
+								vm.loadings.bookmarkRequest = false;
+								vm.handleError(error);
 							})
 					},
 					removeBookmarkThisBoard : function(){
 						var vm = this;
+
+						vm.loadings.bookmarkRequest = true;
 
 						var boardId = $('meta[name=boardId]').attr("content");
 						var url = '/api/board/' + boardId + '/remove-bookmark';
@@ -941,11 +1110,81 @@ block script
 
 						request
 							.then(function() {
-								vm.isUserBookmarkedThisBoard = false;
+								setTimeout(function() {
+									vm.isUserBookmarkedThisBoard = false;
+									vm.loadings.bookmarkRequest = false;
+								}, 9000)
+								
 							})
 							.catch(function(error) {
-
+								vm.loadings.bookmarkRequest = false;
+								vm.handleError(error);
 							})
+					},
+					notifyThatSomethingError : function(message) {
+						toastr.error(message);
+					},
+					notifyThatSomethingSuccess : function(message) {
+						toastr.success(message);
+					},
+					handleError : function(error, callback) {
+						var vm = this;
+						if(error.status == 0) {
+							vm.notifyThatSomethingError('Kelihataanya koneksi internet anda bermasalah');
+							if(typeof callback == 'function') {
+								callback.bind(vm)(error);
+							}
+						}
+
+						if(error.status == 401) {
+							if(typeof callback == 'function') {
+								callback.bind(vm)(error);
+							}
+						}
+
+						if(error.status == 400) {
+							vm.notifyThatSomethingError('Mohon perbaiki isian form sesuai dengan pesan yang ada');
+							if(typeof callback == 'function') {
+								callback.bind(vm)(error);
+							}
+						}
+
+						if(error.status == 500) {
+							vm.notifyThatSomethingError('Mohon maaf, terjadi error pada server.');
+							if(typeof callback == 'function') {
+								callback.bind(vm)(error);
+							}
+						}
+					},
+					handleValidationErrors : function(errors) {
+						
+						var vm = this;
+
+						var params = ['title'];
+
+						params.forEach(function(param) {
+							var paramError = errors.find(function(error) {
+								return error.param == param
+							})
+
+							if(paramError != undefined) {
+
+								vm.formsError.createCard[param].error = true;
+								vm.formsError.createCard[param].message  = paramError.msg
+							}
+						})
+					},
+					resetFormErrorState : function(param) {
+						this.formsError.createCard[param].error = false;
+					},
+					resetAllFormErrorState : function() {
+						var vm = this;
+
+						var params = ['title'];
+
+						params.forEach(function(param) {
+							vm.resetFormErrorState(param);
+						})
 					}
 				},
 				computed : {
@@ -967,9 +1206,6 @@ block script
 					},
 					numberOfCollaboratorsRequest : function() {
 						return this.collaboratorsRequest.length;
-					},
-					currentUserIsCollaborator : function() {
-						return this.decideIfCurrentUserBoardCollaborator()
 					}
 				},
 				mounted :function() {
@@ -1129,7 +1365,8 @@ block script
 
 					this.modals.createCard.on('hide.bs.modal', function() {
 						vm.forms.createCard.title = '';
-						vm.editor.summernote('reset');	
+						vm.editor.summernote('reset');
+						vm.resetAllFormErrorState(); 
 					})
 
 					if($('#collaborator-modal').length) {
