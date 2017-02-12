@@ -389,13 +389,11 @@ module.exports = function(app, io) {
 					})
 			}
 
-			setTimeout(function() {
-				res
-					.status(200)
-					.json(updatedBoard)
-			}, 9000)
 			
-
+			res
+				.status(200)
+				.json(updatedBoard)
+			
 		} catch(error) {
 
 			res
