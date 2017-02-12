@@ -7,6 +7,35 @@ block stylehead
 
 	style().
 
+		.jancok {
+			background-color: #d01919;
+		}
+
+		.fa-spin-custom, .glyphicon-spin {
+		    -webkit-animation: spin 1000ms infinite linear;
+		    animation: spin 1000ms infinite linear;
+		}
+		@-webkit-keyframes spin {
+		    0% {
+		        -webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
+		    }
+		    100% {
+		        -webkit-transform: rotate(359deg);
+		        transform: rotate(359deg);
+		    }
+		}
+		@keyframes spin {
+		    0% {
+		        -webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
+		    }
+		    100% {
+		        -webkit-transform: rotate(359deg);
+		        transform: rotate(359deg);
+		    }
+		}
+
 		.panel > .panel-heading {
 			background-color: rgb(23,30,38);
 			color : white;
@@ -100,6 +129,22 @@ block stylehead
 			font-size: 16px;
 		}
 
+		.button-tags {
+			color : black !important;
+		}
+
+		.submit-button {
+			width: 10%;
+			margin-right: 2px;
+		}
+
+		.help-inline {
+			color: #d01919;
+		}
+
+		.has-error  .bootstrap-tagsinput {
+			border-color: #d01919 !important; 
+		}
 
 block content
 	div(class='jumbotron' style="background-color:rgb(23,30,38);")
@@ -352,22 +397,36 @@ block content
 						div(class="modal-body")
 							div(class="row")
 								div(class="col-md-12")
-									div(class="form-group")
-										label() Judul
-										input(v-model="forms.createBoard.title" class="form-control")
-									div(class="form-group")
-										label() Deskripsi
-										textarea(v-model="forms.createBoard.description" class="form-control")
-									div(class="form-group")
-										label() Tags
-										input(type="text" id="tagsinput")
+									div(class="form-group has-feedback" v-bind:class="{ 'has-error' : formsError.createBoard.title.error }")
+										label(class="control-label") Judul
+										input(@keyup="resetFormErrorState('title')" v-model="forms.createBoard.title" class="form-control" v-bind:disabled="loadings.submitBoards")
+										p(class="help-inline" style="margin-top: 5px;" v-if="formsError.createBoard.title.error") {{ formsError.createBoard.title.message }}
+
+									div(class="form-group has-feedback" v-bind:class="{ 'has-error' : formsError.createBoard.description.error }")
+										label(class="control-label") Deskripsi
+										textarea(@keyup="resetFormErrorState('description')" v-model="forms.createBoard.description" class="form-control" v-bind:disabled="loadings.submitBoards")
+										p(class="help-inline" style="margin-top: 5px;" v-if="formsError.createBoard.description.error") {{ formsError.createBoard.description.message }}
+
+									div(class="form-group has-feedback" v-bind:class="{ 'has-error' : formsError.createBoard.tags.error }")
+										label(class="control-label") Tags
 										br()
 										p(style="font-size:13px;") Untuk menambah tags, isikan kata lalu tekan 
 											strong() Enter
+										input(@keyup="resetFormErrorState('tags')" type="text" id="tagsinput" class="form-control" v-bind:disabled="loadings.submitBoards")
+										p(class="help-inline" style="margin-top: 5px;" v-if="formsError.createBoard.tags.error") {{ formsError.createBoard.tags.message }}
+										
 									div(class="form-group" style="padding-top:5%;")
-										button(v-if="forms.createBoard.status == 'create-board'" class='btn btn-primary btn-sm' @click='createBoard()') Buat
-										button(v-if="forms.createBoard.status == 'edit-board'" class='btn btn-success btn-sm' @click='editBoard()') Ubah
-										button(class='btn btn-warning btn-sm' @click='hideCreateBoardModal()') Tutup
+										button(v-if="forms.createBoard.status == 'create-board' && !loadings.submitBoards" class='btn btn-success btn-sm submit-button' @click='createBoard()') Buat
+										button(v-if="forms.createBoard.status == 'create-board' && loadings.submitBoards" class='btn btn-success btn-sm submit-button' disabled)
+											span(class="glyphicon glyphicon-refresh glyphicon-spin")
+
+										button(v-if="forms.createBoard.status == 'edit-board' && !loadings.submitBoards" class='btn btn-success btn-sm submit-button' @click='editBoard()') Ubah
+										button(v-if="forms.createBoard.status == 'edit-board' && loadings.submitBoards" class='btn btn-success btn-sm submit-button' disabled)
+											span(class="glyphicon glyphicon-refresh glyphicon-spin")
+
+										button(class='btn btn-warning btn-sm' @click='hideCreateBoardModal()' v-if="!loadings.submitBoards") Tutup
+										button(class='btn btn-warning btn-sm' disabled v-if="loadings.submitBoards") Tutup
+											
 	footer(style="margin-top: 10%;")
 		div(class="container")
 			div(class="row")
@@ -409,7 +468,8 @@ block script
 						allBoardsSearch : false,
 						currentUserBoardsSearch : false,
 						bookmarkedBoardsSearch : false,
-						collaboratedBoardsSearch : false
+						collaboratedBoardsSearch : false,
+						submitBoards : false
 					},
 					textQueries : {
 						allBoards : '',
@@ -459,6 +519,22 @@ block script
 						currentUserBoards : 1,
 						bookmarkedBoards : 1,
 						collaboratedBoards : 1
+					},
+					formsError : {
+						createBoard : {
+							title : {
+								error : false,
+								message : ''
+							},
+							description : {
+								error : false,
+								message : ''
+							},
+							tags : {
+								error : false,
+								message : ''
+							}
+						}
 					}
 				},
 				methods : {
@@ -570,6 +646,8 @@ block script
 						
 						var vm = this;
 
+						vm.loadings.submitBoards = true;
+
 						var boardIdToBeEdited = this.boards.currentUser[this.toBe.boardIndexEdited].getId();
 						var url = '/api/board/' + boardIdToBeEdited + '/update';
 
@@ -583,13 +661,21 @@ block script
 
 						return request
 							.then(function() {
+								vm.loadings.submitBoards = false;
 								vm.getCurrentUserBoards(vm.currentPage.currentUserBoards);
 								vm.hideCreateBoardModal();
+								vm.notifyThatSomethingSuccess('Board berhasil diubah');
 							})
 							.catch(function(error) {
-							
-								alert('Errro Happen')
-								vm.hideCreateBoardModal();
+								
+								vm.loadings.submitBoards = false;
+								
+								vm.handleError(error, function(error) {
+									if(error.status == 400) {
+										var error = JSON.parse(error.responseText);
+										vm.handleValidationErrors(error.errors);
+									}
+								})
 							})
 					},
 					getBookmarkedBoards : function(page) {
@@ -695,6 +781,8 @@ block script
 					
 						var vm = this;
 
+						vm.loadings.submitBoards = true;
+
 						vm.forms.createBoard.tags = vm.inputs.tags.val();
 
 						var request = $.post({
@@ -705,12 +793,22 @@ block script
 
 						request
 							.then(function(newBoard) {
+								vm.loadings.submitBoards = false;
+								
 								vm.getCurrentUserBoards(vm.currentPage.currentUserBoards);
+								
 								vm.hideCreateBoardModal();
 								vm.notifyThatSomethingSuccess('Board Berhasil Tersimpan');
 							})
 							.catch(function(error) {
-								vm.notifyThatSomethingError('Gagal Menyimpan Board');
+								vm.loadings.submitBoards = false;
+
+								vm.handleError(error, function(error) {
+									if(error.status == 400) {
+										var error = JSON.parse(error.responseText);
+										vm.handleValidationErrors(error.errors);
+									}
+								})
 							})
 					},
 					viewBoard : function(boardId) {
@@ -793,14 +891,57 @@ block script
 					notifyThatSomethingSuccess : function(message) {
 						toastr.success(message);
 					},
-					handleError : function(error) {
+					handleError : function(error, callback) {
+						var vm = this;
 						if(error.status == 0) {
 							vm.notifyThatSomethingError('Kelihataanya koneksi internet anda bermasalah');
+							if(typeof callback == 'function') {
+								callback.bind(vm)(error);
+							}
 						}
 
 						if(error.status == 401) {
-
+							if(typeof callback == 'function') {
+								callback.bind(vm)(error);
+							}
 						}
+
+						if(error.status == 400) {
+							vm.notifyThatSomethingError('Mohon perbaiki isian form sesuai dengan pesan yang ada');
+							if(typeof callback == 'function') {
+								callback.bind(vm)(error);
+							}
+						}
+					},
+					handleValidationErrors : function(errors) {
+						
+						var vm = this;
+
+						var params = ['title', 'description', 'tags'];
+
+						params.forEach(function(param) {
+							var paramError = errors.find(function(error) {
+								return error.param == param
+							})
+
+							if(paramError != undefined) {
+
+								vm.formsError.createBoard[param].error = true;
+								vm.formsError.createBoard[param].message  = paramError.msg
+							}
+						})
+					},
+					resetFormErrorState : function(param) {
+						this.formsError.createBoard[param].error = false;
+					},
+					resetAllFormErrorState : function() {
+						var vm = this;
+
+						var params = ['title', 'description', 'tags'];
+
+						params.forEach(function(param) {
+							vm.resetFormErrorState(param);
+						})
 					}
 				},
 				mounted : function() {
@@ -825,13 +966,21 @@ block script
 					}
 
 					vm.inputs.tags =  $('#tagsinput');
-					vm.inputs.tags.tagsinput();
+					vm.inputs.tags.tagsinput({
+						tagClass : 'btn btn-default btn-xs button-tags'
+					});
+
+					vm.inputs.tags.on('beforeItemAdd', function(event) {
+						vm.resetFormErrorState('tags')
+					});
 						
 					vm.modals.createBoardModal = $('#create-board-modal');
 					vm.modals.createBoardModal.on('hidden.bs.modal', function() {
 						vm.forms.createBoard.title = '';
 						vm.forms.createBoard.description = '';
 						vm.inputs.tags.tagsinput('removeAll');
+
+						vm.resetAllFormErrorState();
 					})
 					
 					vm.getCurrentUser()
