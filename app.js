@@ -28,7 +28,14 @@ boardRoute(app)
 
 mongoose.connect('mongodb://localhost/berargumen');
 
-db.on('error', console.error.bind(console, 'connection error:'));
+db.on('error', function() {
+	console.error.bind(console, 'connection error:');
+	db.close();
+});
+
+server.on('error', function (e) {
+	db.close();
+});
 
 db.once('open', function() {
 	
