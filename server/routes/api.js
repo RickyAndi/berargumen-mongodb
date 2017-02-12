@@ -25,21 +25,22 @@ module.exports = function(app, io) {
 
 	app.get('/api/me', function(req, res) {
 		if(!req.user) {
-			res
+			return res
 				.status(401)
 				.json({
 					message : 'User Not Authorized'
 				})
 		}
 
-		res
+		return res
 			.status(200)
 			.json(req.user)
 	})
 
 	app.get('/api/users', function(req, res) {
 		User.find().then(function(users) {
-			res.json(users);
+			return res
+				.json(users);
 		})
 	})
 	
@@ -82,12 +83,12 @@ module.exports = function(app, io) {
 			}
 			
 			
-			res
+			return res
 				.json(boards);
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -137,12 +138,12 @@ module.exports = function(app, io) {
 			}
 			
 			
-			res
+			return res
 				.json(boards)
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -169,12 +170,12 @@ module.exports = function(app, io) {
 					}
 				}));
 			
-			res
+			return res
 				.json(boards);
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -218,13 +219,13 @@ module.exports = function(app, io) {
 			
 			}
 			
-			res
+			return res
 				.status(200)
 				.json(boards);
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -248,13 +249,13 @@ module.exports = function(app, io) {
 				} 
 			}));
 			
-			res
+			return res
 				.status(200)
 				.json(boards)
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -307,12 +308,12 @@ module.exports = function(app, io) {
 			}
 			
 			
-			res
+			return res
 				.json(boards);
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -347,13 +348,13 @@ module.exports = function(app, io) {
 			
 			var newBoard = await(newBoard.save());
 			
-			res
+			return res
 				.status(200)
 				.json(newBoard);
 		
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({ 
 					message : 'Error Happen'
@@ -385,7 +386,7 @@ module.exports = function(app, io) {
 			}));
 
 			if(!updatedBoard) {
-				res
+				return res
 					.status(404)
 					.json({
 						message : 'Board Not Found'
@@ -393,13 +394,13 @@ module.exports = function(app, io) {
 			}
 
 			
-			res
+			return res
 				.status(200)
 				.json(updatedBoard)
 			
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -419,7 +420,7 @@ module.exports = function(app, io) {
 			var card = await(Card.findOne({ _id : cardId, 'creator.id' : userId}));
 
 			if(!card) {
-				res
+				return res
 					.status(404)
 					.json({
 						message : 'Card Not Found'
@@ -430,13 +431,13 @@ module.exports = function(app, io) {
 				catatan : card.content
 			};
 
-			res
+			return res
 				.status(200)
 				.json(cardData);
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -464,7 +465,7 @@ module.exports = function(app, io) {
 			}));
 
 			if(!card) {
-				res.status(404).json({
+				return res.status(404).json({
 					message : 'Card Not Found'
 				})
 			}
@@ -478,13 +479,13 @@ module.exports = function(app, io) {
 
 			io.card.emit(cardUpdatedEventName, payload);
 			
-			res.status(200).json({
+			return res.status(200).json({
 				message : 'Card Updated'
 			})
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -504,13 +505,11 @@ module.exports = function(app, io) {
 
 			if(cardsThatRelatedToToBeDeletedCard.length) {
 				
-				res
+				return res
 					.status(400)
 					.json({
 						message : 'Anda tidak bisa menghapus card yang berelasi dengan card lain, hapus card yang berelasi dengan card ini dulu.'
 					});
-
-				return;
 			}
 
 			var card = await(Card.findOneAndUpdate({ 
@@ -521,7 +520,7 @@ module.exports = function(app, io) {
 			}));
 
 			if(!card) {
-				res.status(404).json({
+				return res.status(404).json({
 					message : 'Card Not Found'
 				})
 			}
@@ -534,13 +533,13 @@ module.exports = function(app, io) {
 
 			io.card.emit(cardDeletedEventName, payload);
 			
-			res.status(200).json({
+			return res.status(200).json({
 				message : 'Card Deleted'
 			})
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -573,7 +572,7 @@ module.exports = function(app, io) {
 				}));
 
 				if(!card) {
-					res
+					return res
 						.status(404)
 						.json({
 							message : 'Card Not Found'
@@ -649,7 +648,7 @@ module.exports = function(app, io) {
 			var board = await(Board.findOne({ _id : boardId, 'user.id' : userId}));
 
 			if(!board) {
-				res
+				return res
 					.status(404)
 					.json({
 						message : 'Board Not found'
@@ -664,14 +663,14 @@ module.exports = function(app, io) {
 				}
 			})
 
-			res
+			return res
 				.status(200)
 				.json(collaboratorsRequest);
 			
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -689,20 +688,20 @@ module.exports = function(app, io) {
 			var board = await(Board.findOne({ _id : boardId, 'user.id' : userId}));
 
 			if(!board) {
-				res
+				return res
 					.status(404)
 					.json({
 						message : 'Board Not found'
 					})
 			}
 
-			res
+			return res
 				.status(200)
 				.json(board.collaborators)
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -735,7 +734,7 @@ module.exports = function(app, io) {
 			
 			io.card.emit(boardCollaboratorRequestAddedEventName, userData);
 
-			res
+			return res
 				.status(200)
 				.json({
 					message : 'Request Completed'
@@ -743,7 +742,7 @@ module.exports = function(app, io) {
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -762,7 +761,7 @@ module.exports = function(app, io) {
 			var board = await(Board.findById(boardId));
 
 			if(!board) {
-				res
+				return res
 					.status(404)
 					.json({
 						message : 'Boar Not Found'
@@ -779,14 +778,14 @@ module.exports = function(app, io) {
 					$push : { bookmarkedBy : mongoose.Types.ObjectId(userId) }
 				}));
 
-				res
+				return res
 					.status(200)
 					.json({
 						message : 'Successfully bookmarked'
 					});
 
 			} else {
-				res
+				return res
 					.status(400)
 					.json({
 						message : 'Already Bookmarked'
@@ -795,7 +794,7 @@ module.exports = function(app, io) {
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -814,7 +813,7 @@ module.exports = function(app, io) {
 			var board = await(Board.findById(boardId));
 
 			if(!board) {
-				res
+				return res
 					.status(404)
 					.json({
 						message : 'Board Not Found'
@@ -832,14 +831,14 @@ module.exports = function(app, io) {
 				}));
 
 
-				res
+				return res
 					.status(200)
 					.json({
 						message : 'Bookmark successfully removed'
 					});
 
 			} else {
-				res
+				return res
 					.status(400)
 					.json({
 						message : 'Trying to remove bookmark, but this board is not bookmarked'
@@ -848,7 +847,7 @@ module.exports = function(app, io) {
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -868,7 +867,7 @@ module.exports = function(app, io) {
 			var board = await(Board.findOne({ _id : boardId, 'user.id' : boardOwnerId}));
 
 			if(!board) {
-				res
+				return res
 					.status(404)
 					.json({
 						message : 'Board Not Found'
@@ -894,7 +893,7 @@ module.exports = function(app, io) {
 				value : true 
 			});
 			
-			res
+			return res
 				.status(200)
 				.json({
 					userId : collaboratorToBeAdded.userId,
@@ -904,7 +903,7 @@ module.exports = function(app, io) {
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -923,7 +922,7 @@ module.exports = function(app, io) {
 			var board = await(Board.findOne({ _id : boardId, 'user.id' : boardOwnerId}));
 
 			if(!board) {
-				res
+				return res
 					.status(404)
 					.json({
 						message : 'Board Not Found'
@@ -946,7 +945,7 @@ module.exports = function(app, io) {
 				value : false 
 			});
 			
-			res
+			return res
 				.status(200)
 				.json({
 					message : 'Request Rejected Successfully'
@@ -954,7 +953,7 @@ module.exports = function(app, io) {
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -972,7 +971,7 @@ module.exports = function(app, io) {
 			var board = await(Board.findById(boardId));
 
 			if(!board) {
-				res.status(404).json({
+				return res.status(404).json({
 					message : 'Board Not Found'
 				})
 			}
@@ -1016,7 +1015,7 @@ module.exports = function(app, io) {
 
 			io.card.emit(cardCreatedEventName, newCard);
 
-			res
+			return res
 				.status(200)
 				.json({
 					message : 'Card Created'
@@ -1024,7 +1023,7 @@ module.exports = function(app, io) {
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -1042,7 +1041,7 @@ module.exports = function(app, io) {
 			var board = await(Board.findById(boardId));
 
 			if(!board) {
-				res
+				return res
 					.status(404)
 					.json({
 						message : 'Board Not Found'
@@ -1054,13 +1053,13 @@ module.exports = function(app, io) {
 				deleted : false 
 			}));
 
-			res
+			return res
 				.status(200)
 				.json(cards)
 
 		} catch(error) {
 			
-			res
+			return res
 				.status(500)
 				.json({
 					message : 'Error Happen'
@@ -1077,21 +1076,21 @@ module.exports = function(app, io) {
 			var board = await(Board.findById(boardId));
 
 			if(!board) {
-				res
+				return res
 					.status(404)
 					.json({
 						message : 'Board Not Found'
 					})
 			}
 
-			res
+			return res
 				.status(200)
 				.json(board)
 
 
 		} catch(error) {
 			
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
@@ -1100,7 +1099,8 @@ module.exports = function(app, io) {
 	}))
 
 	app.post('/api/upload-image', upload.single('image'), function(req, res) {
-		res
+		
+		return res
 			.json({
 				message : 'upload complete',
 				imageUrl : '/uploads/' + req.file.filename
@@ -1131,7 +1131,7 @@ module.exports = function(app, io) {
 			
 			if(!board) {
 
-				res
+				return res
 					.status(404)
 					.json({
 						message : 'Board Not Found'
@@ -1199,13 +1199,13 @@ module.exports = function(app, io) {
 				}
 			}
 
-			res
+			return res
 				.status(200)
 				.json(dataToSent);
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
