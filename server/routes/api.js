@@ -1,5 +1,8 @@
 var authMiddleware = require('../middlewares/auth');
+
 var boardPostValidatorMiddleware = require('../middlewares/boardPostValidator');
+var cardPostValidatorMiddleware = require('../middlewares/cardPostValidator');
+var cardUpdateValidatorMiddleware = require('../middlewares/cardUpdateValidator');
 
 var mongoose = require('mongoose');
 
@@ -442,7 +445,7 @@ module.exports = function(app, io) {
 		}
 	}))
 
-	app.post('/api/card/:cardId/update', authMiddleware, async(function(req, res) {
+	app.post('/api/card/:cardId/update', authMiddleware, cardUpdateValidatorMiddleware, async(function(req, res) {
 
 		var cardId = req.params.cardId;
 		var userId = req.user._id;
@@ -959,7 +962,7 @@ module.exports = function(app, io) {
 	}))
 
 
-	app.post('/api/board/:boardId/card', authMiddleware, async(function(req, res) {
+	app.post('/api/board/:boardId/card', authMiddleware, cardPostValidatorMiddleware, async(function(req, res) {
 		
 		var boardId = req.params.boardId;
 		
