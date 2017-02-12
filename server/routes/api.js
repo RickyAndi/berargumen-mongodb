@@ -590,11 +590,12 @@ module.exports = function(app, io) {
 
 				io.card.emit(cardCreatedEventName, payload);
 				
-				res
+				return res
 					.status(200)
 					.json({
 						message : 'Card Position Updated'
 					})
+
 			}
 
 			var card = await(Card.findOneAndUpdate({ 
@@ -605,11 +606,11 @@ module.exports = function(app, io) {
 			}));
 
 			if(!card) {
-				res
+				return res
 					.status(404)
 					.json({
 						message : 'Card Not Found'
-					})	
+					})
 			}
 
 			var cardCreatedEventName = boardId + ':card-position-changed';
@@ -622,7 +623,7 @@ module.exports = function(app, io) {
 
 			io.card.emit(cardCreatedEventName, payload);
 			
-			res
+			return res
 				.status(200)
 				.json({
 					message : 'Card Position Updated'
@@ -630,7 +631,7 @@ module.exports = function(app, io) {
 
 		} catch(error) {
 
-			res
+			return res
 				.status(500)
 				.json({
 					message : error.toString()
