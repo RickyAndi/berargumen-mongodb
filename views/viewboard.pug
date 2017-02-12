@@ -506,7 +506,7 @@ block script
 							
 							})
 							.catch(function(error) {
-								console.log(error)
+								vm.notifyThatSomethingError('Gagal mendapat data');
 							})
 					},
 					getCards : function() {
@@ -549,7 +549,7 @@ block script
 								})
 							})
 							.catch(function(error) {
-								console.log(error)
+								vm.notifyThatSomethingError('Gagal mendapat data');
 							})
 					},
 					getViewBoardPageData : function() {
@@ -629,8 +629,7 @@ block script
 								});
 							})
 							.catch(function(error) {
-								alert('Error Happen');
-								console.log(error);
+								vm.notifyThatSomethingError('Gagal melakukan load data awal');
 							});
 					},
 					openCreateBoardToCreateContention : function() {
@@ -777,7 +776,7 @@ block script
 
 						request
 							.catch(function(error) {
-								toastr.error('Perpindahan posisi card tidak tersimpan, mungkin koneksi anda bermasalah')
+								vm.notifyThatSomethingError('Perpindahan posisi card tidak tersimpan, mungkin koneksi anda bermasalah')
 							})
 					},
 					openModalAndSetCardToBeDeleted : function(args) {
@@ -817,22 +816,15 @@ block script
 
 						request
 							.then(function(data) {
-								
-								setTimeout(function() {
-									vm.loadings.cardDelete = false;
+								vm.loadings.cardDelete = false;
 
-									vm.closeDeleteCardConfirmationModal();
-									toastr.success('Card telah terhapus');
-								}, 3000);
-
-								
-								
+								vm.closeDeleteCardConfirmationModal();
+								toastr.success('Card telah terhapus');
 							})
 							.catch(function(error) {
 								vm.loadings.cardDelete = false;
 								
 								vm.handleError(error);
-
 								vm.closeDeleteCardConfirmationModal();
 							})	
 					},
@@ -896,7 +888,7 @@ block script
 								vm.openCreateCardModal();
 							})
 							.catch(function(error) {
-								alert('You cannot open this')
+								vm.notifyThatSomethingError('Anda tidak dapat mengedit card yang bukan milik anda');
 							})
 					},
 					editCard : function() {
@@ -972,12 +964,12 @@ block script
 
 						request
 							.then(function(collaboratorsRequest) {
-								setTimeout(function() {
-									vm.isUserInRequestingToBeCollaborator = true;
-									vm.loadings.requestToBeCollaborator = false;
-								}, 9000)
+
+								vm.isUserInRequestingToBeCollaborator = true;
+								vm.loadings.requestToBeCollaborator = false;
 							})
 							.catch(function(error) {
+
 								vm.loadings.requestToBeCollaborator = false;
 								vm.handleError(error)
 							})
@@ -1009,13 +1001,10 @@ block script
 						request
 							.then(function(collaborator) {
 
-								setTimeout(function() {
-									vm.loadings.acceptJoin = false;
-									vm.boardCollaborators.push(collaborator);
-									vm.collaboratorsRequest.splice(index, 1);
-									vm.tobe.acceptedCollaboratorRequestIndex = null;
-								}, 9000)
-								
+								vm.loadings.acceptJoin = false;
+								vm.boardCollaborators.push(collaborator);
+								vm.collaboratorsRequest.splice(index, 1);
+								vm.tobe.acceptedCollaboratorRequestIndex = null;
 							})
 							.catch(function(error) {
 								vm.tobe.acceptedCollaboratorRequestIndex = null;
@@ -1056,12 +1045,10 @@ block script
 
 						request
 							.then(function(collaborator) {
-								setTimeout(function() {
-									vm.collaboratorsRequest.splice(index, 1);
-									vm.loadings.rejectJoin = false;
-									vm.tobe.rejectedCollaboratorRequestIndex = null;
-								}, 9000)
-								
+							
+								vm.collaboratorsRequest.splice(index, 1);
+								vm.loadings.rejectJoin = false;
+								vm.tobe.rejectedCollaboratorRequestIndex = null;
 							})
 							.catch(function(error) {
 
@@ -1084,11 +1071,9 @@ block script
 
 						request
 							.then(function() {
-								setTimeout(function() {
-									vm.isUserBookmarkedThisBoard = true;
-									vm.loadings.bookmarkRequest = false;
-								}, 9000)
 								
+								vm.isUserBookmarkedThisBoard = true;
+								vm.loadings.bookmarkRequest = false;
 							})
 							.catch(function(error) {
 								
@@ -1110,11 +1095,9 @@ block script
 
 						request
 							.then(function() {
-								setTimeout(function() {
-									vm.isUserBookmarkedThisBoard = false;
-									vm.loadings.bookmarkRequest = false;
-								}, 9000)
-								
+							
+								vm.isUserBookmarkedThisBoard = false;
+								vm.loadings.bookmarkRequest = false;
 							})
 							.catch(function(error) {
 								vm.loadings.bookmarkRequest = false;
@@ -1354,7 +1337,7 @@ block script
 									vm.editor.summernote('editor.insertImage', data.imageUrl);
 								})
 								.catch(function(error) {
-
+									vm.notifyThatSomethingError('Gagal unggah gambar');
 								})
 							}
 						}
