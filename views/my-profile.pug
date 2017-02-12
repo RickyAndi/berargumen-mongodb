@@ -3,11 +3,42 @@ extends layouts/main.pug
 block stylehead
 	link(rel='stylesheet' href='/bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.css')
 	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
+	link(rel='stylesheet' href='/bower_components/toastr/toastr.css')
+
 	style(type='text/css').
 		
 		div.bootstrap-tagsinput {
 			float:right; 
 			width: 100%;
+		}
+
+		.fa-spin-custom, .glyphicon-spin {
+		    -webkit-animation: spin 1000ms infinite linear;
+		    animation: spin 1000ms infinite linear;
+		}
+		@-webkit-keyframes spin {
+		    0% {
+		        -webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
+		    }
+		    100% {
+		        -webkit-transform: rotate(359deg);
+		        transform: rotate(359deg);
+		    }
+		}
+		@keyframes spin {
+		    0% {
+		        -webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
+		    }
+		    100% {
+		        -webkit-transform: rotate(359deg);
+		        transform: rotate(359deg);
+		    }
+		}
+
+		.has-error  .bootstrap-tagsinput {
+			border-color: #d01919 !important; 
 		}
 
 		.navbar-lower {
@@ -28,6 +59,19 @@ block stylehead
 
 		* {
 			font-family: "Times New Roman", Georgia, Serif;
+		}
+
+		.help-inline {
+			color: #d01919;
+		}
+
+		.submit-button {
+			width: 10%;
+			margin-right: 2px;
+		}
+
+		.button-tags {
+			color : black !important;
 		}
 
 block content
@@ -92,22 +136,35 @@ block content
 				div(class="modal-body")
 					div(class="row")
 						div(class="col-md-12")
-							div(class="form-group")
-								label() Judul
-								input(v-model="forms.createBoard.title" class="form-control")
-							div(class="form-group")
-								label() Deskripsi
-								textarea(v-model="forms.createBoard.description" class="form-control")
-							div(class="form-group")
-								label() Tags
-								input(type="text" id="tagsinput")
+							div(class="form-group has-feedback" v-bind:class="{ 'has-error' : formsError.createBoard.title.error }")
+								label(class="control-label") Judul
+								input(@keyup="resetFormErrorState('title')" v-model="forms.createBoard.title" class="form-control" v-bind:disabled="loadings.submitBoards")
+								p(class="help-inline" style="margin-top: 5px;" v-if="formsError.createBoard.title.error") {{ formsError.createBoard.title.message }}
+
+							div(class="form-group has-feedback" v-bind:class="{ 'has-error' : formsError.createBoard.description.error }")
+								label(class="control-label") Deskripsi
+								textarea(@keyup="resetFormErrorState('description')" v-model="forms.createBoard.description" class="form-control" v-bind:disabled="loadings.submitBoards")
+								p(class="help-inline" style="margin-top: 5px;" v-if="formsError.createBoard.description.error") {{ formsError.createBoard.description.message }}
+
+							div(class="form-group has-feedback" v-bind:class="{ 'has-error' : formsError.createBoard.tags.error }")
+								label(class="control-label") Tags
 								br()
 								p(style="font-size:13px;") Untuk menambah tags, isikan kata lalu tekan 
 									strong() Enter
-							div(class="form-group")
-								button(v-if="forms.createBoard.status == 'create-board'" class='btn btn-primary btn-sm' @click='createBoard()') Buat
-								button(v-if="forms.createBoard.status == 'edit-board'" class='btn btn-success btn-sm' @click='editBoard()') Ubah
-								button(class='btn btn-warning btn-sm' @click='hideCreateBoardModal()') Tutup
+								input(@keyup="resetFormErrorState('tags')" type="text" id="tagsinput" class="form-control" v-bind:disabled="loadings.submitBoards")
+								p(class="help-inline" style="margin-top: 5px;" v-if="formsError.createBoard.tags.error") {{ formsError.createBoard.tags.message }}
+								
+							div(class="form-group" style="padding-top:5%;")
+								button(v-if="forms.createBoard.status == 'create-board' && !loadings.submitBoards" class='btn btn-success btn-sm submit-button' @click='createBoard()') Buat
+								button(v-if="forms.createBoard.status == 'create-board' && loadings.submitBoards" class='btn btn-success btn-sm submit-button' disabled)
+									span(class="glyphicon glyphicon-refresh glyphicon-spin")
+
+								button(v-if="forms.createBoard.status == 'edit-board' && !loadings.submitBoards" class='btn btn-success btn-sm submit-button' @click='editBoard()') Ubah
+								button(v-if="forms.createBoard.status == 'edit-board' && loadings.submitBoards" class='btn btn-success btn-sm submit-button' disabled)
+									span(class="glyphicon glyphicon-refresh glyphicon-spin")
+
+								button(class='btn btn-warning btn-sm' @click='hideCreateBoardModal()' v-if="!loadings.submitBoards") Tutup
+								button(class='btn btn-warning btn-sm' disabled v-if="loadings.submitBoards") Tutup
 
 
 block script
@@ -115,6 +172,7 @@ block script
 	script(type='text/javascript' src='bower_components/bootstrap/dist/js/bootstrap.js')
 	script(type='text/javascript' src='/bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.js')
 	script(type='text/javascript' src='bower_components/vue/dist/vue.js')
+	script(type='text/javascript' src='/bower_components/toastr/toastr.js')
 	script(type='text/javascript' src='models/board.js')
 
 	script(type='text/javascript').
@@ -130,6 +188,9 @@ block script
 							status : 'create-board'
 						}
 					},
+					loadings : {
+						submitBoards : false
+					},
 					toBe : {
 						indexBoardEdited : null
 					},
@@ -141,7 +202,23 @@ block script
 					modals : {
 						createBoardModal : null
 					},
-					boards : []
+					boards : [],
+					formsError : {
+						createBoard : {
+							title : {
+								error : false,
+								message : ''
+							},
+							description : {
+								error : false,
+								message : ''
+							},
+							tags : {
+								error : false,
+								message : ''
+							}
+						}
+					}
 				},
 				methods : {
 					openCreateBoardModal : function() {
@@ -168,17 +245,28 @@ block script
 						request
 							.then(function(newBoard) {
 								vm.getBoards(vm.currentPage).then(function() {
+									vm.loadings.submitBoards = false;
 									vm.hideCreateBoardModal();
+									vm.notifyThatSomethingSuccess('Board Berhasil Tersimpan');
 								});
 							})
 							.catch(function(error) {
-								console.log(error)
+								vm.loadings.submitBoards = false;
+
+								vm.handleError(error, function(error) {
+									if(error.status == 400) {
+										var error = JSON.parse(error.responseText);
+										vm.handleValidationErrors(error.errors);
+									}
+								})
 							})
 					},
 					editBoard : function() {
 
 						var vm = this;
 
+						vm.loadings.submitBoards = true;
+						
 						var boardIdToBeEdited = this.boards[this.toBe.indexBoardEdited].getId();
 						var url = '/api/board/' + boardIdToBeEdited + '/update';
 
@@ -193,13 +281,21 @@ block script
 						return request
 							.then(function() {
 								vm.getBoards(vm.currentPage).then(function() {
+									vm.loadings.submitBoards = false;
 									vm.hideCreateBoardModal();
+									vm.notifyThatSomethingSuccess('Board berhasil diubah');
 								});
 							})
 							.catch(function(error) {
-								console.log(error);
-								alert('Errro Happen')
-								vm.hideCreateBoardModal();
+								
+								vm.loadings.submitBoards = false;
+
+								vm.handleError(error, function(error) {
+									if(error.status == 400) {
+										var error = JSON.parse(error.responseText);
+										vm.handleValidationErrors(error.errors);
+									}
+								})
 							})
 
 					},
@@ -270,14 +366,97 @@ block script
 					viewBoardByTag : function(tag) {
 						var url = '/tag/board?tag=' + tag;
 						window.open(url);
-					}
+					},
+					handleValidationErrors : function(errors) {
+						
+						var vm = this;
+
+						var params = ['title', 'description', 'tags'];
+
+						params.forEach(function(param) {
+							var paramError = errors.find(function(error) {
+								return error.param == param
+							})
+
+							if(paramError != undefined) {
+
+								vm.formsError.createBoard[param].error = true;
+								vm.formsError.createBoard[param].message  = paramError.msg
+							}
+						})
+					},
+					resetFormErrorState : function(param) {
+						this.formsError.createBoard[param].error = false;
+					},
+					resetAllFormErrorState : function() {
+						var vm = this;
+
+						var params = ['title', 'description', 'tags'];
+
+						params.forEach(function(param) {
+							vm.resetFormErrorState(param);
+						})
+					},
+					notifyThatSomethingError : function(message) {
+						toastr.error(message);
+					},
+					notifyThatSomethingSuccess : function(message) {
+						toastr.success(message);
+					},
+					handleError : function(error, callback) {
+						var vm = this;
+						if(error.status == 0) {
+							vm.notifyThatSomethingError('Kelihataanya koneksi internet anda bermasalah');
+							if(typeof callback == 'function') {
+								callback.bind(vm)(error);
+							}
+						}
+
+						if(error.status == 401) {
+							if(typeof callback == 'function') {
+								callback.bind(vm)(error);
+							}
+						}
+
+						if(error.status == 400) {
+							vm.notifyThatSomethingError('Mohon perbaiki isian form sesuai dengan pesan yang ada');
+							if(typeof callback == 'function') {
+								callback.bind(vm)(error);
+							}
+						}
+					},
 				},
 				mounted : function() {
 					
 					var vm = this;
 
+					toastr.options = {
+					  "closeButton": false,
+					  "debug": false,
+					  "newestOnTop": false,
+					  "progressBar": true,
+					  "positionClass": "toast-top-right",
+					  "preventDuplicates": true,
+					  "onclick": null,
+					  "showDuration": "300",
+					  "hideDuration": "1000",
+					  "timeOut": "5000",
+					  "extendedTimeOut": "1000",
+					  "showEasing": "swing",
+					  "hideEasing": "linear",
+					  "showMethod": "fadeIn",
+					  "hideMethod": "fadeOut"
+					}
+
 					vm.inputs.tags =  $('#tagsinput');
-					vm.inputs.tags.tagsinput();
+					
+					vm.inputs.tags.tagsinput({
+						tagClass : 'btn btn-default btn-xs button-tags'
+					});
+
+					vm.inputs.tags.on('beforeItemAdd', function(event) {
+						vm.resetFormErrorState('tags')
+					});
 
 					vm.modals.createBoardModal = $('#createBoardModal');
 					
@@ -285,6 +464,8 @@ block script
 						vm.forms.createBoard.title = '';
 						vm.forms.createBoard.description = '';
 						vm.inputs.tags.tagsinput('removeAll');
+
+						vm.resetAllFormErrorState();
 					})
 
 					vm.getBoards();
