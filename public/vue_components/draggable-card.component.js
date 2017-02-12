@@ -7,6 +7,14 @@ var panelClassMappingArgumentType = {
 	'lemma' : 'panel panel-success'
 }
 
+var indonesianArgumentMappingArgumentType = {
+	'contention' : 'Kesimpulan (Contention)',
+	'reason' : 'Alasan (Reason)',
+	'co-reason' : 'Sub Alasan (Co-Reason)',
+	'objection' : 'Keberatan (Objection)',
+	'rebuttal' : 'Bantahan (Rebuttal)'
+}
+
 var ownerBox = function(component, createElement) {
 	if(!component.isUserOwner()) {
 		return [];
@@ -368,30 +376,14 @@ var draggableCardComponent = Vue.component('draggable-card', {
 								attrs : {
 									class : 'pull-left'
 								}
-							}, ownerBox(this, createElement)),
+							}, [
+								createElement('h6', {}, indonesianArgumentMappingArgumentType[this.card.getType()])
+							]),
 							createElement('div', {
 								attrs : {
 									class : 'pull-right'
 								}
-							}, [
-								createElement('button', {
-									attrs : {
-										class : 'btn btn-info btn-xs',
-										'data-toggle' : 'popover',
-										'data-content' : 'Lihat card ini secara detail',
-										'data-trigger' : 'hover',	
-									},
-									on : {
-										click : this.viewCardDetail
-									}
-								}, [
-									createElement('i', {
-										attrs : {
-											class : 'glyphicon glyphicon-eye-open'
-										}
-									})
-								])
-							])
+							}, ownerBox(this, createElement))
 						])
 					])
 				]),
@@ -409,7 +401,44 @@ var draggableCardComponent = Vue.component('draggable-card', {
 					attrs : {
 						class : 'panel-footer'
 					}
-				}, [toolsBox(this, this.card.getType(), createElement)]),
+				}, 	[
+						createElement('div', {
+							attrs : {
+								class : 'row'
+							}
+						}, 
+						[
+							createElement('div', {
+								attrs : {
+									class : 'col-md-6'
+								}
+							}, [toolsBox(this, this.card.getType(), createElement)]),
+							createElement('div', {
+								attrs : {
+									class : 'col-md-6'
+								}
+							}, [
+								createElement('button', {
+									attrs : {
+										class : 'btn btn-info btn-xs pull-right',
+										'data-toggle' : 'popover',
+										'data-content' : 'Lihat card ini secara detail',
+										'data-trigger' : 'hover',	
+									},
+									on : {
+										click : this.viewCardDetail
+									}
+								}, [
+									createElement('i', {
+										attrs : {
+											class : 'glyphicon glyphicon-eye-open'
+										}
+									})
+								])
+							])
+						])
+					]
+				),
 			])
 		])
 	},
