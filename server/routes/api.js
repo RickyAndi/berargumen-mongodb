@@ -1,4 +1,6 @@
 var authMiddleware = require('../middlewares/auth');
+var boardPostValidatorMiddleware = require('../middlewares/boardPostValidator');
+
 var mongoose = require('mongoose');
 
 var Board = require('../models/board');
@@ -317,46 +319,7 @@ module.exports = function(app, io) {
 		
 	}));
 
-	app.post('/api/board', authMiddleware, async(function(req, res) {
-		
-		var userId = mongoose.Types.ObjectId(req.user._id);
-		var userName = req.user.name;
-
-		var tags = req.body.tags.split(','); 
-		
-		if(!tags.length) {
-			tags = [];
-		}
-		
-		var newBoard = new Board({
-			user : {
-				id : userId,
-				name : userName
-			},
-			title : req.body.title,
-			description : req.body.description,
-			tags : tags
-		})
-
-		try {
-			
-			var newBoard = await(newBoard.save());
-			
-			res
-				.status(200)
-				.json(newBoard);
-		
-		} catch(error) {
-
-			res
-				.status(500)
-				.json({ 
-					message : 'Error Happen'
-				});
-		}
-	}));
-
-	app.post('/api/board', authMiddleware, async(function(req, res) {
+	app.post('/api/board', authMiddleware, boardPostValidatorMiddleware, async(function(req, res) {
 		
 		var userId = mongoose.Types.ObjectId(req.user._id);
 		var userName = req.user.name;
@@ -396,7 +359,7 @@ module.exports = function(app, io) {
 
 	}));
 
-	app.post('/api/board/:boardId/update', authMiddleware, async(function(req, res) {
+	app.post('/api/board/:boardId/update', authMiddleware, boardPostValidatorMiddleware, async(function(req, res) {
 		
 		var boardId = req.params.boardId;
 
@@ -426,9 +389,12 @@ module.exports = function(app, io) {
 					})
 			}
 
-			res
-				.status(200)
-				.json(updatedBoard)
+			setTimeout(function() {
+				res
+					.status(200)
+					.json(updatedBoard)
+			}, 9000)
+			
 
 		} catch(error) {
 
