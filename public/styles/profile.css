@@ -1,0 +1,13 @@
+.pagination > li.active > a {
+	background-color: #22be34 !important;
+	border-color: #22be34 !important;
+}
+
+.btn-in-table {
+	margin-right: 1px;
+	margin-left: 1px;
+}
+
+* {
+	font-family: "Times New Roman", Georgia, Serif;
+}

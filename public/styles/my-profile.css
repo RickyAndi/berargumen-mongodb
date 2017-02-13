@@ -1,0 +1,66 @@
+div.bootstrap-tagsinput {
+	float:right; 
+	width: 100%;
+}
+
+.fa-spin-custom, .glyphicon-spin {
+    -webkit-animation: spin 1000ms infinite linear;
+    animation: spin 1000ms infinite linear;
+}
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+@keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+
+.has-error  .bootstrap-tagsinput {
+	border-color: #d01919 !important; 
+}
+
+.navbar-lower {
+	top: 50px;
+    z-index: 1029;
+    background-color : rgb(253,224,193);
+}
+
+.btn-in-table {
+	margin-right: 1px;
+	margin-left: 1px;
+}
+
+.pagination > li.active > a {
+	background-color: #22be34 !important;
+	border-color: #22be34 !important;
+}
+
+* {
+	font-family: "Times New Roman", Georgia, Serif;
+}
+
+.help-inline {
+	color: #d01919;
+}
+
+.submit-button {
+	width: 10%;
+	margin-right: 2px;
+}
+
+.button-tags {
+	color : black !important;
+}

@@ -1,0 +1,103 @@
+.modal {
+    overflow-y: scroll;
+}
+.navbar-lower {
+	top: 50px;
+    z-index: 1029;
+    background-color : rgb(253,224,193);
+}
+
+.btn {
+	margin-left: 1px;
+	margin-right: 1px;
+}
+
+.card-container {
+	position: absolute;
+}
+
+.label-reason {
+	font-size: 15px;
+	font-weight: 9000;
+	font-family: "Times New Roman", Georgia, Serif;
+	background-color: #22BE34;
+	padding: 5px;
+	color : white;
+	border-radius: 60px;
+}
+
+.label-co-reason {
+	font-size: 15px;
+	font-weight: 9000;
+	font-family: "Times New Roman", Georgia, Serif;
+	background-color: #3AC0FF;
+	padding: 5px;
+	color : white;
+	border-radius: 60px;
+}
+
+.label-objection {
+	font-size: 15px;
+	font-weight: 9000;
+	font-family: "Times New Roman", Georgia, Serif;
+	background-color: #D01919;
+	padding: 5px;
+	color : white;
+	border-radius: 60px;
+}
+
+.label-rebuttal {
+	font-size: 15px;
+	font-weight: 9000;
+	font-family: "Times New Roman", Georgia, Serif;
+	background-color: #FF851B;
+	padding: 5px;
+	color : white;
+	border-radius: 60px;
+}
+
+[v-cloak] {
+	display : none;
+}
+
+.fa-spin-custom, .glyphicon-spin {
+    -webkit-animation: spin 1000ms infinite linear;
+    animation: spin 1000ms infinite linear;
+}
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+@keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+
+.submit-button {
+	width: 8%;
+	margin-right: 2px;
+}
+
+.delete-card-button {
+	width: 7%;
+}
+
+.help-inline {
+	color: #d01919;
+}
+
+.collaborate-button {
+	width: 60px;
+}
