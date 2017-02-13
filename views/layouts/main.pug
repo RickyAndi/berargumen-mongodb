@@ -2,7 +2,6 @@ doctype html
 html(lang="en")
 	head
 		title= title
-		link(rel='stylesheet' href='/bower_components/bootstrap/dist/css/bootstrap.css')
 		
 		block stylehead
 
@@ -17,12 +16,12 @@ html(lang="en")
 				div(class='collapse navbar-collapse' id='navbar')
 					ul(class='nav navbar-nav navbar-right')
 						if user == null
-							li(style='margin-right:1px; margin-left:1px;')
+							li()
 								button(onclick="window.location.href='/login'" class='btn btn-success navbar-btn btn-sm') Masuk
 						if user != null
-							li(style='margin-right:1px; margin-left:1px;')
+							li()
 								button(onclick="window.open('/my-profile')" class='btn btn-success navbar-btn btn-sm') Profil Saya
-							li(style='margin-right:1px; margin-left:1px;')
+							li()
 								button(onclick="window.location.href='/logout'" class='btn btn-danger navbar-btn btn-sm') Keluar
 		div(id='app')
 			block content

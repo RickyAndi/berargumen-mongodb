@@ -1,5 +1,9 @@
 extends layouts/main.pug
-	
+
+block stylehead
+	link(rel='stylesheet' href='/bower_components/bootstrap/dist/css/bootstrap.min.css')
+	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
+
 block content
 	div(class='container' style="margin-top:100px;")
 		div(class='row')
@@ -10,6 +14,6 @@ block content
 						h4 Anda bisa masuk dengan
 						div(class='panel panel-default' style="margin-top:10%;")
 							div(class='panel-body')
-								button(class='btn btn-primary btn-block btn-xs' onclick="window.location.href='auth/facebook'") 
+								button(style="background-color: #3B5998; color: white;" class='btn btn-block btn-xs' onclick="window.location.href='auth/facebook'") 
 									h4() Facebook
 			div(class='col-md-4')
