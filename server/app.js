@@ -10,7 +10,7 @@ app.set('view engine', 'pug');
 app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(expressValidator());
-app.use(session({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
+app.use(session({ secret: '763782hwewhjsuweuwueiuiew78726786278uiweghuwkejksdjsdgjhdfgdfgjhdgfhjdgfhdjfghdfhdfhjdhfkjdhkfuey776767778', resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 
