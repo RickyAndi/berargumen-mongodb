@@ -1,0 +1,138 @@
+.fa-spin-custom, .glyphicon-spin {
+    -webkit-animation: spin 1000ms infinite linear;
+    animation: spin 1000ms infinite linear;
+}
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+@keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+
+.panel > .panel-heading {
+	background-color: rgb(23,30,38);
+	color : white;
+}
+
+.pagination > li.active > a {
+	background-color: #22be34 !important;
+	border-color: #22be34 !important;
+}
+
+div.bootstrap-tagsinput {
+	float:right; 
+	width: 100%;
+}
+
+.pagination > li > a:hover {
+	cursor: pointer; 
+	cursor: hand;
+}
+
+.not-displayed {
+	display : none;
+}
+
+.btn-in-table {
+	margin-right: 1px;
+	margin-left: 1px;
+}
+
+* {
+	font-family: "Times New Roman", Georgia, Serif;
+}
+
+footer{
+	background: rgb(23,30,38);
+	padding: 60px 20px;
+}
+
+footer ul, footer p{
+	margin-bottom: 0;
+}
+
+footer .footer-block{
+	margin-bottom: 30px;
+}
+
+footer a{
+	color: #188b87;
+}
+
+footer .footer-menu a{
+	text-transform: uppercase;
+}
+
+footer .social-icon a{
+	display: block;
+	width: 40px;
+	height: 40px;
+	line-height: 40px;
+	text-align: center;
+	border:1px solid #ddd;
+}
+
+@media (max-width: 767px){
+	footer .footer-menu{
+		text-align: center;
+	}
+	footer .social-icon{
+		float: none !important;
+		text-align: center;
+	}
+}
+
+.loadinggif {
+    background:url('/images/ajax-loader.gif') no-repeat right;
+}
+
+p.copyright {
+	color: white;
+}
+
+.panel {
+	border-color: black;
+}
+
+.nav-tabs {
+	border-color: black;
+}
+
+.penjelasan {
+	font-size: 17px;
+}
+
+.button-tags {
+	color : black !important;
+}
+
+.submit-button {
+	width: 10%;
+	margin-right: 2px;
+}
+
+.help-inline {
+	color: #d01919;
+}
+
+.has-error  .bootstrap-tagsinput {
+	border-color: #d01919 !important; 
+}
+
+[v-cloak] {
+    display: none;
+}
