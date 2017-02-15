@@ -5,13 +5,18 @@ new Vue({
 		userId : null,
 		currentPage : 1,
 		numberOfPages : 0,
-		tag : null
+		tag : null,
+		loadings : {
+			getBoards : true
+		}
 	},
 	methods : {
 		getBoards : function(page) {
 			
 			var vm = this;
 			
+			vm.loadings.getBoards = true;
+
 			var url = '/api/tag/boards';
 			
 			var request = $.get({
@@ -25,6 +30,8 @@ new Vue({
 			return request
 				.then(function(boards) {
 					
+					vm.loadings.getBoards = false;
+
 					vm.boards.splice(0, vm.boards.length)
 
 					vm.numberOfPages = boards.pages;
@@ -38,6 +45,7 @@ new Vue({
 							.setName(board.user.name)
 						
 						var updatedDate = moment(board.updated).format('D-MM-YYYY');
+
 						var toBePushedboard  = new Board();
 						toBePushedboard
 							.setId(board._id)
@@ -49,8 +57,13 @@ new Vue({
 						vm.boards.push(toBePushedboard);
 					})
 				})
-				.catch(function() {
+				.catch(function(error) {
+					if(error.status == 0) {
+						vm.notifyThatSomethingError('Kelihatannya koneksi internet anda putus.');
+					}
 
+					vm.notifyThatSomethingError('Kelihatannya server kami mengalami masalah.');
+					vm.loadings.getBoards = false;
 				})
 		},
 		displayPaginationButton : function(currentPage, page) {
@@ -67,6 +80,9 @@ new Vue({
 		viewUserProfile : function(userId) {
 			window.open('/profile/' + userId);
 		},
+		notifyThatSomethingError : function(message) {
+			toastr.error(message);
+		}
 	},
 	mounted : function() {
 		this.tag = $('meta[name=tag]').attr('content');

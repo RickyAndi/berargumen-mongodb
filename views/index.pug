@@ -4,16 +4,17 @@ block stylehead
 	link(rel='stylesheet' href='/builds/css/index.css')
 	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
 
+
 block content
-	div(class='jumbotron' style="background-color:rgb(23,30,38);")
-		div(class='container' style='padding-top:50px;')
-			div(class='row')
-				div(class='col-md-12 text-center')
+	
+	div(class='container' style='min-height: 1000px;')
+		div(class='jumbotron text-center' style="background-color:rgb(23,30,38); margin-top:100px;")
+			dic(class='row')
+				div(class='col-md-12')
 					h1(style="color: white; font-size: 120px;") Berargumen
 					br()
 					p(style="color: white; font-size: 25px;") &nbsp;Visualisasi argumen dengan diagram argumen
-	
-	div(class='container' style='min-height: 1000px;')
+
 		div(class='row')
 			div(class='col-md-12')
 				div(class='row')
@@ -31,7 +32,9 @@ block content
 					div(class='col-md-12')
 						div(class='row')
 							div(class='col-md-6' style='margin-top: 5%;')
-								p(class='penjelasan') Sebuah argumen terdiri dari beberapa bagian, seperti kesimpulan (Contention), alasan (Reason), dan lain sebagainya, dengan <strong>Berargumen</strong>, maka seseorang akan bisa mengerti bagian bagian tersebut dengan lebih mudah, sehingga alur argumen anda juga lebih mudah dimengerti, lain halnya jika anda menyampaikan sebuah argumen hanya dengan tulisan, dimana seseorang perlu menganalisa tulisan anda tersebut untuk mengetahui bagian bagian argumen dan alur dari argumen anda, dan tidak semua orang dengan mudah bisa melakukan hal ini, sehingga dengan <strong>Berargumen</strong> pembaca juga semakin banyak karena semua orang bisa mengerti sebuah argumen dengan mudah.
+							
+								p(class='penjelasan') Sebuah argumen terdiri dari beberapa bagian seperti <strong>Kesimpulan (Contention)</strong>, <strong>Alasan (Alasan)</strong>, <strong>Keberatan (Objection)</strong>, dan lain sebagainya, dengan <strong>Berargumen</strong> maka bagian bagian bagian ini lebih mudah diketahui, lain halnya dengan kita menyampaikan sebuah argumen hanya menggunakan tulisan, kita perlu untuk memilah-milah tulisan tersebut untuk mengetahui bagian-bagian tersebut.
+							
 							div(class='col-md-6 text-center' style='margin-top: 5%;')
 								<span style="font-size:10em;" class="glyphicon glyphicon-eye-open"></span>
 								<span style="font-size:10em;" class="glyphicon glyphicon-ok-circle"></span>
@@ -39,7 +42,9 @@ block content
 					div(class='col-md-12')
 						div(class='row')
 							div(class='col-md-6' style='margin-top: 5%;')
-								p(class='penjelasan') Dalam forum forum internet sering dijumpai suatu perdebatan dengan topik yang terus diulang-ulang, sering juga ditemui suatu perdebatan tiada henti (debat kusir) yang tiada titik temu, hal ini karena pada forum forum tersebut, argumennya disajikan secara tidak teratur, tidak jelas seseorang mendukung bagian argumen mana ?, atau membantah yang bagian mana ?, hal ini menimbulkan kesalahfahaman. Dengan <strong>Berargumen</strong>, sesorang bisa dengan jelas memberikan argumennya untuk mendukung bagian mana atau membantah suatu bagian argumen mana, sehingga tidak perlu ada yang diulang-ulang.
+								
+								p(class='penjelasan') Dengan <strong>Berargumen</strong>, maka seseorang bisa dengan jelas memberikan argumen untuk mendukung suatu bagian argumen mana, atau membantah bagian argumen mana,  dengan hal ini maka kita bisa bisa menghindari kesalahfahaman atau mengulang-ulang suatu argumen, seperti di forum-forum internet yang argumen hanya disajikan dengan kotak komentar yang bertumpuk-tumpuk.
+							
 							div(class='col-md-6 text-center' style='margin-top: 5%;')
 								<span style="font-size:10em;" class="glyphicon glyphicon-fire"></span>
 								<span style="font-size:10em;" class="glyphicon glyphicon-ban-circle"></span>
@@ -84,7 +89,7 @@ block content
 														th(class='text-center' width='20%') Tags
 														th(class='text-center' width='10%') Diperbaharui
 														th(class='text-center' width='10%') 
-												tbody(v-if="boards.all.length")
+												tbody(v-if="boards.all.length && !loadings.getAllBoards" v-cloak)
 													tr(v-for="board in boards.all")
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
@@ -95,9 +100,13 @@ block content
 														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-warning btn-xs btn-in-table') Lihat
-												tbody(v-if="!boards.all.length")
+												tbody(v-if="!boards.all.length && !loadings.getAllBoards" v-cloak)
 													tr()
 														td(class='text-center' colspan="6") Tidak Ada Board
+												tbody(v-if="loadings.getAllBoards" v-cloak)
+													tr()
+														td(class='text-center' colspan="6")
+															span(class="glyphicon glyphicon-refresh glyphicon-spin")
 														
 
 											div(class='row')
@@ -112,7 +121,8 @@ block content
 											div(class='row')
 												div(class='col-md-6')
 													br()
-													button(@click="openModalToCreateBoard()" class='btn btn-primary btn-sm' v-bind:disabled="currentUser == null") Buat Board
+													button(@click="openModalToCreateBoard()" class='btn btn-success btn-sm' v-if="currentUser != null") Buat Board
+													button(class='btn btn-success btn-sm' v-if="currentUser == null" disabled) Buat Board
 												div(class='col-md-6')
 													br()
 													input(class='form-control input-sm'  v-bind:class="{ loadinggif : loadings.currentUserBoardsSearch }" @keyup="searchCurrentUserBoards($event)" v-bind:disabled="currentUser == null" placeholder='Cari berdasar judul, deskripsi, tag')
@@ -127,7 +137,7 @@ block content
 														th(class='text-center' width="15%") Tags
 														th(class='text-center' width="10%") Diperbaharui
 														th(class='text-center' width="10%") 
-												tbody(v-if="boards.currentUser.length")
+												tbody(v-if="boards.currentUser.length && !loadings.getCurrentUserBoards" v-cloak)
 													tr(v-for="(board, index) in boards.currentUser")
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
@@ -137,10 +147,13 @@ block content
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-warning btn-xs btn-in-table') Lihat
 															button(@click="openModalToEditBoard(index)" class='btn btn-success btn-xs btn-in-table') Ubah
-												tbody(v-if="!boards.currentUser.length")
+												tbody(v-if="!boards.currentUser.length && !loadings.getCurrentUserBoards" v-cloak)
 													tr()
 														td(class='text-center' colspan="6") Tidak Ada Board Yang And Buat
-
+												tbody(v-if="loadings.getCurrentUserBoards" v-cloak)
+													tr()
+														td(class='text-center' colspan="6")
+															span(class="glyphicon glyphicon-refresh glyphicon-spin")
 											div(class='row')
 												div(class='col-md-6')
 													ul(class='pagination')
@@ -172,7 +185,7 @@ block content
 														th(class='text-center' width="20%") Tags
 														th(class='text-center' width="10%") Diperbaharui
 														th(class='text-center' width="10%") 
-												tbody(v-if="boards.bookmarked.length")
+												tbody(v-if="boards.bookmarked.length && !loadings.getBookmarkedBoards" v-cloak)
 													tr(v-for="board in boards.bookmarked")
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
@@ -183,9 +196,13 @@ block content
 														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-warning btn-xs') Lihat
-												tbody(v-if="!boards.bookmarked.length")
+												tbody(v-if="!boards.bookmarked.length && !loadings.getBookmarkedBoards" v-cloak)
 													tr()
 														td(class='text-center' colspan="6") Tidak Ada Board Yang Anda Tandai
+												tbody(v-if="loadings.getBookmarkedBoards" v-cloak)
+													tr()
+														td(class='text-center' colspan="6")
+															span(class="glyphicon glyphicon-refresh glyphicon-spin")
 
 											div(class='row')
 												div(class='col-md-6')
@@ -218,7 +235,7 @@ block content
 														th(class='text-center') Tags
 														th(class='text-center') Diperbaharui
 														th()
-												tbody(v-if="boards.collaborated.length")
+												tbody(v-if="boards.collaborated.length && !loadings.getCollaboratedBoards" v-cloak)
 													tr(v-for="board in boards.collaborated")
 														td() {{ board.getTitle() }}
 														td() {{ board.getDescription() }}
@@ -229,9 +246,13 @@ block content
 														td(class='text-center') {{ board.getUpdatedDate() }}
 														td(class='text-center')
 															button(@click="viewBoard(board.getId())" class='btn btn-warning btn-xs') Lihat
-												tbody(v-if="!boards.collaborated.length")
+												tbody(v-if="!boards.collaborated.length && !loadings.getCollaboratedBoards" v-cloak)
 													tr()
 														td(class='text-center' colspan="6") Tidak Ada Board Yang Anda Berkolaborasi
+												tbody(v-if="loadings.getCollaboratedBoards" v-cloak)
+													tr()
+														td(class='text-center' colspan="6")
+															span(class="glyphicon glyphicon-refresh glyphicon-spin")
 
 											div(class='row')
 												div(class='col-md-6')

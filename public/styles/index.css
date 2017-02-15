@@ -113,7 +113,7 @@ p.copyright {
 }
 
 .penjelasan {
-	font-size: 16px;
+	font-size: 17px;
 }
 
 .button-tags {
@@ -131,4 +131,8 @@ p.copyright {
 
 .has-error  .bootstrap-tagsinput {
 	border-color: #d01919 !important; 
+}
+
+[v-cloak] {
+    display: none;
 }

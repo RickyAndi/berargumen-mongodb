@@ -550,7 +550,7 @@ var draggableCardComponent = Vue.component('draggable-card', {
 						},
 						'co-reason' : {
 							'labelContent' : 'Dan',
-							'connectionColor' : '#3AC0FF',
+							'connectionColor' : '#22BE34',
 							'cssClass' : 'label-co-reason'
 						},
 						'objection' : {
@@ -563,48 +563,115 @@ var draggableCardComponent = Vue.component('draggable-card', {
 							'connectionColor' : '#FF851B',
 							'cssClass' : 'label-rebuttal'	
 						},
-
 					}
 
 					var target = vm.card.getId();
-					
+					var relationType = vm.card.getRelationType();
 
-					var connection = jsPlumb.connect({
-					    source: $('#' + source),
-					    target: $('#' + target),
-						detachable: false,
-						connector: ["Flowchart"],
-						overlays: [ 
-						    ["Arrow", { 
-						    	width:12, 
-						    	length:12, 
-						    	location: 1 
-						    }],
-						    ["Label", { 
-						    	label : connectionDataMapping[vm.card.getRelationType()]['labelContent'],
-						    	cssClass: connectionDataMapping[vm.card.getRelationType()]['cssClass']
-						    }]
-						],
-						paintStyle:{ stroke: connectionDataMapping[vm.card.getRelationType()]['connectionColor'], strokeWidth:2 },
-						deleteEndpointsOnDetach:true,
-						endpoint:"Blank",
-						anchor : [
-							[ 0.2, 0, 0, -1], 
-							[ 1, 0.2, 1, 0],
-							[ 0.8, 1, 0, 1],
-							[ 0, 0.8, -1, 0]
-						]
-					});
+					if(relationType == 'co-reason') {
 
-					var connectionToBeEmittedToParent = {
-						source : source,
-						target : target,
-						connection : connection
+						var connection_1 = jsPlumb.connect({
+						    source: $('#' + source),
+						    target: $('#' + target),
+							detachable: false,
+							connector: ["Flowchart"],
+							overlays: [ 
+							    ["Arrow", { 
+							    	width:12, 
+							    	length:12, 
+							    	location: 1 
+							    }],
+							    ["Label", { 
+							    	label : connectionDataMapping[relationType]['labelContent'],
+							    	cssClass: connectionDataMapping[relationType]['cssClass']
+							    }]
+							],
+							paintStyle:{ stroke: connectionDataMapping[relationType]['connectionColor'], strokeWidth:2 },
+							deleteEndpointsOnDetach:true,
+							endpoint:"Blank",
+							anchor : [
+								[ 0.2, 0, 0, -1], 
+								[ 1, 0.2, 1, 0],
+								[ 0.8, 1, 0, 1],
+								[ 0, 0.8, -1, 0]
+							]
+						});
+
+						var connection_2 = jsPlumb.connect({
+						    source: $('#' + target),
+						    target: $('#' + source),
+							detachable: false,
+							connector: ["Flowchart"],
+							overlays: [ 
+							    ["Arrow", { 
+							    	width:12, 
+							    	length:12, 
+							    	location: 1 
+							    }]
+							],
+							paintStyle:{ stroke: connectionDataMapping[relationType]['connectionColor'], strokeWidth:2 },
+							deleteEndpointsOnDetach:true,
+							endpoint:"Blank",
+							anchor : [
+								[ 0.2, 0, 0, -1], 
+								[ 1, 0.2, 1, 0],
+								[ 0.8, 1, 0, 1],
+								[ 0, 0.8, -1, 0]
+							]
+						});
+
+						var connectionToBeEmittedToParent1 = {
+							source : source,
+							target : target,
+							connection : connection_1
+						};
+
+						var connectionToBeEmittedToParent2 = {
+							source : source,
+							target : target,
+							connection : connection_2
+						};
+
+						vm.$emit('connection-created', connectionToBeEmittedToParent1);
+						vm.$emit('connection-created', connectionToBeEmittedToParent2);
+
+					} else {
+						var connection = jsPlumb.connect({
+						    source: $('#' + source),
+						    target: $('#' + target),
+							detachable: false,
+							connector: ["Flowchart"],
+							overlays: [ 
+							    ["Arrow", { 
+							    	width:12, 
+							    	length:12, 
+							    	location: 1 
+							    }],
+							    ["Label", { 
+							    	label : connectionDataMapping[relationType]['labelContent'],
+							    	cssClass: connectionDataMapping[relationType]['cssClass']
+							    }]
+							],
+							paintStyle:{ stroke: connectionDataMapping[relationType]['connectionColor'], strokeWidth:2 },
+							deleteEndpointsOnDetach:true,
+							endpoint:"Blank",
+							anchor : [
+								[ 0.2, 0, 0, -1], 
+								[ 1, 0.2, 1, 0],
+								[ 0.8, 1, 0, 1],
+								[ 0, 0.8, -1, 0]
+							]
+						});
+
+						var connectionToBeEmittedToParent = {
+							source : source,
+							target : target,
+							connection : connection
+						}
+
+						vm.$emit('connection-created', connectionToBeEmittedToParent);
 					}
-
-					vm.$emit('connection-created', connectionToBeEmittedToParent)
-
-			}, 1000)
+			}, 1000);
 		}
 
 		setTimeout(function() {

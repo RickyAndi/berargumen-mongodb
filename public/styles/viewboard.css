@@ -30,10 +30,11 @@
 	font-size: 15px;
 	font-weight: 9000;
 	font-family: "Times New Roman", Georgia, Serif;
-	background-color: #3AC0FF;
+	background-color: #22BE34;
 	padding: 5px;
 	color : white;
 	border-radius: 60px;
+	z-index: 100;
 }
 
 .label-objection {

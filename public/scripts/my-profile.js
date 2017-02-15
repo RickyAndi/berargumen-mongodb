@@ -10,7 +10,8 @@ new Vue({
 			}
 		},
 		loadings : {
-			submitBoards : false
+			submitBoards : false,
+			getBoards : true
 		},
 		toBe : {
 			indexBoardEdited : null
@@ -123,6 +124,8 @@ new Vue({
 		getBoards : function(page) {
 			var vm = this;
 
+			vm.loadings.getBoards = true;
+
 			var request = $.get({
 				url : '/api/my-boards',
 				data: { 
@@ -148,9 +151,12 @@ new Vue({
 
 						vm.boards.push(toBePushedboard);
 					})
+
+					vm.loadings.getBoards = false;
 				})
 				.catch(function(error) {
-					console.log(error)
+					
+					vm.loadings.getBoards = false;
 				})
 		},
 		viewBoard : function(boardId) {

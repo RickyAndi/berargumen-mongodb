@@ -441,13 +441,6 @@ new Vue({
 			
 			vm.openCreateCardModal();
 		},
-		isCurrentUserTheBoardCreator : function() {
-			if(this.board.getUser() == null) {
-				return false;
-			}
-
-			return this.board.getUser().getId() == this.user.getId();
-		},
 		addCardConnection : function(connection) {
 			this.connections.push(connection)
 		},
@@ -550,9 +543,6 @@ new Vue({
 			});
 
 			return formStatusInEditStatuses != undefined;
-		},
-		decideIfCurrentUserBoardCollaborator : function() {
-			return this.board.isUserCollaborator(this.user) || this.isCurrentUserTheBoardCreator();
 		},
 		requestToJoinBoard : function() {
 			var vm = this;

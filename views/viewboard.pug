@@ -1,4 +1,4 @@
-extends layouts/main.pug
+extends layouts/main-viewboard.pug
 
 block stylehead
 	meta(name='boardId' content=board._id)
@@ -6,7 +6,7 @@ block stylehead
 	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
 
 block content
-	div(class='panel panel-default' style='width : 250px; position: fixed; top: 115px; left: 15px; z-index: 100;')
+	div(class='panel panel-default' style='width : 200px; position: fixed; top: 25px; left: 15px; z-index: 100;')
 		div(class='panel-body')
 			select(@change="scaleChange($event)" class='form-control navbar-btn input-sm')
 				option(value="1") 100%
@@ -30,14 +30,6 @@ block content
 					data-trigger='hover'
 					data-placement="right" 
 				) Buat Kesimpulan
-			else 
-				button( 
-					class='btn btn-danger navbar-btn btn-sm btn-block'
-					data-toggle='popover',
-					data-content='Hanya pemilik board yang bisa buat kesimpulan'
-					data-trigger='hover'
-					data-placement="right" 
-				) Anda tidak bisa buat kesimpulan
 			button(
 				class='btn btn-primary navbar-btn btn-sm btn-block' 
 				data-toggle='popover',
@@ -255,9 +247,5 @@ block content
 							div(class='col-md-12')
 								div(class='pull-right')
 									button(class='btn btn-danger btn-sm' @click="hideCollaboratorsModal()") Tutup
-
 block script
 	script(type='text/javascript' src='/builds/js/viewboard.js')
-		
-		
-		

@@ -12,7 +12,11 @@ new Vue({
 			currentUserBoardsSearch : false,
 			bookmarkedBoardsSearch : false,
 			collaboratedBoardsSearch : false,
-			submitBoards : false
+			submitBoards : false,
+			getAllBoards : true,
+			getCurrentUserBoards : true,
+			getBookmarkedBoards : true,
+			getCollaboratedBoards : true
 		},
 		textQueries : {
 			allBoards : '',
@@ -107,6 +111,8 @@ new Vue({
 		getCurrentUserBoards : function(page) {
 			var vm = this;
 
+			vm.loadings.getCurrentUserBoards = true;
+
 			var request = $.get({
 				url : '/api/my-boards',
 				data: { 
@@ -137,13 +143,18 @@ new Vue({
 
 						vm.boards.currentUser.push(toBePushedboard);
 					})
+
+					vm.loadings.getCurrentUserBoards = false;
 				})
 				.catch(function(error) {
 					vm.handleError(error);
+					vm.loadings.getCurrentUserBoards = false;
 				})
 		},
 		getAllBoards : function(page) {
 			var vm = this;
+
+			vm.loadings.getAllBoards = true;
 
 			var request = $.get({
 				url : '/api/boards',
@@ -180,9 +191,12 @@ new Vue({
 
 						vm.boards.all.push(toBePushedboard);
 					})
+					
+					vm.loadings.getAllBoards = false;
 				})
 				.catch(function(error) {
 					vm.handleError(error);
+					vm.loadings.getAllBoards = false;
 				})
 		},
 		editBoard : function() {
@@ -224,6 +238,8 @@ new Vue({
 		getBookmarkedBoards : function(page) {
 			var vm = this;
 
+			vm.loadings.getBookmarkedBoards = true;
+
 			var request = $.get({
 				url : '/api/bookmarked-boards',
 				data: { 
@@ -259,13 +275,18 @@ new Vue({
 
 						vm.boards.bookmarked.push(toBePushedboard);
 					})
+
+					vm.loadings.getBookmarkedBoards = false;
 				})
 				.catch(function(error) {
 					vm.handleError(error);
+					vm.loadings.getBookmarkedBoards = false;
 				})
 		},
 		getCollaboratedBoards : function(page) {
 			var vm = this;
+			
+			vm.loadings.getCollaboratedBoards = true;
 
 			var request = $.get({
 				url : '/api/collaborated-boards',
@@ -301,10 +322,13 @@ new Vue({
 							.setTags(board.tags);
 
 						vm.boards.collaborated.push(toBePushedboard);
-					})
+					});
+
+					vm.loadings.getCollaboratedBoards = false;
 				})
 				.catch(function(error) {
 					vm.handleError(error);
+					vm.loadings.getCollaboratedBoards = false;
 				})
 		},
 		openCreateBoardModal : function() {

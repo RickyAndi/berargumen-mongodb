@@ -3,6 +3,7 @@ extends layouts/main.pug
 block stylehead
 	link(rel='stylesheet' href='/builds/css/profile.css')
 	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
+	link(rel='stylesheet' href='/styles/profile.css')
 	meta(name='userId' content=profileUser._id)
 
 block content
@@ -10,8 +11,8 @@ block content
 		div(class='row')
 			div(class='col-md-12')
 				div(class='panel panel-default')
-					div(class='panel-heading')
-						h5 Profil Pengguna
+					div(class='panel-heading' style='background-color: rgb(23,30,38);')
+						p(style='font-size: 20px; color: white;') Profile Pengguna
 					div(class='panel-body')
 						div(class='row')
 							div(class='col-md-6')
@@ -29,8 +30,8 @@ block content
 			
 			div(class='col-md-12' id="board-panel")
 				div(class='panel panel-default')
-					div(class='panel-heading')
-						h5 Boards
+					div(class='panel-heading' style='background-color: rgb(23,30,38);')
+						p(style='font-size: 20px; color: white;') Boards
 					div(class='panel-body' style="min-height: 300px;")
 						div(class='row')
 							div(class='col-md-12')
@@ -42,7 +43,7 @@ block content
 											th(class='text-center' width="20%") Tags
 											th(class='text-center' width="10%") Diperbaharui
 											th(class='text-center' width="10%") 
-									tbody(v-if="boards.length")
+									tbody(v-if="boards.length && !loadings.getBoards")
 										tr(v-for="board in boards")
 											td() {{ board.getTitle() }}
 											td() {{ board.getDescription() }}
@@ -51,9 +52,13 @@ block content
 											td(class='text-center') {{ board.getUpdatedDate() }}
 											td(class='text-center')
 												button(@click="viewBoard(board.getId())" class='btn btn-warning btn-xs') Lihat
-									tbody(v-if="!boards.length")
+									tbody(v-if="!boards.length && !loadings.getBoards")
 										tr()
 											td(class='text-center' colspan="5") Tidak ada board
+									tbody(v-if="!boards.length && loadings.getBoards")
+										tr()
+											td(class='text-center' colspan="5")
+												span(class="glyphicon glyphicon-refresh glyphicon-spin")
 
 								div(class='row')
 										div(class='col-md-12')
@@ -62,6 +67,3 @@ block content
 													a(@click="boardsGoToPage(page)") {{ page }}				
 block script
 	script(type='text/javascript' src='/builds/js/profile.js')
-
-	
-		
