@@ -33,3 +33,6 @@
     }
 }
 
+[v-cloak] {
+    display: none;
+}

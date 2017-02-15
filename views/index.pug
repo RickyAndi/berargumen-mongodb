@@ -110,7 +110,7 @@ block content
 														
 
 											div(class='row')
-												div(class='col-md-6')
+												div(class='col-md-6' v-cloak)
 													ul(class='pagination')
 														li(v-for='page in numberOfPages.allBoards' v-if="!displayPaginationButton(currentPage.allBoards, page)" v-bind:class="{ 'active' : currentPage.allBoards == page }")
 															a(@click="allBoardsGoToPage(page)") {{ page }}
@@ -155,7 +155,7 @@ block content
 														td(class='text-center' colspan="6")
 															span(class="glyphicon glyphicon-refresh glyphicon-spin")
 											div(class='row')
-												div(class='col-md-6')
+												div(class='col-md-6' v-cloak)
 													ul(class='pagination')
 														li(v-for='page in numberOfPages.currentUserBoards' v-if="!displayPaginationButton(currentPage.currentUserBoards, page)" v-bind:class="{ 'active' : currentPage.currentUserBoards == page }")
 															a(@click="currentUserBoardsGoToPage(page)") {{ page }}
@@ -205,7 +205,7 @@ block content
 															span(class="glyphicon glyphicon-refresh glyphicon-spin")
 
 											div(class='row')
-												div(class='col-md-6')
+												div(class='col-md-6' v-cloak)
 													ul(class='pagination')
 														li(v-for='page in numberOfPages.bookmarkedBoards' v-if="!displayPaginationButton(currentPage.bookmarkedBoards, page)" v-bind:class="{ 'active' : currentPage.bookmarkedBoards == page }")
 															a(@click="currentUserBoardsGoToPage(page)") {{ page }}
@@ -255,7 +255,7 @@ block content
 															span(class="glyphicon glyphicon-refresh glyphicon-spin")
 
 											div(class='row')
-												div(class='col-md-6')
+												div(class='col-md-6' v-cloak)
 													ul(class='pagination')
 														li(v-for='page in numberOfPages.collaboratedBoards' v-if="!displayPaginationButton(currentPage.collaboratedBoards, page)" v-bind:class="{ 'active' : currentPage.collaboratedBoards == page }")
 															a(@click="currentUserBoardsGoToPage(page)") {{ page }}
