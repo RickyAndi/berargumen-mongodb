@@ -1,21 +1,23 @@
 extends layouts/main.pug
 
 block stylehead
+
 	link(rel='stylesheet' href='/bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.css')
 	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
 	link(rel='stylesheet' href='/bower_components/toastr/toastr.css')
 	link(rel='stylesheet' href='/styles/index.css')
 
 block content
-	div(class='jumbotron' style="background-color:rgb(23,30,38);")
-		div(class='container' style='padding-top:50px;')
-			div(class='row')
-				div(class='col-md-12 text-center')
+	
+	
+	div(class='container' style='min-height: 1000px;')
+		div(class='jumbotron text-center' style="background-color:rgb(23,30,38); margin-top:100px;")
+			dic(class='row')
+				div(class='col-md-12')
 					h1(style="color: white; font-size: 120px;") Berargumen
 					br()
 					p(style="color: white; font-size: 25px;") &nbsp;Visualisasi argumen dengan diagram argumen
-	
-	div(class='container' style='min-height: 1000px;')
+
 		div(class='row')
 			div(class='col-md-12')
 				div(class='row')
