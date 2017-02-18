@@ -41,15 +41,15 @@ var buttonBoxForSubReasonsConnector = function(component, createElement) {
 	return [
 		createElement('button', {
 			attrs : {
-				class : 'btn btn-warning btn-xs btn-block',
-				title : 'Tidak bisa buat Sub Alasan'
+				class : 'btn btn-danger btn-xs btn-block',
+				title : 'Tidak bisa membuka menu'
 			},
 			style : {
 			}
 		}, [
 			createElement('i', {
 				attrs : {
-					class : 'glyphicon glyphicon-ban-circle'
+					class : 'glyphicon glyphicon-list'
 				}
 			})
 		])
