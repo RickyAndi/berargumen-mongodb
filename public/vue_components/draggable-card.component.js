@@ -4,7 +4,8 @@ var panelClassMappingArgumentType = {
 	'co-reason' : 'panel panel-success',
 	'objection' : 'panel panel-danger',
 	'rebuttal' : 'panel panel-warning',
-	'lemma' : 'panel panel-success'
+	'lemma' : 'panel panel-success',
+	'sub-reason-cards-connector' : 'panel panel-success'
 }
 
 var indonesianArgumentMappingArgumentType = {
@@ -12,7 +13,83 @@ var indonesianArgumentMappingArgumentType = {
 	'reason' : 'Alasan (Reason)',
 	'co-reason' : 'Sub Alasan (Co-Reason)',
 	'objection' : 'Keberatan (Objection)',
-	'rebuttal' : 'Bantahan (Rebuttal)'
+	'rebuttal' : 'Bantahan (Rebuttal)',
+	'sub-reason-cards-connector' : ''
+}
+
+var buttonBoxForSubReasonsConnector = function(component, createElement) {
+	
+	if(component.isCurrentUserCollaboratorOfBoard || component.isUserOwner()) {
+		return [
+			createElement('button', {
+				attrs : {
+					class : 'btn btn-success btn-xs btn-block',
+					title : 'Klik dua kali untuk membuka menu'
+				},
+				style : {
+				}
+			}, [
+				createElement('i', {
+					attrs : {
+						class : 'glyphicon glyphicon-list'
+					}
+				})
+			])
+		];
+	}
+
+	return [
+		createElement('button', {
+			attrs : {
+				class : 'btn btn-warning btn-xs btn-block',
+				title : 'Tidak bisa buat Sub Alasan'
+			},
+			style : {
+			}
+		}, [
+			createElement('i', {
+				attrs : {
+					class : 'glyphicon glyphicon-ban-circle'
+				}
+			})
+		])
+	];
+}
+
+var toolsBoxForConnection = function(component, createElement) {
+	
+	if(!component.isCurrentUserCollaboratorOfBoard) {
+		return;
+	}
+
+	return [
+		createElement('div', {
+				attrs : {
+					class : 'btn-group btn-group-xs'
+				}
+			}, 
+				[
+					createElement('button', {
+						attrs : {
+							'data-toggle' : 'popover',
+							'data-content' : 'Buat Sub Alasan',
+							'data-trigger' : 'hover',
+							class : 'btn btn-success btn-xs'
+						},
+						on : {
+							click : component.createRelatedCard.bind(null, 'co-reason')
+						}
+
+					}, [
+						createElement('i', {
+							attrs : {
+								class : 'glyphicon glyphicon-ok'
+							}
+						})
+					])
+				]
+		)
+	];
 }
 
 var ownerBox = function(component, createElement) {
@@ -107,6 +184,24 @@ var toolsBox = function(component, type, createElement) {
 							}
 						})
 					]),
+					createElement('button', {
+						attrs : {
+							'data-toggle' : 'popover',
+							'data-content' : 'Buat Konektor Sub Alasan',
+							'data-trigger' : 'hover',
+							class : 'btn btn-success btn-xs'
+						},
+						on : {
+							click : component.createSubReasonsConnector
+						}
+
+					}, [
+						createElement('i', {
+							attrs : {
+								class : 'glyphicon glyphicon-ok-circle'
+							}
+						})
+					])
 				]
 			)
 		},
@@ -132,6 +227,24 @@ var toolsBox = function(component, type, createElement) {
 						createElement('i', {
 							attrs : {
 								class : 'glyphicon glyphicon-ok'
+							}
+						})
+					]),
+					createElement('button', {
+						attrs : {
+							'data-toggle' : 'popover',
+							'data-content' : 'Buat Konektor Sub Alasan',
+							'data-trigger' : 'hover',
+							class : 'btn btn-success btn-xs'
+						},
+						on : {
+							click : component.createSubReasonsConnector
+						}
+
+					}, [
+						createElement('i', {
+							attrs : {
+								class : 'glyphicon glyphicon-ok-circle'
 							}
 						})
 					]),
@@ -184,18 +297,18 @@ var toolsBox = function(component, type, createElement) {
 					createElement('button', {
 						attrs : {
 							'data-toggle' : 'popover',
-							'data-content' : 'Buat Sub Alasan',
+							'data-content' : 'Buat Konektor Sub Alasan',
 							'data-trigger' : 'hover',
-							class : 'btn btn-info btn-xs'
+							class : 'btn btn-success btn-xs'
 						},
 						on : {
-							click : component.createRelatedCard.bind(null, 'co-reason')
+							click : component.createSubReasonsConnector
 						}
 
 					}, [
 						createElement('i', {
 							attrs : {
-								class : 'glyphicon glyphicon-zoom-in'
+								class : 'glyphicon glyphicon-ok-circle'
 							}
 						})
 					]),
@@ -248,18 +361,18 @@ var toolsBox = function(component, type, createElement) {
 					createElement('button', {
 						attrs : {
 							'data-toggle' : 'popover',
-							'data-content' : 'Buat Sub Alasan',
+							'data-content' : 'Buat Konektor Sub Alasan',
 							'data-trigger' : 'hover',
-							class : 'btn btn-info btn-xs'
+							class : 'btn btn-success btn-xs'
 						},
 						on : {
-							click : component.createRelatedCard.bind(null, 'co-reason')
+							click : component.createSubReasonsConnector
 						}
 
 					}, [
 						createElement('i', {
 							attrs : {
-								class : 'glyphicon glyphicon-zoom-in'
+								class : 'glyphicon glyphicon-ok-circle'
 							}
 						})
 					]),
@@ -312,6 +425,24 @@ var toolsBox = function(component, type, createElement) {
 					createElement('button', {
 						attrs : {
 							'data-toggle' : 'popover',
+							'data-content' : 'Buat Konektor Sub Alasan',
+							'data-trigger' : 'hover',
+							class : 'btn btn-success btn-xs'
+						},
+						on : {
+							click : component.createSubReasonsConnector
+						}
+
+					}, [
+						createElement('i', {
+							attrs : {
+								class : 'glyphicon glyphicon-ok-circle'
+							}
+						})
+					]),
+					createElement('button', {
+						attrs : {
+							'data-toggle' : 'popover',
 							'data-content' : 'Buat Keberatan',
 							'data-trigger' : 'hover',
 							class : 'btn btn-danger btn-xs'
@@ -337,6 +468,60 @@ var toolsBox = function(component, type, createElement) {
 
 var draggableCardComponent = Vue.component('draggable-card', {
 	render : function(createElement) {
+		
+		if(this.card.getType() == 'sub-reason-cards-connector') {
+			return createElement('div', {
+				attrs : {
+					class 	: 'card-container',
+					id 		: this.card.getId(),
+				},
+				style : {
+					'top' 	: this.top,
+					'left' 	: this.left,
+				}
+			}, [
+				createElement('div', {
+					attrs : {
+						class : 'col-md-6 panel panel-success',
+
+					},
+					style : {
+						width: '75px',
+						height: '60px',
+						'border-radius' : '1000px'
+					}
+				}, [
+					createElement('div', {
+						attrs : {
+							class : 'panel-body'
+						},
+						style : {
+							'border-radius' : '1000px'
+						}
+					}, [
+							createElement('div', {
+								attrs : {
+									class : 'row'
+								}
+							}, [
+								createElement('div', {
+									attrs : {
+										class : 'col-md-12'
+									},
+									style : {
+										padding : '0px'
+									}
+								},	
+									buttonBoxForSubReasonsConnector(this, createElement)
+								)
+							])
+						]
+					),
+
+				])
+			])
+		} 
+
 		return createElement('div', {
 			attrs : {
 				class 	: 'card-container',
@@ -344,7 +529,8 @@ var draggableCardComponent = Vue.component('draggable-card', {
 			},
 			style : {
 				'top' 	: this.top,
-				'left' 	: this.left
+				'left' 	: this.left,
+				'min-height' : '0px'
 			}
 		}, 
 		[
@@ -393,8 +579,8 @@ var draggableCardComponent = Vue.component('draggable-card', {
 					},
 					style : {
 						'overflow-y' : 'scroll',
-						'max-height' : '120px',
-						'min-height' : '120px'
+						'max-height' : '90px',
+						'min-height' : '90px'
 					}
 				}, this.card.getTitle()),
 				createElement('div', {
@@ -510,6 +696,80 @@ var draggableCardComponent = Vue.component('draggable-card', {
 		},
 		viewCardDetail : function() {
 			window.open('/card/' + this.card.getId());
+		},
+		createSubReasonsConnector : function(event) {
+			this.$emit('create-sub-reason-cards-connector', { index : this.index })
+		},
+		togglePopover : function() {
+			$(this.$el).popover('toggle')
+		}
+	},
+	watch : {
+		isCurrentUserCollaboratorOfBoard  : function() {
+
+
+			var vm = this;
+
+			if(vm.card.getType() == 'sub-reason-cards-connector') {
+				
+				if(!vm.isCurrentUserCollaboratorOfBoard) {
+					return;
+				}
+
+				var $cardElement = vm.$el;
+				var htmlContent = '';
+
+				if(vm.isCurrentUserCollaboratorOfBoard) {
+					var htmlContent = '<button title="Tutup menu" class="btn btn-warning btn-xs" id="button' + vm.card.getId() + '">Tutup</button> <button title="Buat Sub Alasan" class="btn btn-success btn-xs" id="create-related-card-button' + vm.card.getId() + '"><span class="glyphicon glyphicon-ok-circle"></span></button>'
+				}
+
+				if(vm.isUserOwner()) {
+					var htmlContent = '<button title="Tutup menu" class="btn btn-warning btn-xs" id="button' + vm.card.getId() + '">Tutup</button> <button title="Buat Sub Alasan" class="btn btn-success btn-xs" id="create-related-card-button' + vm.card.getId() + '"><span class="glyphicon glyphicon-ok-circle"></span></button> <button class="btn btn-danger btn-xs" title="Hapus penghubung sub alasan ini" id="delete-sub-reasons-connector' + vm.card.getId() + '"><span class="glyphicon glyphicon-remove"></span></button>'
+				}
+
+				$($cardElement).popover({
+					placement: 'bottom',
+					container: 'body',
+					html: true,
+					trigger: 'manual',
+					content: htmlContent
+				});
+
+				$($cardElement).on('hide.bs.popover', function(evt) {
+					
+					setTimeout(function() {
+						$($cardElement).removeClass('hide-popover');
+					}, 3000)
+
+					if(!$(evt.target).hasClass('hide-popover')) {
+						evt.preventDefault();
+						evt.stopPropagation();
+						evt.cancelBubble = true;
+					}
+				});
+
+				$($cardElement).on('dblclick', function(evt) {
+					$(vm.$el).popover('toggle')
+				});
+
+				$('body').on('click', '#button' + vm.card.getId(), function() {
+					$(vm.$el).closePopover()
+				})
+
+				$('body').on('click', '#create-related-card-button' + vm.card.getId(), function() {
+					
+					$(vm.$el).closePopover()
+
+					vm.createRelatedCard('co-reason')
+				})
+
+				$('body').on('click', '#delete-sub-reasons-connector' + vm.card.getId() , function() {
+					
+					$(vm.$el).closePopover()
+
+					this.$emit('delete-card', { index : this.index })
+				})
+			}	
 		}
 	},
 	mounted : function() {
@@ -536,20 +796,20 @@ var draggableCardComponent = Vue.component('draggable-card', {
 		if(vm.card.hasRelation()) {
 			setTimeout(function() {
 					
-					var source = vm.card.getRelatedTo();
+					var target = vm.card.getRelatedTo();
 
-					if(!$('#' + source).length) {
+					if(!$('#' + target).length) {
 						return;
 					}
 
 					var connectionDataMapping = {
 						'reason' : {
-							'labelContent' : 'Karena',
+							'labelContent' : 'Maka',
 							'connectionColor' : '#22BE34',
 							'cssClass' : 'label-reason'
 						},
 						'co-reason' : {
-							'labelContent' : 'Dan',
+							'labelContent' : '',
 							'connectionColor' : '#22BE34',
 							'cssClass' : 'label-co-reason'
 						},
@@ -563,84 +823,54 @@ var draggableCardComponent = Vue.component('draggable-card', {
 							'connectionColor' : '#FF851B',
 							'cssClass' : 'label-rebuttal'	
 						},
+						'sub-reason-cards-connector' : {
+							'labelContent' : 'Maka',
+							'connectionColor' : '#22BE34',
+							'cssClass' : 'label-reason'
+						}
 					}
 
-					var target = vm.card.getId();
+					var source = vm.card.getId();
 					var relationType = vm.card.getRelationType();
 
 					if(relationType == 'co-reason') {
 
-						var connection_1 = jsPlumb.connect({
+						jsPlumb.connect({
 						    source: $('#' + source),
 						    target: $('#' + target),
 							detachable: false,
-							connector: ["Flowchart"],
-							overlays: [ 
-							    ["Arrow", { 
-							    	width:12, 
-							    	length:12, 
-							    	location: 1 
-							    }],
-							    ["Label", { 
-							    	label : connectionDataMapping[relationType]['labelContent'],
-							    	cssClass: connectionDataMapping[relationType]['cssClass']
-							    }]
+							connector : ["Flowchart"],
+							cssClass: 'connection-line',
+							overlays: [
+								["Arrow", { 
+									width:12, 
+									length:12, 
+									location: 1 
+								}],
 							],
-							paintStyle:{ stroke: connectionDataMapping[relationType]['connectionColor'], strokeWidth:2 },
+							paintStyle:{ stroke: connectionDataMapping[relationType]['connectionColor'], strokeWidth:1 },
 							deleteEndpointsOnDetach:true,
 							endpoint:"Blank",
 							anchor : [
-								[ 0.2, 0, 0, -1], 
-								[ 1, 0.2, 1, 0],
-								[ 0.8, 1, 0, 1],
-								[ 0, 0.8, -1, 0]
-							]
-						});
-
-						var connection_2 = jsPlumb.connect({
-						    source: $('#' + target),
-						    target: $('#' + source),
-							detachable: false,
-							connector: ["Flowchart"],
-							overlays: [ 
-							    ["Arrow", { 
-							    	width:12, 
-							    	length:12, 
-							    	location: 1 
-							    }]
-							],
-							paintStyle:{ stroke: connectionDataMapping[relationType]['connectionColor'], strokeWidth:2 },
-							deleteEndpointsOnDetach:true,
-							endpoint:"Blank",
-							anchor : [
-								[ 0.2, 0, 0, -1], 
-								[ 1, 0.2, 1, 0],
-								[ 0.8, 1, 0, 1],
-								[ 0, 0.8, -1, 0]
+								"Top",
+								"Bottom",
 							]
 						});
 
 						var connectionToBeEmittedToParent1 = {
 							source : source,
-							target : target,
-							connection : connection_1
-						};
-
-						var connectionToBeEmittedToParent2 = {
-							source : source,
-							target : target,
-							connection : connection_2
+							target : target
 						};
 
 						vm.$emit('connection-created', connectionToBeEmittedToParent1);
-						vm.$emit('connection-created', connectionToBeEmittedToParent2);
 
 					} else {
-						var connection = jsPlumb.connect({
+						jsPlumb.connect({
 						    source: $('#' + source),
 						    target: $('#' + target),
 							detachable: false,
-							connector: ["Flowchart"],
+							connector : ["Flowchart"],
+							cssClass: 'connection-line',
 							overlays: [ 
 							    ["Arrow", { 
 							    	width:12, 
@@ -652,21 +882,20 @@ var draggableCardComponent = Vue.component('draggable-card', {
 							    	cssClass: connectionDataMapping[relationType]['cssClass']
 							    }]
 							],
-							paintStyle:{ stroke: connectionDataMapping[relationType]['connectionColor'], strokeWidth:2 },
+							paintStyle:{ stroke: connectionDataMapping[relationType]['connectionColor'], strokeWidth:1 },
 							deleteEndpointsOnDetach:true,
 							endpoint:"Blank",
 							anchor : [
-								[ 0.2, 0, 0, -1], 
-								[ 1, 0.2, 1, 0],
-								[ 0.8, 1, 0, 1],
-								[ 0, 0.8, -1, 0]
+								"Top",
+								"Bottom",
+								"Left",
+								"Right"
 							]
 						});
 
 						var connectionToBeEmittedToParent = {
 							source : source,
-							target : target,
-							connection : connection
+							target : target
 						}
 
 						vm.$emit('connection-created', connectionToBeEmittedToParent);
@@ -679,7 +908,67 @@ var draggableCardComponent = Vue.component('draggable-card', {
 				container: 'body'
 			}); 
 		}, 1000)
-		
+
+		if(vm.card.getType() == 'sub-reason-cards-connector') {
+			
+			if(!vm.isCurrentUserCollaboratorOfBoard && !vm.isUserOwner()) {
+				return;
+			}
+
+			var $cardElement = vm.$el;
+			var htmlContent = '';
+
+			if(vm.isCurrentUserCollaboratorOfBoard) {
+				var htmlContent = '<button title="Tutup menu" class="btn btn-warning btn-xs" id="button' + vm.card.getId() + '">Tutup</button> <button title="Buat Sub Alasan" class="btn btn-success btn-xs" id="create-related-card-button' + vm.card.getId() + '"><span class="glyphicon glyphicon-ok-circle"></span></button>'
+			}
+
+			if(vm.isUserOwner()) {
+				var htmlContent = '<button title="Tutup menu" class="btn btn-warning btn-xs" id="button' + vm.card.getId() + '">Tutup</button> <button title="Buat Sub Alasan" class="btn btn-success btn-xs" id="create-related-card-button' + vm.card.getId() + '"><span class="glyphicon glyphicon-ok-circle"></span></button> <button class="btn btn-danger btn-xs" title="Hapus penghubung sub alasan ini" id="delete-sub-reasons-connector' + vm.card.getId() + '"><span class="glyphicon glyphicon-remove"></span></button>'
+			}
+
+			$($cardElement).popover({
+				placement: 'bottom',
+				container: 'body',
+				html: true,
+				trigger: 'manual',
+				content: htmlContent
+			});
+
+			$($cardElement).on('hide.bs.popover', function(evt) {
+				
+				setTimeout(function() {
+					$($cardElement).removeClass('hide-popover');
+				}, 3000)
+
+				if(!$(evt.target).hasClass('hide-popover')) {
+					evt.preventDefault();
+					evt.stopPropagation();
+					evt.cancelBubble = true;
+				}
+			});
+
+			$($cardElement).on('dblclick', function(evt) {
+				$(vm.$el).popover('toggle')
+			});
+
+			$('body').on('click', '#button' + vm.card.getId(), function() {
+				$(vm.$el).closePopover()
+			})
+
+			$('body').on('click', '#create-related-card-button' + vm.card.getId(), function() {
+				
+				$(vm.$el).closePopover()
+
+				vm.createRelatedCard('co-reason')
+			})
+
+			$('body').on('click', '#delete-sub-reasons-connector' + vm.card.getId(), function() {
+				
+				$(vm.$el).closePopover()
+
+				vm.deleteThisCard()
+			})
+		}		
 	},
 	computed : {
 		left : function() {
