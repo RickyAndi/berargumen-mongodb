@@ -123,7 +123,7 @@ block content
 					data-trigger='hover'
 					v-cloak
 					v-if="isUserBookmarkedThisBoard && !loadings.bookmarkRequest"
-				) Hilangkan tanda dari board ini
+				) Hapus tanda di board ini
 
 				button(
 					class='btn btn-default navbar-btn btn-sm btn-block' 
@@ -151,6 +151,7 @@ block content
 						v-on:connection-created="addCardConnection"
 						v-on:card-destroyed="removeConnectionByCardId"
 						v-on:change-card="openModalToChangeCard"
+						v-on:create-sub-reason-cards-connector="createSubReasonCardsConnector"
 					) 
 			
 	div(class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="create-card-modal")
@@ -179,7 +180,8 @@ block content
 		div(class="modal-dialog modal-md" role="document")
 			div(class="modal-content")
 				div(class="modal-header")
-					h4() Hapus Card Ini ?
+					h5(v-if="deleteCardStatus == 'delete-card'") Hapus Card Ini ?
+					h5(v-if="deleteCardStatus == 'delete-sub-reason-connector'") Hapus Konektor Sub Alasan Ini ?
 				div(class="modal-body")
 					div(class='row')
 						div(class='col-md-12')
