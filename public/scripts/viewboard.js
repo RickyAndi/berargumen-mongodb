@@ -275,22 +275,27 @@ new Vue({
 
 			var newCardFormData = new CreateCardForm();
 			
-			var cardIndexToBeRelated = vm.tobe.cardIndexToBeRelated;
-			var pageX = vm.cards[cardIndexToBeRelated].getTop();
-			var pageY = vm.cards[cardIndexToBeRelated].getLeft();
-
 			newCardFormData
 				.setTitle(this.forms.createCard.title)
 				.setContent(this.getCardContent())
 				.setType(vm.tobe.sendCardType)
-				.setPageX(pageX)
-				.setPageY(pageY);
+				.setPageX('100px')
+				.setPageY('100px');
 
 				
 			if(vm.formStatus != 'create-contention') {
+				
 				newCardFormData
 					.setRelatedTo(vm.tobe.relatedId)
-					.setRelationType(vm.tobe.sendCardType);
+					.setRelationType(vm.tobe.sendCardType)
+				
+				var cardIndexToBeRelated = vm.tobe.cardIndexToBeRelated;
+				var pageX = vm.cards[cardIndexToBeRelated].getTop();
+				var pageY = vm.cards[cardIndexToBeRelated].getLeft();
+				
+				newCardFormData
+					.setPageX(pageX)
+					.setPageY(pageY)
 			}
 
 			var request = $.post({
