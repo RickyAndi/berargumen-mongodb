@@ -501,7 +501,7 @@ module.exports = function(app, io) {
 
 		try {
 
-			var cardsThatRelatedToToBeDeletedCard = await(Card.find({ 'related.to' : cardId }));
+			var cardsThatRelatedToToBeDeletedCard = await(Card.find({ 'related.to' : cardId, deleted : false }));
 
 			if(cardsThatRelatedToToBeDeletedCard.length) {
 				
@@ -982,8 +982,8 @@ module.exports = function(app, io) {
 			var cardTitle = req.body.title;
 			var cardContent = req.body.content;
 			var cardType = req.body.type;
-			var cardTop = req.body.pageY.toString() + 'px';
-			var cardLeft = req.body.pageX.toString() + 'px';
+			var cardTop = (parseFloat(req.body.pageX) + 400).toString() + 'px';
+			var cardLeft = (parseFloat(req.body.pageY) + 100).toString() + 'px';
 			var cardId = null;
 			var relationType = null;
 
@@ -999,6 +999,71 @@ module.exports = function(app, io) {
 				},
 				title : cardTitle,
 				content : cardContent,
+				type : cardType,
+				top : cardTop,
+				left : cardLeft,
+				related : {
+					to : cardId,
+					type : relationType
+				},
+				boardId : boardId
+			})
+
+			var newCard = await(cardToSaved.save());
+
+			var cardCreatedEventName = boardId + ':card-created';
+
+			io.card.emit(cardCreatedEventName, newCard);
+
+			return res
+				.status(200)
+				.json({
+					message : 'Card Created'
+				})
+
+		} catch(error) {
+
+			return res
+				.status(500)
+				.json({
+					message : error.toString()
+				})	
+
+		}
+	}));
+
+	app.post('/api/board/:boardId/sub-reason-cards-connector', authMiddleware, async(function(req, res) {
+		
+		var boardId = req.params.boardId;
+		
+		try {
+
+			var board = await(Board.findById(boardId));
+
+			if(!board) {
+				return res.status(404).json({
+					message : 'Board Not Found'
+				})
+			}
+
+			var userId = mongoose.Types.ObjectId(req.user._id);
+			var boardId = mongoose.Types.ObjectId(req.params.boardId);
+			var userName = req.user.name;
+			var cardType = 'sub-reason-cards-connector';
+			var cardTop = (parseFloat(req.body.pageX) + 400).toString() + 'px';
+			var cardLeft = req.body.pageY;
+			var cardId = null;
+			var relationType = 'sub-reason-cards-connector';
+
+			if(req.body.related.to != null) {
+				cardId = mongoose.Types.ObjectId(req.body.related.to);
+			} 
+
+			var cardToSaved = new Card({
+				creator : {
+					id : userId,
+					name : userName
+				},
 				type : cardType,
 				top : cardTop,
 				left : cardLeft,
