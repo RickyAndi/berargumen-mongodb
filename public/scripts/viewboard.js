@@ -8,6 +8,7 @@ new Vue({
 		collaboratorsRequest : [],
 		boardCollaborators : [],
 		formStatus : 'create-contention',
+		deleteCardStatus : 'delete-card',
 		modals : {
 			createCard : null,
 			deleteCardConfirmation : null,
@@ -21,6 +22,7 @@ new Vue({
 		editor : null,
 		tobe : {
 			relatedId : null,
+			cardIndexToBeRelated : 0,
 			deletedCardIndex : 0,
 			sendCardType : 'contention',
 			changedCardIndex : 0,
@@ -272,8 +274,10 @@ new Vue({
 			vm.loadings.cardSubmit = true;
 
 			var newCardFormData = new CreateCardForm();
-			var pageX = event.pageX;
-			var pageY = event.pageY;
+			
+			var cardIndexToBeRelated = vm.tobe.cardIndexToBeRelated;
+			var pageX = vm.cards[cardIndexToBeRelated].getTop();
+			var pageY = vm.cards[cardIndexToBeRelated].getLeft();
 
 			newCardFormData
 				.setTitle(this.forms.createCard.title)
@@ -308,6 +312,10 @@ new Vue({
 					if(error.status == 400) {
 						var error = JSON.parse(error.responseText);
 						vm.handleValidationErrors(error.errors);
+					}
+
+					if(error.status == 401) {
+						vm.notifyThatSomethingError('Anda harus login dulu untuk membuat card');
 					}
 				});
 			})
@@ -385,6 +393,13 @@ new Vue({
 		},
 		openModalAndSetCardToBeDeleted : function(args) {
 			this.tobe.deletedCardIndex = args.index;
+			
+			if(this.cards[args.index].getType() == 'sub-reason-cards-connector') {
+				this.deleteCardStatus = 'delete-sub-reason-connector';
+			} else {
+				this.deleteCardStatus = 'delete-card';
+			}
+
 			this.openDeleteCardConfimationModal();
 		},
 		deleteCardByIndex : function() {
@@ -401,7 +416,12 @@ new Vue({
 			});
 
 			if(relatedCards.length) {
-			 	toastr.warning('Anda tidak bisa menghapus card yang berelasi dengan card lain, hapus card yang berelasi dengan card ini dulu.');
+				if(this.cards[this.tobe.deletedCardIndex].getType() == 'sub-reason-cards-connector') {
+					vm.warnSomething('Anda tidak bisa menghapus konektor sub alasan jika masih memiliki sub alasan yang terhubung.');
+				} else {
+					vm.warnSomething('Anda tidak bisa menghapus card yang berelasi dengan card lain, hapus card yang berelasi dengan card ini dulu.');
+				}
+
 			 	vm.closeDeleteCardConfirmationModal();
 			 	return;
 			}
@@ -435,7 +455,10 @@ new Vue({
 		createRelatedCard : function(args) {
 			var vm = this;
 
-			vm.tobe.relatedId = vm.cards[args.index].getId();  
+			vm.tobe.cardIndexToBeRelated = args.index;
+
+			vm.tobe.relatedId = vm.cards[args.index].getId();
+
 			vm.formStatus = 'create-' + args.type;
 			vm.tobe.sendCardType = args.type
 			
@@ -456,9 +479,16 @@ new Vue({
 			
 			toBeDeletedConnections.forEach(function(connection) {
 				
-				var connectionIndexToBeDeleted = R.findIndex(R.propEq('source', connection.source) && R.propEq('target', connection.target), vm.connections);
+				var conn = jsPlumb.getConnections({
+	              	source: connection.source,
+	              	target: connection.target
+				});
 				
-				jsPlumb.detach(vm.connections[connectionIndexToBeDeleted].connection);
+				if (conn[0]) {
+				  jsPlumb.detach(conn[0]);
+				}
+
+				var connectionIndexToBeDeleted = R.findIndex(R.propEq('source', connection.source) && R.propEq('target', connection.target), vm.connections);
 				vm.connections.splice(connectionIndexToBeDeleted, 1);
 			})
 		},
@@ -704,6 +734,9 @@ new Vue({
 		notifyThatSomethingSuccess : function(message) {
 			toastr.success(message);
 		},
+		warnSomething : function(message) {
+			toastr.warning(message);
+		},
 		handleError : function(error, callback) {
 			var vm = this;
 			if(error.status == 0) {
@@ -785,6 +818,45 @@ new Vue({
 				"transform"			: scaleCssValue,
 				"-webkit-transform-origin": 'left 0.1%'
 			});
+		},
+		createSubReasonCardsConnector : function(args) {
+
+			var vm = this;
+
+			var cardIndexToBeRelatedWithSubReasonCardsConnector = args.index;
+
+			var newCardFormData = new CreateCardForm();
+			
+			var pageX = vm.cards[cardIndexToBeRelatedWithSubReasonCardsConnector].getTop();
+			var pageY = vm.cards[cardIndexToBeRelatedWithSubReasonCardsConnector].getLeft();
+
+			newCardFormData
+				.setPageX(pageX)
+				.setPageY(pageY);
+
+			newCardFormData
+				.setRelatedTo(vm.cards[cardIndexToBeRelatedWithSubReasonCardsConnector].getId())
+				.setRelationType('sub-reason-cards-connector');
+
+			var request = $.post({
+				url: '/api/board/'+ vm.board.getId() +'/sub-reason-cards-connector',
+				data : JSON.stringify(newCardFormData.toPlainObject()),
+				contentType : 'application/json; charset=UTF-8',
+			});
+
+			request.then(function(message) {
+				
+				vm.notifyThatSomethingSuccess('Konektor sub alasan sudah tersimpan');
+				vm.closeCreateCardModal();
+			})
+			.catch(function(error) {
+
+				vm.handleError(error, function(error) {
+					if(error.status == 401) {
+						vm.notifyThatSomethingError('Anda harus login dulu untuk membuat konektor sub alasan')
+					}
+				});
+			})
 		}
 	},
 	computed : {
@@ -811,6 +883,15 @@ new Vue({
 	mounted :function() {
 		
 		var vm = this;
+
+		$.fn.closePopover = function(){
+            var $this = $(this);
+            
+            if(!$this.data('overPopover') && !$this.data('overButton')){
+              $this.addClass('hide-popover');
+              $this.popover('hide');              
+            }
+		}
 
 		jsPlumb.setContainer("argumen-container");
 		vm.initializeContainer();
@@ -962,6 +1043,7 @@ new Vue({
 		});
 
 		this.modals.createCard = $('#create-card-modal');
+		this.modals.deleteCardConfirmation = $('#delete-card-confirmation-modal');
 		this.modals.deleteCardConfirmation = $('#delete-card-confirmation-modal');
 
 		this.modals.createCard.on('hide.bs.modal', function() {
