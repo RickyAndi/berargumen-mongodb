@@ -9,6 +9,16 @@ module.exports = function(app) {
 			failureRedirect: '/login' }),
 	  	function(req, res) {
 	  		res.redirect('/');
+		},
+		function(err,req,res,next) {
+		    if(err) {
+				res
+	            	.status(400)
+	            	.render('error-page', {
+			    		message : 'Ada kesalahan saat login',
+			    		title : 'Login Error'
+		    		})
+	        }
 		}
 	);
 }
