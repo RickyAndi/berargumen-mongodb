@@ -1,6 +1,11 @@
 .modal {
-    overflow-y: scroll;
+   
 }
+
+.connection-line {
+	z-index: 100;
+}
+
 .navbar-lower {
 	top: 50px;
     z-index: 1029;
@@ -16,6 +21,10 @@
 	position: absolute;
 }
 
+.panel {
+	 z-index: 99999999999999;
+}
+
 .label-reason {
 	font-size: 15px;
 	font-weight: 9000;
@@ -24,6 +33,7 @@
 	padding: 5px;
 	color : white;
 	border-radius: 60px;
+	z-index: 100;
 }
 
 .label-co-reason {
@@ -45,6 +55,7 @@
 	padding: 5px;
 	color : white;
 	border-radius: 60px;
+	z-index: 100;
 }
 
 .label-rebuttal {
@@ -55,6 +66,7 @@
 	padding: 5px;
 	color : white;
 	border-radius: 60px;
+	z-index: 100;
 }
 
 [v-cloak] {
@@ -101,4 +113,10 @@
 
 .collaborate-button {
 	width: 60px;
+}
+
+div.toast > * {
+    color: black;
+    font-size: 16px;
+    font-weight: 500;
 }
