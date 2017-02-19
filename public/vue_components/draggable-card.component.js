@@ -61,7 +61,9 @@ var buttonBoxForSubReasonsConnector = function(component, createElement) {
 						createElement('button', {
 							attrs : {
 								class : 'btn btn-success btn-block btn-xs',
-								title : ''
+								'data-toggle' : 'popover',
+								'data-content' : 'Buat Sub Alasan',
+								'data-trigger' : 'hover',	
 							},
 							style : {
 								width : '75%'
@@ -124,7 +126,9 @@ var buttonBoxForSubReasonsConnector = function(component, createElement) {
 						createElement('button', {
 							attrs : {
 								class : 'btn btn-danger btn-block btn-xs',
-								title : 'Hapus konektor sub alasan ini'
+								'data-toggle' : 'popover',
+								'data-content' : 'Hapus konektor sub alasan ini',
+								'data-trigger' : 'hover',	
 							},
 							style : {
 								width : '75%'
@@ -153,7 +157,9 @@ var buttonBoxForSubReasonsConnector = function(component, createElement) {
 						createElement('button', {
 							attrs : {
 								class : 'btn btn-success btn-block btn-xs',
-								title : 'Buat sub alasan'
+								'data-toggle' : 'popover',
+								'data-content' : 'Buat Sub Alasan',
+								'data-trigger' : 'hover',	
 							},
 							style : {
 								width : '75%'
@@ -183,7 +189,9 @@ var buttonBoxForSubReasonsConnector = function(component, createElement) {
 			createElement('button', {
 				attrs : {
 					class : 'btn btn-danger dropdown-toggle btn-xs',
-					title : 'Anda harus login sebagai kolaborator untuk membuat sub alasan'
+					'data-toggle' : 'popover',
+					'data-content' : 'Anda harus login sebagai kolaborator untuk membuat sub alasan',
+					'data-trigger' : 'hover',	
 				},
 				style : {
 					width: '60px'
