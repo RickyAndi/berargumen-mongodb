@@ -18,14 +18,31 @@ module.exports = function(app) {
 
 			var relatedCard = null
 			var relatedCardTitle = null;
+			var relatedToSubReasonConnector  = null;
 
 			if(card.related.to) {
 				relatedCard = await(Card.findById(card.related.to));
 				
-				if(relatedCard.title.length > 100) {
-					relatedCardTitle = relatedCard.title.slice(0, 100) + '.....';
+				if(relatedCard.type == 'sub-reason-cards-connector') {
+					
+					relatedToSubReasonConnector = await(Card.findById(relatedCard.related.to));
+
+					if(relatedToSubReasonConnector.title) {
+						if(relatedToSubReasonConnector.title.length > 100) {
+							relatedCardTitle = relatedToSubReasonConnector.title.slice(0, 100) + '.....';
+						} else {
+							relatedCardTitle = relatedToSubReasonConnector.title;
+						}
+					}
+
 				} else {
-					relatedCardTitle = relatedCard.title;
+					if(relatedCard.title) {
+						if(relatedCard.title.length > 100) {
+							relatedCardTitle = relatedCard.title.slice(0, 100) + '.....';
+						} else {
+							relatedCardTitle = relatedCard.title;
+						}
+					}
 				}
 			}
 
@@ -33,7 +50,8 @@ module.exports = function(app) {
 				card : card,
 				user : req.user,
 				title : 'Lihat Detail Card',
-				relatedCardTitle : relatedCardTitle
+				relatedCardTitle : relatedCardTitle,
+				relatedToSubReasonConnector : relatedToSubReasonConnector
 			});
 
 		} catch(error) {
