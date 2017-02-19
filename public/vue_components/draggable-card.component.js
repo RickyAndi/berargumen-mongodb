@@ -190,7 +190,7 @@ var buttonBoxForSubReasonsConnector = function(component, createElement) {
 				attrs : {
 					class : 'btn btn-danger dropdown-toggle btn-xs',
 					'data-toggle' : 'popover',
-					'data-content' : 'Anda harus login sebagai kolaborator untuk membuat menu ini',
+					'data-content' : 'Anda harus login sebagai kolaborator untuk membuka menu ini',
 					'data-trigger' : 'hover',	
 				},
 				style : {
