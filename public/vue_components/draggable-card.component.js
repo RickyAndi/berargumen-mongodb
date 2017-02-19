@@ -989,7 +989,7 @@ var draggableCardComponent = Vue.component('draggable-card', {
 
 						vm.$emit('connection-created', connectionToBeEmittedToParent);
 					}
-			}, 1000);
+			}, 3000);
 		}
 
 		setTimeout(function() {
