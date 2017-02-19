@@ -136,3 +136,8 @@ p.copyright {
 [v-cloak] {
     display: none;
 }
+
+div.toast > * {
+    font-size: 16px;
+    font-weight: 500;
+}
