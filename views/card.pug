@@ -1,7 +1,7 @@
 extends layouts/main.pug
 
 block stylehead
-	- var cardTypeMapping = { 'contention' : 'Kesimpulan', 'reason' : 'Alasan', 'co-reason' : 'Pendukung Alasan', 'objection' : 'Keberatan', 'rebuttal' : 'Bantahan' };
+	- var cardTypeMapping = { 'contention' : 'Kesimpulan (Contention)', 'reason' : 'Alasan (Reason)', 'co-reason' : 'Sub Alasan (Co Reason)', 'objection' : 'Keberatan (Objection)', 'rebuttal' : 'Bantahan (Rebuttal)' };
 	
 	link(rel='stylesheet' href='/bower_components/bootstrap/dist/css/bootstrap.min.css')
 	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
@@ -59,8 +59,10 @@ block content
 																td(width="20%") 
 																	strong Ke
 																td()
-																	a(target='blank_' href='/card/' + card.related.to)= relatedCardTitle
-
+																	if card.type == 'co-reason'
+																		a(target='blank_' href='/card/' + relatedToSubReasonConnector._id)= relatedCardTitle
+																	else
+																		a(target='blank_' href='/card/' + card.related.to)= relatedCardTitle	
 
 							div(class='col-md-12')
 								div(class='panel panel-default')
