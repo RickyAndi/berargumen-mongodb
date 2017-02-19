@@ -45,7 +45,7 @@ block content
 									tbody(v-if="!boards.length && !loadings.getBoards" v-cloak)
 										tr()
 											td(class='text-center' colspan="5") Tidak ada board
-									tbody(v-if="loadings.getBoards" v-cloak)
+									tbody(v-if="loadings.getBoards")
 										tr()
 											td(class='text-center' colspan="5")
 												span(class="glyphicon glyphicon-refresh glyphicon-spin")
