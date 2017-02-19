@@ -448,7 +448,7 @@ new Vue({
 					vm.loadings.cardDelete = false;
 
 					vm.closeDeleteCardConfirmationModal();
-					toastr.success('Card telah terhapus');
+					vm.notifyThatSomethingSuccess(data.message);
 				})
 				.catch(function(error) {
 					vm.loadings.cardDelete = false;
