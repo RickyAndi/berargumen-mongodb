@@ -19,39 +19,183 @@ var indonesianArgumentMappingArgumentType = {
 
 var buttonBoxForSubReasonsConnector = function(component, createElement) {
 	
-	if(component.isCurrentUserCollaboratorOfBoard || component.isUserOwner()) {
+	if(component.isCurrentUserCollaboratorOfBoard && !component.isUserOwner()) {
+		
 		return [
-			createElement('button', {
+			createElement('div', {
 				attrs : {
-					class : 'btn btn-success btn-xs btn-block',
-					title : 'Klik dua kali untuk membuka menu'
-				},
-				style : {
+					class : 'dropdown'
 				}
 			}, [
-				createElement('i', {
+				createElement('button', {
 					attrs : {
-						class : 'glyphicon glyphicon-list'
+						class : 'btn btn-success dropdown-toggle btn-xs',
+						'data-toggle': 'dropdown',
+					},
+					style : {
+						width: '60px'
 					}
-				})
+				}, [
+					createElement('span', {}, 'Menu '),
+					createElement('span', {
+						attrs : {
+							class : 'caret'
+						}
+					})
+				]),
+				createElement('ul', {
+					attrs : {
+						class : 'dropdown-menu'
+					}
+				}, [
+					createElement('li', {
+						attrs : {
+							class : ''
+						},
+						style : {
+							'padding-left' : '25%',
+							'padding-right' : '10%',
+							'margin-top' : '5px'
+						}
+					}, [
+						createElement('button', {
+							attrs : {
+								class : 'btn btn-success btn-block btn-xs',
+								title : ''
+							},
+							style : {
+								width : '75%'
+							},
+							on : {
+								click : component.createRelatedCard.bind(null, 'co-reason')
+							}
+						}, [
+							createElement('i', {
+								attrs : {
+									class : 'glyphicon glyphicon-ok-circle'
+								}
+							})
+						])
+					])
+				])
+			])
+		];
+	}
+
+	if(component.isCurrentUserCollaboratorOfBoard && component.isUserOwner()) {
+		
+		return [
+			createElement('div', {
+				attrs : {
+					class : 'dropdown'
+				}
+			}, [
+				createElement('button', {
+					attrs : {
+						class : 'btn btn-success dropdown-toggle btn-xs',
+						'data-toggle': 'dropdown',
+					},
+					style : {
+						width: '60px'
+					}
+				}, [
+					createElement('span', {}, 'Menu '),
+					createElement('span', {
+						attrs : {
+							class : 'caret'
+						}
+					})
+				]),
+				createElement('ul', {
+					attrs : {
+						class : 'dropdown-menu'
+					}
+				}, [
+					createElement('li', {
+						attrs : {
+							class : ''
+						},
+						style : {
+							'padding-left' : '25%',
+							'padding-right' : '10%',
+							'margin-top' : '5px'
+						}
+					}, [
+						createElement('button', {
+							attrs : {
+								class : 'btn btn-danger btn-block btn-xs',
+								title : 'Hapus konektor sub alasan ini'
+							},
+							style : {
+								width : '75%'
+							},
+							on : {
+								click : component.deleteThisCard
+							}
+						}, [
+							createElement('i', {
+								attrs : {
+									class : 'glyphicon glyphicon-remove'
+								}
+							})
+						])
+					]),
+					createElement('li', {
+						attrs : {
+							class : ''
+						},
+						style : {
+							'padding-left' : '25%',
+							'padding-right' : '10%',
+							'margin-top' : '5px'
+						}
+					}, [
+						createElement('button', {
+							attrs : {
+								class : 'btn btn-success btn-block btn-xs',
+								title : 'Buat sub alasan'
+							},
+							style : {
+								width : '75%'
+							},
+							on : {
+								click : component.createRelatedCard.bind(null, 'co-reason')
+							}
+						}, [
+							createElement('i', {
+								attrs : {
+									class : 'glyphicon glyphicon-ok-circle'
+								}
+							})
+						])
+					])
+				])
 			])
 		];
 	}
 
 	return [
-		createElement('button', {
+		createElement('div', {
 			attrs : {
-				class : 'btn btn-danger btn-xs btn-block',
-				title : 'Tidak bisa membuka menu'
-			},
-			style : {
+				class : 'dropdown'
 			}
 		}, [
-			createElement('i', {
+			createElement('button', {
 				attrs : {
-					class : 'glyphicon glyphicon-list'
+					class : 'btn btn-danger dropdown-toggle btn-xs',
+					title : 'Anda harus login sebagai kolaborator untuk membuat sub alasan'
+				},
+				style : {
+					width: '60px'
 				}
-			})
+			}, [
+				createElement('span', {}, 'Menu '),
+				createElement('span', {
+					attrs : {
+						class : 'caret'
+					}
+				})
+			])
 		])
 	];
 }
@@ -486,9 +630,9 @@ var draggableCardComponent = Vue.component('draggable-card', {
 
 					},
 					style : {
-						width: '75px',
+						width: '90px',
 						height: '60px',
-						'border-radius' : '1000px'
+						'border-radius' : '500px'
 					}
 				}, [
 					createElement('div', {
@@ -496,7 +640,7 @@ var draggableCardComponent = Vue.component('draggable-card', {
 							class : 'panel-body'
 						},
 						style : {
-							'border-radius' : '1000px'
+							'border-radius' : '500px'
 						}
 					}, [
 							createElement('div', {
@@ -702,74 +846,11 @@ var draggableCardComponent = Vue.component('draggable-card', {
 		},
 		togglePopover : function() {
 			$(this.$el).popover('toggle')
-		}
-	},
-	watch : {
-		isCurrentUserCollaboratorOfBoard  : function() {
-
-
-			var vm = this;
-
-			if(vm.card.getType() == 'sub-reason-cards-connector') {
-				
-				if(!vm.isCurrentUserCollaboratorOfBoard) {
-					return;
-				}
-
-				var $cardElement = vm.$el;
-				var htmlContent = '';
-
-				if(vm.isCurrentUserCollaboratorOfBoard) {
-					var htmlContent = '<button title="Tutup menu" class="btn btn-warning btn-xs" id="button' + vm.card.getId() + '">Tutup</button> <button title="Buat Sub Alasan" class="btn btn-success btn-xs" id="create-related-card-button' + vm.card.getId() + '"><span class="glyphicon glyphicon-ok-circle"></span></button>'
-				}
-
-				if(vm.isUserOwner()) {
-					var htmlContent = '<button title="Tutup menu" class="btn btn-warning btn-xs" id="button' + vm.card.getId() + '">Tutup</button> <button title="Buat Sub Alasan" class="btn btn-success btn-xs" id="create-related-card-button' + vm.card.getId() + '"><span class="glyphicon glyphicon-ok-circle"></span></button> <button class="btn btn-danger btn-xs" title="Hapus penghubung sub alasan ini" id="delete-sub-reasons-connector' + vm.card.getId() + '"><span class="glyphicon glyphicon-remove"></span></button>'
-				}
-
-				$($cardElement).popover({
-					placement: 'bottom',
-					container: 'body',
-					html: true,
-					trigger: 'manual',
-					content: htmlContent
-				});
-
-				$($cardElement).on('hide.bs.popover', function(evt) {
-					
-					setTimeout(function() {
-						$($cardElement).removeClass('hide-popover');
-					}, 3000)
-
-					if(!$(evt.target).hasClass('hide-popover')) {
-						evt.preventDefault();
-						evt.stopPropagation();
-						evt.cancelBubble = true;
-					}
-				});
-
-				$($cardElement).on('dblclick', function(evt) {
-					$(vm.$el).popover('toggle')
-				});
-
-				$('body').on('click', '#button' + vm.card.getId(), function() {
-					$(vm.$el).closePopover()
-				})
-
-				$('body').on('click', '#create-related-card-button' + vm.card.getId(), function() {
-					
-					$(vm.$el).closePopover()
-
-					vm.createRelatedCard('co-reason')
-				})
-
-				$('body').on('click', '#delete-sub-reasons-connector' + vm.card.getId() , function() {
-					
-					$(vm.$el).closePopover()
-
-					this.$emit('delete-card', { index : this.index })
-				})
-			}	
+		},
+		openSubReasonConnectorMenu : function() {
+			this.$emit('open-sub-reason-connector-menu', {
+				index : this.index
+			})
 		}
 	},
 	mounted : function() {
@@ -908,67 +989,6 @@ var draggableCardComponent = Vue.component('draggable-card', {
 				container: 'body'
 			}); 
 		}, 1000)
-
-		if(vm.card.getType() == 'sub-reason-cards-connector') {
-			
-			if(!vm.isCurrentUserCollaboratorOfBoard && !vm.isUserOwner()) {
-				return;
-			}
-
-			var $cardElement = vm.$el;
-			var htmlContent = '';
-
-			if(vm.isCurrentUserCollaboratorOfBoard) {
-				var htmlContent = '<button title="Tutup menu" class="btn btn-warning btn-xs" id="button' + vm.card.getId() + '">Tutup</button> <button title="Buat Sub Alasan" class="btn btn-success btn-xs" id="create-related-card-button' + vm.card.getId() + '"><span class="glyphicon glyphicon-ok-circle"></span></button>'
-			}
-
-			if(vm.isUserOwner()) {
-				var htmlContent = '<button title="Tutup menu" class="btn btn-warning btn-xs" id="button' + vm.card.getId() + '">Tutup</button> <button title="Buat Sub Alasan" class="btn btn-success btn-xs" id="create-related-card-button' + vm.card.getId() + '"><span class="glyphicon glyphicon-ok-circle"></span></button> <button class="btn btn-danger btn-xs" title="Hapus penghubung sub alasan ini" id="delete-sub-reasons-connector' + vm.card.getId() + '"><span class="glyphicon glyphicon-remove"></span></button>'
-			}
-
-			$($cardElement).popover({
-				placement: 'bottom',
-				container: 'body',
-				html: true,
-				trigger: 'manual',
-				content: htmlContent
-			});
-
-			$($cardElement).on('hide.bs.popover', function(evt) {
-				
-				setTimeout(function() {
-					$($cardElement).removeClass('hide-popover');
-				}, 3000)
-
-				if(!$(evt.target).hasClass('hide-popover')) {
-					evt.preventDefault();
-					evt.stopPropagation();
-					evt.cancelBubble = true;
-				}
-			});
-
-			$($cardElement).on('dblclick', function(evt) {
-				$(vm.$el).popover('toggle')
-			});
-
-			$('body').on('click', '#button' + vm.card.getId(), function() {
-				$(vm.$el).closePopover()
-			})
-
-			$('body').on('click', '#create-related-card-button' + vm.card.getId(), function() {
-				
-				$(vm.$el).closePopover()
-
-				vm.createRelatedCard('co-reason')
-			})
-
-			$('body').on('click', '#delete-sub-reasons-connector' + vm.card.getId(), function() {
-				
-				$(vm.$el).closePopover()
-
-				vm.deleteThisCard()
-			})
-		}		
 	},
 	computed : {
 		left : function() {
