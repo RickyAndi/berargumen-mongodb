@@ -533,9 +533,17 @@ module.exports = function(app, io) {
 
 			io.card.emit(cardDeletedEventName, payload);
 			
-			return res.status(200).json({
-				message : 'Card Deleted'
-			})
+			var message = 'Card telah terhapus';
+
+			if(card.type == 'sub-reason-cards-connector') {
+				message = 'Konektor sub alasan telah terhapus';
+			}
+
+			return res
+				.status(200)
+				.json({
+					message : message
+				})
 
 		} catch(error) {
 
