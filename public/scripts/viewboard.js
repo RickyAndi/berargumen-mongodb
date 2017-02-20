@@ -888,9 +888,6 @@ new Vue({
 	},
 	watch : {
 		showMenu : function() {
-
-			console.log('kekek');
-
 			setTimeout(function() {
 				$('[data-toggle="popover"]').popover({
 					container: 'body'
