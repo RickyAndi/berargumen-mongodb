@@ -73,3 +73,7 @@ div.toast > * {
     font-size: 16px;
     font-weight: 500;
 }
+
+.btn {
+    border: solid 1px black !important;
+}

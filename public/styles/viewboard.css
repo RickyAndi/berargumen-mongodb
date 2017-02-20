@@ -1,5 +1,9 @@
-.modal {
-   
+.btn {
+	border: solid 1px black !important;
+}
+
+.panel-heading {
+	border-radius : 500px 500px 0px 0px:
 }
 
 .connection-line {
