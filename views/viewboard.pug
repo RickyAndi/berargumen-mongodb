@@ -6,24 +6,52 @@ block stylehead
 	link(rel='stylesheet' href='/styles/smt-bootstrap.css')
 
 block content
-	div(class='panel panel-default' style='width : 200px; position: fixed; top: 25px; left: 15px; z-index: 100;')
+	div(class='panel panel-default' style='width : 200px; position: fixed; top: 25px; left: 15px; z-index: 100;' v-if="!showMenu" v-cloak)
 		div(class='panel-body')
-			select(@change="scaleChange($event)" class='form-control navbar-btn input-sm')
-				option(value="1") 100%
-				option(value="0.9") 90%
-				option(value="0.8") 80%
-				option(value="0.7") 70%
-				option(value="0.6") 60%
-				option(value="0.5") 50%
-				option(value="0.4") 40%
-				option(value="0.3") 30%
-				option(value="0.2") 20%
-			
+			if user && isUserBoardOwner
+				div()
+					button(
+						class='btn btn-success navbar-btn btn-sm btn-block' 
+						data-toggle='popover',
+						data-content='Board Anda'
+						data-trigger='hover'
+						v-cloak
+					) Board Anda
+
+			button(
+				class='btn btn-default navbar-btn btn-sm btn-block' 
+				data-toggle='popover',
+				data-content='Tampilkan menu'
+				data-trigger='hover'
+				v-cloak
+				@click="showMenu = true"
+			) Tampilkan Menu
+
+	div(class='panel panel-default' style='width : 200px; position: fixed; top: 25px; left: 15px; z-index: 100;' v-if="showMenu" v-cloak)
+		div(class='panel-body')
+			if user && isUserBoardOwner
+				div()
+					button(
+						class='btn btn-success navbar-btn btn-sm btn-block' 
+						data-toggle='popover',
+						data-content='Board Anda'
+						data-trigger='hover'
+						v-cloak
+					) Board Anda
+
+			button(
+				class='btn btn-default navbar-btn btn-sm btn-block' 
+				data-toggle='popover',
+				data-content='Sembunyikan menu'
+				data-trigger='hover'
+				v-cloak
+				@click="showMenu = false"
+			) Sembunyikan Menu
+
 			if isUserBoardOwner && user != null
 				button(
 					v-bind:disabled="!isUserOwnerOfBoard" 
-					style="background-color: #1702f9; color: white;" 
-					class='btn navbar-btn btn-sm btn-block' 
+					class='btn navbar-btn btn-success btn-sm btn-block' 
 					@click="openCreateBoardToCreateContention()"
 					data-toggle='popover',
 					data-content='Buat Kesimpulan'
@@ -31,10 +59,9 @@ block content
 					data-placement="right" 
 				) Buat Kesimpulan
 			button(
-				class='btn btn-primary navbar-btn btn-sm btn-block' 
+				class='btn btn-default navbar-btn btn-sm btn-block' 
 				data-toggle='popover',
-				title=board.title
-				data-content='oleh ' + board.user.name
+				data-content='Lihat berkenaan dengan board ini'
 				data-trigger='hover'
 				v-cloak
 			) Mengenai Board Ini
@@ -61,7 +88,7 @@ block content
 					) Menunggu persetujuan
 
 					button(
-						class='btn btn-success navbar-btn btn-sm btn-block' 
+						class='btn btn-default navbar-btn btn-sm btn-block' 
 						data-toggle='popover',
 						data-content='Jika anda ingin gabung ke board ini, klik tombol ini'
 						data-trigger='hover'
@@ -70,7 +97,7 @@ block content
 						v-cloak
 					) Gabung ke board ini
 					button(
-						class='btn btn-success navbar-btn btn-sm btn-block' 
+						class='btn btn-default navbar-btn btn-sm btn-block' 
 						v-if="loadings.requestToBeCollaborator"
 						v-bind:disabled="loadings.requestToBeCollaborator"
 					) 
@@ -90,16 +117,13 @@ block content
 			else if user && isUserBoardOwner
 				div()
 					button(
-						class='btn btn-success navbar-btn btn-sm btn-block' 
+						v-cloak class='btn btn-default navbar-btn btn-sm btn-block' 
+						@click="openCollaboratorsModal()"
 						data-toggle='popover',
-						data-content='Board Anda'
+						data-content='Untuk melihat daftar kolaborator dan permintaan menjadi kolaborator'
 						data-trigger='hover'
-						v-cloak
-					) Board Anda
-
-				div()
-					button(v-cloak class='btn btn-warning navbar-btn btn-sm btn-block' @click="openCollaboratorsModal()") Permintaan Kolaborator 
-						span(class='badge' v-cloak) {{ numberOfCollaboratorsRequest }}
+					) Permintaan Kolaborator 
+						span(class='badge' v-cloak style="background-color: #d01919; color: white;") {{ numberOfCollaboratorsRequest }}
 			
 			if !isUserBoardOwner && user != null
 				
@@ -130,6 +154,17 @@ block content
 					v-if="loadings.bookmarkRequest"
 				)
 					span(class="glyphicon glyphicon-refresh glyphicon-spin")
+			
+			select(@change="scaleChange($event)" class='form-control navbar-btn input-sm')
+				option(value="1") 100%
+				option(value="0.9") 90%
+				option(value="0.8") 80%
+				option(value="0.7") 70%
+				option(value="0.6") 60%
+				option(value="0.5") 50%
+				option(value="0.4") 40%
+				option(value="0.3") 30%
+				option(value="0.2") 20%
 
 	div(class='container-fluid')
 		div(class='row')
