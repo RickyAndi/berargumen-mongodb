@@ -36,10 +36,12 @@ var buttonBoxForSubReasonsConnector = function(component, createElement) {
 						width: '60px'
 					}
 				}, [
-					createElement('span', {}, 'Menu '),
 					createElement('span', {
 						attrs : {
-							class : 'caret'
+							class : 'glyphicon glyphicon-menu-hamburger'
+						},
+						style : {
+							borderColor : 'black'
 						}
 					})
 				]),
@@ -101,10 +103,12 @@ var buttonBoxForSubReasonsConnector = function(component, createElement) {
 						width: '60px'
 					}
 				}, [
-					createElement('span', {}, 'Menu '),
 					createElement('span', {
 						attrs : {
-							class : 'caret'
+							class : 'glyphicon glyphicon-menu-hamburger'
+						},
+						style : {
+							borderColor : 'black'
 						}
 					})
 				]),
@@ -197,10 +201,12 @@ var buttonBoxForSubReasonsConnector = function(component, createElement) {
 					width: '60px'
 				}
 			}, [
-				createElement('span', {}, 'Menu '),
 				createElement('span', {
 					attrs : {
-						class : 'caret'
+						class : 'glyphicon glyphicon-menu-hamburger'
+					},
+					style : {
+						borderColor : 'black'
 					}
 				})
 			])
@@ -244,378 +250,444 @@ var toolsBoxForConnection = function(component, createElement) {
 	];
 }
 
-var ownerBox = function(component, createElement) {
-	if(!component.isUserOwner()) {
-		return [];
+var menuBox = function(component, createElement) {
+	
+	if(component.isCurrentUserCollaboratorOfBoard && !component.isUserOwner()) {
+		
+		var menuList = [
+			createElement('li', {
+				attrs : {
+					class : ''
+				},
+				style : {
+					'padding-left' : '25%',
+					'padding-right' : '10%',
+					'margin-top' : '5px'
+				}
+			}, [
+				createElement('button', {
+					attrs : {
+						class : 'btn btn-success btn-block btn-xs',
+						'data-toggle' : 'popover',
+						'data-content' : 'Buat Konektor Sub Alasan',
+						'data-trigger' : 'hover',	
+					},
+					style : {
+						width : '75%'
+					},
+					on : {
+						click : component.createSubReasonsConnector
+					}
+				}, [
+					createElement('i', {
+						attrs : {
+							class : 'glyphicon glyphicon-ok-circle'
+						}
+					})
+				])
+			]),
+			createElement('li', {
+				attrs : {
+					class : ''
+				},
+				style : {
+					'padding-left' : '25%',
+					'padding-right' : '10%',
+					'margin-top' : '5px'
+				}
+			}, [
+				createElement('button', {
+					attrs : {
+						class : 'btn btn-success btn-block btn-xs',
+						'data-toggle' : 'popover',
+						'data-content' : 'Buat Alasan (reason)',
+						'data-trigger' : 'hover',	
+					},
+					style : {
+						width : '75%'
+					},
+					on : {
+						click : component.createRelatedCard.bind(null, 'reason')
+					}
+				}, [
+					createElement('i', {
+						attrs : {
+							class : 'glyphicon glyphicon-ok'
+						}
+					})
+				])
+			])
+		];
+
+		if(component.card.getType() == 'objection') {
+			
+			var opposeButton = createElement('li', {
+				attrs : {
+					class : ''
+				},
+				style : {
+					'padding-left' : '25%',
+					'padding-right' : '10%',
+					'margin-top' : '5px'
+				}
+			}, [
+				createElement('button', {
+					attrs : {
+						class : 'btn btn-warning btn-block btn-xs',
+						'data-toggle' : 'popover',
+						'data-content' : 'Buat Bantahan (Rebuttal)',
+						'data-trigger' : 'hover',	
+					},
+					style : {
+						width : '75%'
+					},
+					on : {
+						click : component.createRelatedCard.bind(null, 'rebuttal')
+					}
+				}, [
+					createElement('i', {
+						attrs : {
+							class : 'glyphicon glyphicon-volume-off'
+						}
+					})
+				])
+			])
+
+		} else {
+
+			var opposeButton = createElement('li', {
+				attrs : {
+					class : ''
+				},
+				style : {
+					'padding-left' : '25%',
+					'padding-right' : '10%',
+					'margin-top' : '5px'
+				}
+			}, [
+				createElement('button', {
+					attrs : {
+						class : 'btn btn-danger btn-block btn-xs',
+						'data-toggle' : 'popover',
+						'data-content' : 'Buat Keberatan (Objection)',
+						'data-trigger' : 'hover',	
+					},
+					style : {
+						width : '75%'
+					},
+					on : {
+						click : component.createRelatedCard.bind(null, 'objection')
+					}
+				}, [
+					createElement('i', {
+						attrs : {
+							class : 'glyphicon glyphicon-volume-off'
+						}
+					})
+				])
+			]);
+		}
+
+		menuList.push(opposeButton);
+
+		return [
+			createElement('div', {
+					attrs : {
+						class : 'dropdown'
+					}
+				}, [
+					createElement('button', {
+						attrs : {
+							class : 'btn btn-success dropdown-toggle btn-xs',
+							'data-toggle': 'dropdown',
+						},
+						style : {
+							width: '60px',
+							'border-color' : 'black'
+						}
+					}, [
+						createElement('span', {
+							attrs : {
+								class : 'glyphicon glyphicon-menu-hamburger'
+							},
+							style : {
+								borderColor : 'black'
+							}
+						})
+					]),
+					createElement('ul', {
+						attrs : {
+							class : 'dropdown-menu'
+						}
+					}, 
+					menuList
+				)
+			])
+		];
+	}
+
+	if(component.isCurrentUserCollaboratorOfBoard && component.isUserOwner()) {
+		
+		var menuList = [
+			createElement('li', {
+				attrs : {
+					class : ''
+				},
+				style : {
+					'padding-left' : '25%',
+					'padding-right' : '10%',
+					'margin-top' : '5px'
+				}
+			}, [
+				createElement('button', {
+					attrs : {
+						class : 'btn btn-info btn-block btn-xs',
+						'data-toggle' : 'popover',
+						'data-content' : 'Ubah card ini',
+						'data-trigger' : 'hover',	
+					},
+					style : {
+						width : '75%'
+					},
+					on : {
+						click : component.changeThisCard
+					}
+				}, [
+					createElement('i', {
+						attrs : {
+							class : 'glyphicon glyphicon-pencil'
+						}
+					})
+				])
+			]),
+			createElement('li', {
+				attrs : {
+					class : ''
+				},
+				style : {
+					'padding-left' : '25%',
+					'padding-right' : '10%',
+					'margin-top' : '5px'
+				}
+			}, [
+				createElement('button', {
+					attrs : {
+						class : 'btn btn-danger btn-block btn-xs',
+						'data-toggle' : 'popover',
+						'data-content' : 'Hapus card ini',
+						'data-trigger' : 'hover',	
+					},
+					style : {
+						width : '75%'
+					},
+					on : {
+						click : component.deleteThisCard
+					}
+				}, [
+					createElement('i', {
+						attrs : {
+							class : 'glyphicon glyphicon-remove'
+						}
+					})
+				])
+			]),
+			createElement('li', {
+				attrs : {
+					class : ''
+				},
+				style : {
+					'padding-left' : '25%',
+					'padding-right' : '10%',
+					'margin-top' : '5px'
+				}
+			}, [
+				createElement('button', {
+					attrs : {
+						class : 'btn btn-success btn-block btn-xs',
+						'data-toggle' : 'popover',
+						'data-content' : 'Buat Konektor Sub Alasan',
+						'data-trigger' : 'hover',	
+					},
+					style : {
+						width : '75%'
+					},
+					on : {
+						click : component.createSubReasonsConnector
+					}
+				}, [
+					createElement('i', {
+						attrs : {
+							class : 'glyphicon glyphicon-ok-circle'
+						}
+					})
+				])
+			]),
+			createElement('li', {
+				attrs : {
+					class : ''
+				},
+				style : {
+					'padding-left' : '25%',
+					'padding-right' : '10%',
+					'margin-top' : '5px'
+				}
+			}, [
+				createElement('button', {
+					attrs : {
+						class : 'btn btn-success btn-block btn-xs',
+						'data-toggle' : 'popover',
+						'data-content' : 'Buat Alasan (reason)',
+						'data-trigger' : 'hover',	
+					},
+					style : {
+						width : '75%'
+					},
+					on : {
+						click : component.createRelatedCard.bind(null, 'reason')
+					}
+				}, [
+					createElement('i', {
+						attrs : {
+							class : 'glyphicon glyphicon-ok'
+						}
+					})
+				])
+			])
+		];
+
+		if(component.card.getType() == 'objection') {
+			
+			var opposeButton = createElement('li', {
+				attrs : {
+					class : ''
+				},
+				style : {
+					'padding-left' : '25%',
+					'padding-right' : '10%',
+					'margin-top' : '5px'
+				}
+			}, [
+				createElement('button', {
+					attrs : {
+						class : 'btn btn-warning btn-block btn-xs',
+						'data-toggle' : 'popover',
+						'data-content' : 'Buat Bantahan (Rebuttal)',
+						'data-trigger' : 'hover',	
+					},
+					style : {
+						width : '75%'
+					},
+					on : {
+						click : component.createRelatedCard.bind(null, 'rebuttal')
+					}
+				}, [
+					createElement('i', {
+						attrs : {
+							class : 'glyphicon glyphicon-volume-off'
+						}
+					})
+				])
+			])
+
+		} else {
+
+			var opposeButton = createElement('li', {
+				attrs : {
+					class : ''
+				},
+				style : {
+					'padding-left' : '25%',
+					'padding-right' : '10%',
+					'margin-top' : '5px'
+				}
+			}, [
+				createElement('button', {
+					attrs : {
+						class : 'btn btn-danger btn-block btn-xs',
+						'data-toggle' : 'popover',
+						'data-content' : 'Buat Keberatan (Objection)',
+						'data-trigger' : 'hover',	
+					},
+					style : {
+						width : '75%'
+					},
+					on : {
+						click : component.createRelatedCard.bind(null, 'objection')
+					}
+				}, [
+					createElement('i', {
+						attrs : {
+							class : 'glyphicon glyphicon-volume-off'
+						}
+					})
+				])
+			]);
+		}
+
+		menuList.push(opposeButton);
+		
+		return [
+			createElement('div', {
+				attrs : {
+					class : 'dropdown'
+				}
+			}, [
+				createElement('button', {
+					attrs : {
+						class : 'btn btn-success dropdown-toggle btn-xs',
+						'data-toggle': 'dropdown',
+					},
+					style : {
+						width: '60px',
+						'border-color' : 'black'
+					}
+				}, [
+					createElement('span', {
+						attrs : {
+							class : 'glyphicon glyphicon-menu-hamburger'
+						},
+						style : {
+							borderColor : 'black'
+						}
+					})
+				]),
+				createElement('ul', {
+					attrs : {
+						class : 'dropdown-menu'
+					}
+				}, menuList)
+			])
+		];
 	}
 
 	return [
-		createElement('button', {
+		createElement('div', {
 			attrs : {
-				class : 'btn btn-danger btn-xs',
-				'data-toggle' : 'popover',
-				'data-content' : 'Hapus card ini',
-				'data-trigger' : 'hover',
-			},
-			on : {
-				click : component.deleteThisCard
+				class : 'dropdown'
 			}
 		}, [
-			createElement('i', {
+			createElement('button', {
 				attrs : {
-					class : 'glyphicon glyphicon-remove'
+					class : 'btn btn-danger dropdown-toggle btn-xs',
+					'data-toggle' : 'popover',
+					'data-content' : 'Anda harus login sebagai kolaborator untuk membuka menu ini',
+					'data-trigger' : 'hover',	
+				},
+				style : {
+					width: '60px'
 				}
-			})
-		]),
-		createElement('button', {
-			attrs : {
-				class : 'btn btn-primary btn-xs',
-				'data-toggle' : 'popover',
-				'data-content' : 'Ubah card ini',
-				'data-trigger' : 'hover',
-			},
-			on : {
-				click : component.changeThisCard
-			}
-		}, [
-			createElement('i', {
-				attrs : {
-					class : 'glyphicon glyphicon-pencil'
-				}
-			})
+			}, [
+				createElement('span', {
+					attrs : {
+						class : 'glyphicon glyphicon-menu-hamburger',
+					},
+					style : {
+						borderColor : 'black'
+					}
+				})
+			])
 		])
-	]
-}
-
-var toolsBox = function(component, type, createElement) {
-	if(!component.isCurrentUserCollaboratorOfBoard) {
-		return;
-	}
-
-	var toolsBox = {
-		'contention' : function() {
-			return createElement('div', {
-				attrs : {
-					class : 'btn-group btn-group-xs'
-				}
-			}, 
-				[
-					createElement('button', {
-						attrs : {
-							'data-toggle' : 'popover',
-							'data-content' : 'Buat Alasan',
-							'data-trigger' : 'hover',
-							class : 'btn btn-success btn-xs'
-						},
-						on : {
-							click : component.createRelatedCard.bind(null, 'reason')
-						}
-
-					}, [
-						createElement('i', {
-							attrs : {
-								class : 'glyphicon glyphicon-ok'
-							}
-						})
-					]),
-					createElement('button', {
-						attrs : {
-							'data-toggle' : 'popover',
-							'data-content' : 'Buat Keberatan',
-							'data-trigger' : 'hover',
-							class : 'btn btn-danger btn-xs'
-						},
-						on : {
-							click : component.createRelatedCard.bind(null, 'objection') 
-						}
-
-					}, [
-						createElement('i', {
-							attrs : {
-								class : 'glyphicon glyphicon-volume-off'
-							}
-						})
-					]),
-					createElement('button', {
-						attrs : {
-							'data-toggle' : 'popover',
-							'data-content' : 'Buat Konektor Sub Alasan',
-							'data-trigger' : 'hover',
-							class : 'btn btn-success btn-xs'
-						},
-						on : {
-							click : component.createSubReasonsConnector
-						}
-
-					}, [
-						createElement('i', {
-							attrs : {
-								class : 'glyphicon glyphicon-ok-circle'
-							}
-						})
-					])
-				]
-			)
-		},
-		'objection' : function() {
-			return createElement('div', {
-				attrs : {
-					class : 'btn-group btn-group-xs'
-				}
-			}, 
-				[
-					createElement('button', {
-						attrs : {
-							'data-toggle' : 'popover',
-							'data-content' : 'Buat Alasan',
-							'data-trigger' : 'hover',
-							class : 'btn btn-success btn-xs'
-						},
-						on : {
-							click : component.createRelatedCard.bind(null, 'reason')
-						}
-
-					}, [
-						createElement('i', {
-							attrs : {
-								class : 'glyphicon glyphicon-ok'
-							}
-						})
-					]),
-					createElement('button', {
-						attrs : {
-							'data-toggle' : 'popover',
-							'data-content' : 'Buat Konektor Sub Alasan',
-							'data-trigger' : 'hover',
-							class : 'btn btn-success btn-xs'
-						},
-						on : {
-							click : component.createSubReasonsConnector
-						}
-
-					}, [
-						createElement('i', {
-							attrs : {
-								class : 'glyphicon glyphicon-ok-circle'
-							}
-						})
-					]),
-					createElement('button', {
-						attrs : {
-							'data-toggle' : 'popover',
-							'data-content' : 'Buat Bantahan',
-							'data-trigger' : 'hover',
-							class : 'btn btn-danger btn-xs'
-						},
-						on : {
-							click : component.createRelatedCard.bind(null, 'rebuttal') 
-						}
-
-					}, [
-						createElement('i', {
-							attrs : {
-								class : 'glyphicon glyphicon-volume-off'
-							}
-						})
-					]),
-				]
-			)
-		},
-		'reason' : function() {
-			return createElement('div', {
-				attrs : {
-					class : 'btn-group btn-group-xs'
-				}
-			}, 
-				[
-					createElement('button', {
-						attrs : {
-							'data-toggle' : 'popover',
-							'data-content' : 'Buat Alasan',
-							'data-trigger' : 'hover',
-							class : 'btn btn-success btn-xs'
-						},
-						on : {
-							click : component.createRelatedCard.bind(null, 'reason')
-						}
-
-					}, [
-						createElement('i', {
-							attrs : {
-								class : 'glyphicon glyphicon-ok'
-							}
-						})
-					]),
-					createElement('button', {
-						attrs : {
-							'data-toggle' : 'popover',
-							'data-content' : 'Buat Konektor Sub Alasan',
-							'data-trigger' : 'hover',
-							class : 'btn btn-success btn-xs'
-						},
-						on : {
-							click : component.createSubReasonsConnector
-						}
-
-					}, [
-						createElement('i', {
-							attrs : {
-								class : 'glyphicon glyphicon-ok-circle'
-							}
-						})
-					]),
-					createElement('button', {
-						attrs : {
-							'data-toggle' : 'popover',
-							'data-content' : 'Buat Keberatan',
-							'data-trigger' : 'hover',
-							class : 'btn btn-danger btn-xs'
-						},
-						on : {
-							click : component.createRelatedCard.bind(null, 'objection') 
-						}
-
-					}, [
-						createElement('i', {
-							attrs : {
-								class : 'glyphicon glyphicon-volume-off'
-							}
-						})
-					]),
-				]
-			)
-		},
-		'co-reason' : function() {
-			return createElement('div', {
-				attrs : {
-					class : 'btn-group btn-group-xs'
-				}
-			}, 
-				[
-					createElement('button', {
-						attrs : {
-							'data-toggle' : 'popover',
-							'data-content' : 'Buat Alasan',
-							'data-trigger' : 'hover',
-							class : 'btn btn-success btn-xs'
-						},
-						on : {
-							click : component.createRelatedCard.bind(null, 'reason')
-						}
-
-					}, [
-						createElement('i', {
-							attrs : {
-								class : 'glyphicon glyphicon-ok'
-							}
-						})
-					]),
-					createElement('button', {
-						attrs : {
-							'data-toggle' : 'popover',
-							'data-content' : 'Buat Konektor Sub Alasan',
-							'data-trigger' : 'hover',
-							class : 'btn btn-success btn-xs'
-						},
-						on : {
-							click : component.createSubReasonsConnector
-						}
-
-					}, [
-						createElement('i', {
-							attrs : {
-								class : 'glyphicon glyphicon-ok-circle'
-							}
-						})
-					]),
-					createElement('button', {
-						attrs : {
-							'data-toggle' : 'popover',
-							'data-content' : 'Buat Keberatan',
-							'data-trigger' : 'hover',
-							class : 'btn btn-danger btn-xs'
-						},
-						on : {
-							click : component.createRelatedCard.bind(null, 'objection') 
-						}
-
-					}, [
-						createElement('i', {
-							attrs : {
-								class : 'glyphicon glyphicon-volume-off'
-							}
-						})
-					]),
-				]
-			)
-		},
-		'rebuttal' : function() {
-			return createElement('div', {
-				attrs : {
-					class : 'btn-group btn-group-xs'
-				}
-			}, 
-				[
-					createElement('button', {
-						attrs : {
-							'data-toggle' : 'popover',
-							'data-content' : 'Buat Alasan',
-							'data-trigger' : 'hover',
-							class : 'btn btn-success btn-xs'
-						},
-						on : {
-							click : component.createRelatedCard.bind(null, 'reason')
-						}
-
-					}, [
-						createElement('i', {
-							attrs : {
-								class : 'glyphicon glyphicon-ok'
-							}
-						})
-					]),
-					createElement('button', {
-						attrs : {
-							'data-toggle' : 'popover',
-							'data-content' : 'Buat Konektor Sub Alasan',
-							'data-trigger' : 'hover',
-							class : 'btn btn-success btn-xs'
-						},
-						on : {
-							click : component.createSubReasonsConnector
-						}
-
-					}, [
-						createElement('i', {
-							attrs : {
-								class : 'glyphicon glyphicon-ok-circle'
-							}
-						})
-					]),
-					createElement('button', {
-						attrs : {
-							'data-toggle' : 'popover',
-							'data-content' : 'Buat Keberatan',
-							'data-trigger' : 'hover',
-							class : 'btn btn-danger btn-xs'
-						},
-						on : {
-							click : component.createRelatedCard.bind(null, 'objection') 
-						}
-
-					}, [
-						createElement('i', {
-							attrs : {
-								class : 'glyphicon glyphicon-volume-off'
-							}
-						})
-					]),
-				]
-			)
-		}
-	}
-
-	return toolsBox[type]();
+	];
 }
 
 var draggableCardComponent = Vue.component('draggable-card', {
@@ -721,7 +793,7 @@ var draggableCardComponent = Vue.component('draggable-card', {
 								attrs : {
 									class : 'pull-right'
 								}
-							}, ownerBox(this, createElement))
+							}, menuBox(this, createElement))
 						])
 					])
 				]),
@@ -738,6 +810,9 @@ var draggableCardComponent = Vue.component('draggable-card', {
 				createElement('div', {
 					attrs : {
 						class : 'panel-footer'
+					},
+					style : {
+						marginBottom: '0px'
 					}
 				}, 	[
 						createElement('div', {
@@ -748,12 +823,24 @@ var draggableCardComponent = Vue.component('draggable-card', {
 						[
 							createElement('div', {
 								attrs : {
-									class : 'col-md-6'
+									class : 'col-md-10'
 								}
-							}, [toolsBox(this, this.card.getType(), createElement)]),
+							}, [
+								createElement('button', {
+									style : {
+										fontSize : '12px'
+									},
+									attrs : {
+										class : 'btn btn-default btn-xs'
+									},
+									on : {
+										click : this.viewCreatorProfile
+									}
+								}, this.card.getCreator().getName())
+							]),
 							createElement('div', {
 								attrs : {
-									class : 'col-md-6'
+									class : 'col-md-2'
 								}
 							}, [
 								createElement('button', {
@@ -859,6 +946,10 @@ var draggableCardComponent = Vue.component('draggable-card', {
 			this.$emit('open-sub-reason-connector-menu', {
 				index : this.index
 			})
+		},
+		viewCreatorProfile : function() {
+			var url = '/profile/' + this.card.getCreator().getId();
+			window.open(url);
 		}
 	},
 	mounted : function() {
