@@ -57,7 +57,8 @@ new Vue({
 		isUserLoggedIn : false,
 		isUserOwnerOfBoard : false,
 		isUserCollaboratorRequestRejected : false,
-		boardInitialization : true
+		boardInitialization : true,
+		showMenu : true
 	},
 	components : {
 		'draggable-card' : draggableCardComponent
@@ -885,18 +886,22 @@ new Vue({
 			return this.collaboratorsRequest.length;
 		}
 	},
+	watch : {
+		showMenu : function() {
+
+			console.log('kekek');
+
+			setTimeout(function() {
+				$('[data-toggle="popover"]').popover({
+					container: 'body'
+				}); 
+			}, 500);
+			
+		}
+	},
 	mounted :function() {
 		
 		var vm = this;
-
-		$.fn.closePopover = function(){
-            var $this = $(this);
-            
-            if(!$this.data('overPopover') && !$this.data('overButton')){
-              $this.addClass('hide-popover');
-              $this.popover('hide');              
-            }
-		}
 
 		jsPlumb.setContainer("argumen-container");
 		vm.initializeContainer();
