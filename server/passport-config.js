@@ -1,8 +1,8 @@
 module.exports = {
 	'facebook' : {
-		clientID: '257524251343117',
-		clientSecret: '6479092115fa8fd4239ba4803e86b15c',
-		callbackURL: 'https://www.berargumen.com/auth/facebook/callback',
+		clientID: '1230487433745291',
+		clientSecret: 'ba64c8b7cf71da5079814c778a0c8fd7',
+		callbackURL: 'http://localhost:3000/auth/facebook/callback',
 		profileFields: ['id', 'displayName', 'name', 'gender', 'photos', 'email']
 	}
 }
